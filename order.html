@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>pre-order — inoa</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8e0d0;
+      --driftwood: #8b7355;
+      --ogo:       #4a7c6f;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Grain */
+    .grain {
+      position: fixed; inset: -50%; width: 200%; height: 200%;
+      opacity: 0.025; pointer-events: none; z-index: 9999;
+    }
+
+    /* Page intro */
+    .page-intro {
+      position: fixed; inset: 0; background: var(--ink);
+      z-index: 500; pointer-events: none;
+      animation: curtain-lift 1.1s cubic-bezier(0.76,0,0.24,1) 0.1s both;
+    }
+    @keyframes curtain-lift {
+      0%   { clip-path: inset(0 0 0% 0); }
+      100% { clip-path: inset(0 0 100% 0); }
+    }
+
+    /* Nav */
+    .order-nav {
+      position: fixed; inset: 0 0 auto 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 64px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 1px 0 rgba(26,26,26,0.07);
+      animation: nav-in 0.6s ease 0.4s both;
+    }
+    @keyframes nav-in {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .order-nav-logo {
+      height: 26px; width: auto; display: block;
+      text-decoration: none;
+    }
+    .order-nav-back {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; font-weight: 400;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.45;
+      text-decoration: none;
+      transition: opacity 0.2s ease;
+    }
+    .order-nav-back:hover { opacity: 0.9; }
+
+    /* Page wrapper */
+    .order-page {
+      min-height: 100vh;
+      padding: 120px 80px 96px;
+    }
+    .preorder-inner { max-width: 1040px; margin: 0 auto; }
+
+    /* Heading */
+    .preorder-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 300;
+      font-size: clamp(42px, 5vw, 72px);
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .preorder-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; color: var(--ink); opacity: 0.42;
+      letter-spacing: 0.06em; margin-bottom: 52px;
+    }
+
+    /* Step indicator */
+    .po-steps { display: flex; align-items: center; margin-bottom: 48px; max-width: 440px; }
+    .po-step-node { display: flex; flex-direction: column; align-items: center; gap: 7px; flex-shrink: 0; }
+    .po-step-circle {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1.5px solid rgba(26,26,26,0.18);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'DM Sans', sans-serif; font-size: 11px;
+      color: var(--ink); opacity: 0.32; transition: all 0.3s ease; background: transparent;
+    }
+    .po-step-node.active .po-step-circle { background: var(--ink); border-color: var(--ink); color: var(--cream); opacity: 1; }
+    .po-step-node.done  .po-step-circle  { background: var(--driftwood); border-color: var(--driftwood); color: var(--cream); opacity: 1; }
+    .po-step-label {
+      font-family: 'DM Sans', sans-serif; font-size: 9px;
+      letter-spacing: 0.13em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.32; white-space: nowrap;
+    }
+    .po-step-node.active .po-step-label,
+    .po-step-node.done  .po-step-label { opacity: 0.7; }
+    .po-step-line { flex: 1; height: 1px; background: rgba(26,26,26,0.1); margin-bottom: 22px; margin-left: 4px; margin-right: 4px; }
+    .po-step-line.done { background: var(--driftwood); opacity: 0.4; }
+
+    /* Step animation */
+    @keyframes po-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .po-step-content { animation: po-in 0.42s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+
+    /* Step 1 — order layout */
+    .po-order-layout { display: grid; grid-template-columns: 1fr 272px; gap: 40px; align-items: start; }
+    .po-items-col { min-width: 0; }
+    .po-group-label {
+      font-family: 'DM Sans', sans-serif; font-size: 9px;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--driftwood); opacity: 0.6;
+      margin-top: 32px; margin-bottom: 10px;
+    }
+    .po-group-label:first-child { margin-top: 0; }
+    .po-item-card {
+      display: flex; align-items: center;
+      padding: 13px 18px; background: #fff;
+      border: 1px solid rgba(26,26,26,0.07); border-radius: 3px;
+      margin-bottom: 7px; transition: border-color 0.2s ease, box-shadow 0.2s ease; gap: 16px;
+    }
+    .po-item-card:hover { border-color: rgba(26,26,26,0.16); }
+    .po-item-card.selected { border-color: var(--driftwood); background: rgba(139,115,85,0.025); }
+    .po-item-info { flex: 1; min-width: 0; }
+    .po-item-name { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 2px; }
+    .po-item-meta { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; }
+    .po-item-price { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); opacity: 0.52; flex-shrink: 0; width: 36px; text-align: right; }
+    .po-qty { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .po-qty-btn {
+      width: 28px; height: 28px; border-radius: 50%;
+      border: 1px solid rgba(26,26,26,0.18); background: transparent;
+      cursor: pointer; font-size: 17px; line-height: 1; color: var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.15s ease; font-family: 'DM Sans', sans-serif;
+    }
+    .po-qty-btn:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .po-qty-btn:active:not(:disabled) { transform: scale(0.92); }
+    .po-qty-btn:disabled { opacity: 0.2; cursor: default; }
+    .po-qty-val { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); min-width: 14px; text-align: center; }
+
+    /* Total panel */
+    .po-total-col { position: sticky; top: 84px; }
+    .po-total-panel { background: #fff; border: 1px solid rgba(26,26,26,0.08); border-radius: 3px; padding: 24px; }
+    .po-total-ttl { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--driftwood); opacity: 0.6; margin-bottom: 14px; }
+    .po-total-rows { margin-bottom: 14px; }
+    .po-total-row { display: flex; justify-content: space-between; align-items: baseline; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); padding: 4px 0; border-bottom: 1px solid rgba(26,26,26,0.05); gap: 8px; }
+    .po-total-row:last-child { border-bottom: none; }
+    .po-total-row-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.78; }
+    .po-total-row-qty { opacity: 0.42; flex-shrink: 0; }
+    .po-total-row-price { flex-shrink: 0; opacity: 0.78; }
+    .po-total-empty { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.28; text-align: center; padding: 16px 0 12px; }
+    .po-total-divider { height: 1px; background: rgba(26,26,26,0.08); margin: 14px 0; }
+    .po-total-amount { display: flex; justify-content: space-between; align-items: baseline; font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 18px; }
+    .po-total-lbl { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.08em; opacity: 0.42; }
+
+    /* Buttons */
+    .po-btn-proceed {
+      width: 100%; background: var(--ink); color: var(--cream); border: none;
+      padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 10px;
+      letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer;
+      border-radius: 2px; transition: opacity 0.2s ease, transform 0.15s ease;
+    }
+    .po-btn-proceed:hover:not(:disabled) { opacity: 0.82; }
+    .po-btn-proceed:active:not(:disabled) { transform: scale(0.98); }
+    .po-btn-proceed:disabled { opacity: 0.22; cursor: not-allowed; }
+    .po-btn-back {
+      background: transparent; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 10px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.4; cursor: pointer; padding: 0;
+      transition: opacity 0.2s ease; margin-right: 24px; flex-shrink: 0;
+    }
+    .po-btn-back:hover { opacity: 0.8; }
+    .po-step-actions { display: flex; align-items: center; margin-top: 32px; }
+
+    /* Step 2 — form */
+    .po-form { max-width: 560px; }
+    .po-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .po-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
+    .po-label { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.5; }
+    .po-input, .po-textarea {
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+      background: #fff; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px;
+      padding: 12px 14px; outline: none; transition: border-color 0.2s ease;
+      -webkit-appearance: none; width: 100%; box-sizing: border-box;
+    }
+    .po-input:focus, .po-textarea:focus { border-color: var(--ink); }
+    .po-input.err { border-color: #b87a5a; }
+    .po-field-err { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #b87a5a; }
+    .po-field-hint { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; line-height: 1.6; margin-top: 5px; display: block; }
+    .po-textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
+    .po-toggle { display: flex; border: 1px solid rgba(26,26,26,0.14); border-radius: 2px; overflow: hidden; margin-bottom: 24px; }
+    .po-toggle-opt { flex: 1; padding: 11px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; cursor: pointer; border: none; background: transparent; color: var(--ink); opacity: 0.4; transition: all 0.2s ease; }
+    .po-toggle-opt.on { background: var(--ink); color: var(--cream); opacity: 1; }
+
+    /* Date grid */
+    .po-date-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .po-date-btn { padding: 9px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 50px; }
+    .po-date-btn:hover { border-color: rgba(26,26,26,0.28); }
+    .po-date-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .po-date-day { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; }
+    .po-date-btn.on .po-date-day { opacity: 0.65; }
+    .po-date-num { font-size: 15px; }
+
+    /* Time slots */
+    .po-time-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+    .po-time-btn { padding: 8px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; }
+    .po-time-btn:hover { border-color: rgba(26,26,26,0.28); }
+    .po-time-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .po-delivery-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
+
+    /* Step 3 — review */
+    .po-review-block { background: #fff; border: 1px solid rgba(26,26,26,0.07); border-radius: 3px; padding: 24px; margin-bottom: 14px; max-width: 600px; }
+    .po-review-ttl { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--driftwood); opacity: 0.6; margin-bottom: 14px; }
+    .po-review-row { display: flex; justify-content: space-between; align-items: baseline; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); padding: 5px 0; border-bottom: 1px solid rgba(26,26,26,0.05); gap: 12px; }
+    .po-review-row:last-child { border-bottom: none; }
+    .po-review-row-name { flex: 1; }
+    .po-review-row-qty { opacity: 0.42; }
+    .po-review-row-price { opacity: 0.7; }
+    .po-review-detail { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); line-height: 1.75; opacity: 0.72; }
+    .po-review-total-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; color: var(--ink); padding-top: 14px; margin-top: 6px; border-top: 1px solid rgba(26,26,26,0.1); }
+    .po-payment-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; font-style: italic; margin-top: 8px; }
+    .po-review-notices {
+      max-width: 600px;
+      margin-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .po-notice {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      line-height: 1.75;
+      color: var(--ink);
+      opacity: 0.38;
+      padding: 14px 18px;
+      border-left: 2px solid rgba(26,26,26,0.1);
+    }
+    .po-notice em { font-style: italic; }
+    .po-submit-btn { background: var(--ink); color: var(--cream); border: none; padding: 16px 40px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity 0.2s ease, transform 0.15s ease; }
+    .po-submit-btn:hover { opacity: 0.82; }
+    .po-submit-btn:active { transform: scale(0.99); }
+
+    /* Confirmation */
+    .po-confirm { text-align: center; padding: 48px 0 24px; }
+    .po-confirm-check { width: 56px; height: 56px; border-radius: 50%; background: var(--ink); color: var(--cream); font-size: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
+    .po-confirm-heading { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.01em; }
+    .po-confirm-body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); opacity: 0.58; line-height: 1.75; max-width: 360px; margin: 0 auto 32px; }
+    .po-confirm-summary { background: #fff; border: 1px solid rgba(26,26,26,0.07); border-radius: 3px; padding: 24px; max-width: 400px; margin: 0 auto 32px; text-align: left; }
+    .po-confirm-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); padding: 4px 0; opacity: 0.72; }
+    .po-confirm-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .po-new-order-btn { background: transparent; border: 1px solid rgba(26,26,26,0.2); padding: 12px 32px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); cursor: pointer; border-radius: 2px; transition: all 0.2s ease; text-decoration: none; display: inline-block; }
+    .po-new-order-btn:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .po-back-home-btn { background: var(--ink); color: var(--cream); border: none; padding: 12px 32px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity 0.2s ease; text-decoration: none; display: inline-block; }
+    .po-back-home-btn:hover { opacity: 0.82; }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .order-nav { padding: 18px 24px; }
+      .order-page { padding: 100px 24px 80px; }
+      .po-order-layout { grid-template-columns: 1fr; }
+      .po-total-col { position: static; margin-top: 32px; }
+      .po-form-row { grid-template-columns: 1fr; }
+      .po-steps { max-width: 100%; }
+      .po-item-name { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Grain texture -->
+  <svg class="grain" aria-hidden="true">
+    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
+
+  <!-- Page curtain -->
+  <div class="page-intro" aria-hidden="true"></div>
+
+  <!-- Nav -->
+  <nav class="order-nav" aria-label="site navigation">
+    <a href="index.html">
+      <img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="order-nav-logo">
+    </a>
+    <a href="index.html" class="order-nav-back">← back to home</a>
+  </nav>
+
+  <!-- Form mount -->
+  <main class="order-page">
+    <div id="preorder-root"></div>
+  </main>
+
+  <!-- React + Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+    const { useState } = React;
+
+    const ITEMS = [
+      { id:1,  group:'poke — ½lb',                           name:'Spicy Ahi Poke',                          detail:'½lb', price:16 },
+      { id:2,  group:'poke — ½lb',                           name:'Shoyu Ahi Poke',                          detail:'½lb', price:16 },
+      { id:3,  group:'poke — ½lb',                           name:'Spicy Salmon Poke',                       detail:'½lb', price:15 },
+      { id:4,  group:'poke — ½lb',                           name:'Shoyu Salmon Poke',                       detail:'½lb', price:15 },
+      { id:5,  group:'poke + rice — ⅓lb',                    name:'Spicy Ahi Poke + Rice',                   detail:'⅓lb', price:15 },
+      { id:6,  group:'poke + rice — ⅓lb',                    name:'Shoyu Ahi Poke + Rice',                   detail:'⅓lb', price:15 },
+      { id:7,  group:'poke + rice — ⅓lb',                    name:'Spicy Salmon Poke + Rice',                detail:'⅓lb', price:15 },
+      { id:8,  group:'poke + rice — ⅓lb',                    name:'Shoyu Salmon Poke + Rice',                detail:'⅓lb', price:15 },
+      { id:9,  group:'combo — ¼lb poke + california roll',   name:'Combo — Spicy Ahi + California Roll',     detail:'¼lb', price:16 },
+      { id:10, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Ahi + California Roll',     detail:'¼lb', price:16 },
+      { id:11, group:'combo — ¼lb poke + california roll',   name:'Combo — Spicy Salmon + California Roll',  detail:'¼lb', price:16 },
+      { id:12, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Salmon + California Roll',  detail:'¼lb', price:16 },
+      { id:13, group:'add-ons',                               name:'Sushi Rice',                              detail:'8oz', price:3  },
+    ];
+    const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons'];
+    const TIME_SLOTS = ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
+
+    function getDates(n = 14) {
+      const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
+      const out = [];
+      const today = new Date();
+      for (let i = 1; i <= n; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        out.push({ key: d.toISOString().slice(0,10), day: DAYS[d.getDay()], num: d.getDate() });
+      }
+      return out;
+    }
+    const DATES = getDates(14);
+
+    function fmtPhone(v) {
+      const d = v.replace(/\D/g,'').slice(0,10);
+      if (d.length <= 3) return d;
+      if (d.length <= 6) return `(${d.slice(0,3)}) ${d.slice(3)}`;
+      return `(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`;
+    }
+
+    function fmtDate(key) {
+      const d = new Date(key + 'T12:00:00');
+      return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+    }
+
+    function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+    /* ── Step indicator ── */
+    function StepIndicator({ step }) {
+      const labels = ['your order','your details','review'];
+      return (
+        <div className="po-steps">
+          {labels.map((lbl, i) => (
+            <React.Fragment key={i}>
+              <div className={`po-step-node ${step===i+1?'active':''} ${step>i+1?'done':''}`}>
+                <div className="po-step-circle">{step > i+1 ? '✓' : i+1}</div>
+                <div className="po-step-label">{lbl}</div>
+              </div>
+              {i < 2 && <div className={`po-step-line ${step>i+1?'done':''}`} />}
+            </React.Fragment>
+          ))}
+        </div>
+      );
+    }
+
+    /* ── Running total panel ── */
+    function TotalPanel({ qtys, onProceed }) {
+      const lines = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const total = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      return (
+        <div className="po-total-panel">
+          <div className="po-total-ttl">your order</div>
+          {lines.length === 0
+            ? <div className="po-total-empty">no items yet</div>
+            : <div className="po-total-rows">
+                {lines.map(it => (
+                  <div key={it.id} className="po-total-row">
+                    <span className="po-total-row-name">{it.name}</span>
+                    <span className="po-total-row-qty">×{qtys[it.id]}</span>
+                    <span className="po-total-row-price">${it.price*qtys[it.id]}</span>
+                  </div>
+                ))}
+              </div>
+          }
+          <div className="po-total-divider" />
+          <div className="po-total-amount">
+            <span className="po-total-lbl">total</span>
+            <span>${total}</span>
+          </div>
+          <button className="po-btn-proceed" onClick={onProceed} disabled={lines.length===0}>
+            {lines.length===0 ? 'add items to continue' : 'continue to details →'}
+          </button>
+        </div>
+      );
+    }
+
+    /* ── Step 1 ── */
+    function Step1({ qtys, setQtys, onNext }) {
+      function change(id, delta) {
+        setQtys(prev => ({ ...prev, [id]: Math.max(0, (prev[id]||0) + delta) }));
+      }
+      return (
+        <div className="po-step-content">
+          <div className="po-order-layout">
+            <div className="po-items-col">
+              {GROUPS.map(group => (
+                <div key={group}>
+                  <div className="po-group-label">{group}</div>
+                  {ITEMS.filter(it => it.group===group).map(it => (
+                    <div key={it.id} className={`po-item-card ${(qtys[it.id]||0)>0?'selected':''}`}>
+                      <div className="po-item-info">
+                        <div className="po-item-name">{it.name}</div>
+                        <div className="po-item-meta">{it.detail}</div>
+                      </div>
+                      <div className="po-item-price">${it.price}</div>
+                      <div className="po-qty">
+                        <button className="po-qty-btn" onClick={() => change(it.id,-1)} disabled={(qtys[it.id]||0)===0}>−</button>
+                        <span className="po-qty-val">{qtys[it.id]||0}</span>
+                        <button className="po-qty-btn" onClick={() => change(it.id, 1)}>+</button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <div className="po-total-col">
+              <TotalPanel qtys={qtys} onProceed={onNext} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Step 2 ── */
+    function Step2({ details, setDetails, onNext, onBack }) {
+      const [errors, setErrors] = useState({});
+      function set(field, val) {
+        setDetails(prev => ({ ...prev, [field]: val }));
+        setErrors(prev => ({ ...prev, [field]: false }));
+      }
+      function validate() {
+        const e = {};
+        if (!details.firstName?.trim()) e.firstName = 'required';
+        if (!details.lastName?.trim())  e.lastName  = 'required';
+        if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'enter a valid phone number';
+        if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'enter a valid email';
+        if (!details.date) e.date = 'select a date';
+        if (!details.time) e.time = 'select a time';
+        if (details.mode === 'delivery') {
+          if (!details.address?.trim()) e.address = 'required';
+          if (!details.city?.trim())    e.city    = 'required';
+          if (!details.zip?.trim())     e.zip     = 'required';
+        }
+        setErrors(e);
+        return Object.keys(e).length === 0;
+      }
+      const isPickup = details.mode !== 'delivery';
+      return (
+        <div className="po-step-content">
+          <div className="po-form">
+            <div className="po-form-row">
+              <div className="po-form-group">
+                <label className="po-label">first name</label>
+                <input className={`po-input${errors.firstName?' err':''}`} value={details.firstName||''} onChange={e=>set('firstName',e.target.value)} placeholder="kai" />
+                {errors.firstName && <span className="po-field-err">{errors.firstName}</span>}
+              </div>
+              <div className="po-form-group">
+                <label className="po-label">last name</label>
+                <input className={`po-input${errors.lastName?' err':''}`} value={details.lastName||''} onChange={e=>set('lastName',e.target.value)} placeholder="nakamura" />
+                {errors.lastName && <span className="po-field-err">{errors.lastName}</span>}
+              </div>
+            </div>
+            <div className="po-form-group">
+              <label className="po-label">phone</label>
+              <input className={`po-input${errors.phone?' err':''}`} value={details.phone||''} onChange={e=>set('phone',fmtPhone(e.target.value))} placeholder="(831) 555-0100" inputMode="tel" />
+              {errors.phone && <span className="po-field-err">{errors.phone}</span>}
+              <span className="po-field-hint">confirmation / pick up address will be texted to this number</span>
+            </div>
+            <div className="po-form-group">
+              <label className="po-label">email</label>
+              <input className={`po-input${errors.email?' err':''}`} type="email" value={details.email||''} onChange={e=>set('email',e.target.value)} placeholder="you@email.com" />
+              {errors.email && <span className="po-field-err">{errors.email}</span>}
+            </div>
+
+            <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
+            <div className="po-toggle">
+              <button className={`po-toggle-opt${isPickup?' on':''}`} onClick={()=>set('mode','pickup')}>pickup</button>
+              <button className={`po-toggle-opt${!isPickup?' on':''}`} onClick={()=>set('mode','delivery')}>delivery</button>
+            </div>
+
+            {!isPickup && <>
+              <p className="po-delivery-note">delivery availability subject to confirmation</p>
+              <div className="po-form-group">
+                <label className="po-label">street address</label>
+                <input className={`po-input${errors.address?' err':''}`} value={details.address||''} onChange={e=>set('address',e.target.value)} placeholder="123 Pacific Ave" />
+                {errors.address && <span className="po-field-err">{errors.address}</span>}
+              </div>
+              <div className="po-form-row">
+                <div className="po-form-group">
+                  <label className="po-label">city</label>
+                  <input className={`po-input${errors.city?' err':''}`} value={details.city||''} onChange={e=>set('city',e.target.value)} placeholder="Santa Cruz" />
+                  {errors.city && <span className="po-field-err">{errors.city}</span>}
+                </div>
+                <div className="po-form-group">
+                  <label className="po-label">zip</label>
+                  <input className={`po-input${errors.zip?' err':''}`} value={details.zip||''} onChange={e=>set('zip',e.target.value)} placeholder="95060" inputMode="numeric" />
+                  {errors.zip && <span className="po-field-err">{errors.zip}</span>}
+                </div>
+              </div>
+            </>}
+
+            <div className="po-label" style={{marginBottom:'10px'}}>
+              {isPickup?'pickup date':'delivery date'}
+              {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
+            </div>
+            <div className="po-date-grid">
+              {DATES.map(d => (
+                <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>set('date',d.key)}>
+                  <span className="po-date-day">{d.day}</span>
+                  <span className="po-date-num">{d.num}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="po-label" style={{marginBottom:'10px'}}>
+              {isPickup?'pickup time':'delivery time'}
+              {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
+            </div>
+            <div className="po-time-grid">
+              {TIME_SLOTS.map(t => (
+                <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
+              ))}
+            </div>
+
+            <div className="po-form-group" style={{marginTop:'4px'}}>
+              <label className="po-label">special instructions <span style={{opacity:0.45}}>(optional)</span></label>
+              <textarea className="po-textarea" value={details.notes||''} onChange={e=>set('notes',e.target.value)} placeholder="allergies, preferences, or notes" />
+            </div>
+
+            <div className="po-step-actions">
+              <button className="po-btn-back" onClick={onBack}>← back</button>
+              <button className="po-btn-proceed" style={{maxWidth:'240px'}} onClick={()=>{ if(validate()) onNext(); }}>review order →</button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Step 3 ── */
+    function Step3({ qtys, details, onSubmit, onBack }) {
+      const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const total    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const isPickup = details.mode !== 'delivery';
+      return (
+        <div className="po-step-content">
+          <div className="po-review-block">
+            <div className="po-review-ttl">your order</div>
+            {lines.map(it => (
+              <div key={it.id} className="po-review-row">
+                <span className="po-review-row-name">{it.name}</span>
+                <span className="po-review-row-qty">×{qtys[it.id]}</span>
+                <span className="po-review-row-price">${it.price*qtys[it.id]}</span>
+              </div>
+            ))}
+            <div className="po-review-total-row"><span>total</span><span>${total}</span></div>
+            <p className="po-payment-note">payment collected at {isPickup?'pickup':'delivery'}</p>
+          </div>
+
+          <div className="po-review-block">
+            <div className="po-review-ttl">your details</div>
+            <p className="po-review-detail">
+              {details.firstName} {details.lastName}<br/>
+              {details.phone}<br/>
+              {details.email}
+            </p>
+          </div>
+
+          <div className="po-review-block">
+            <div className="po-review-ttl">{isPickup?'pickup':'delivery'} details</div>
+            <p className="po-review-detail">
+              {fmtDate(details.date)} at {details.time}
+              {!isPickup && <><br/>{details.address}, {details.city} {details.zip}</>}
+            </p>
+            {details.notes && <p className="po-review-detail" style={{marginTop:'10px',opacity:0.45}}>note: {details.notes}</p>}
+          </div>
+
+          <div className="po-review-notices">
+            <p className="po-notice">
+              <em>*Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness. By ordering you voluntarily relinquish any liability of any illnesses that may occur.*</em>
+            </p>
+            <p className="po-notice">
+              A text will be sent regarding your receipt &amp; pickup/delivery details and confirmation following order placement.<br/>
+              <strong>Order will be canceled if not confirmed within 12 hours after confirmation text is sent.</strong>
+            </p>
+          </div>
+
+          <div className="po-step-actions">
+            <button className="po-btn-back" onClick={onBack}>← back</button>
+            <button className="po-submit-btn" onClick={onSubmit}>place order</button>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Confirmation ── */
+    function ConfirmView({ qtys, details, onReset }) {
+      const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const total    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const isPickup = details.mode !== 'delivery';
+      return (
+        <div className="po-confirm po-step-content">
+          <div className="po-confirm-check">✓</div>
+          <h3 className="po-confirm-heading">order received</h3>
+          <p className="po-confirm-body">
+            thanks, {details.firstName}. we'll confirm your order via text within 24 hours.
+          </p>
+          <div className="po-confirm-summary">
+            <div className="po-review-ttl">order summary</div>
+            {lines.map(it => (
+              <div key={it.id} className="po-confirm-row">
+                <span>{it.name} ×{qtys[it.id]}</span>
+                <span>${it.price*qtys[it.id]}</span>
+              </div>
+            ))}
+            <div className="po-review-total-row"><span>total</span><span>${total}</span></div>
+            <p className="po-review-detail" style={{marginTop:'12px',fontSize:'12px'}}>
+              {isPickup?'pickup':'delivery'}: {fmtDate(details.date)} at {details.time}
+            </p>
+          </div>
+          <div className="po-confirm-actions">
+            <button className="po-new-order-btn" onClick={onReset}>place another order</button>
+            <a href="index.html" className="po-back-home-btn">back to menu</a>
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Root ── */
+    function PreorderForm() {
+      const [step,      setStep]      = useState(1);
+      const [confirmed, setConfirmed] = useState(false);
+      const [qtys,      setQtys]      = useState({});
+      const [details,   setDetails]   = useState({ mode:'pickup' });
+
+      function goTo(n) { setStep(n); setTimeout(scrollTop, 60); }
+
+      async function handleSubmit() {
+        const orderedItems = ITEMS.filter(it=>(qtys[it.id]||0)>0);
+        const total = orderedItems.reduce((s,it)=>s+it.price*(qtys[it.id]||0),0);
+        const itemLines = orderedItems.map(it=>`${it.name} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`).join('\n');
+        const fulfillmentMode = details.mode === 'delivery' ? 'Delivery' : 'Pickup';
+        const deliveryAddress = details.mode === 'delivery'
+          ? `${details.address}, ${details.city} ${details.zip}`
+          : 'N/A';
+
+        const payload = {
+          _subject: `New inoa Pre-Order — ${details.firstName} ${details.lastName}`,
+          customer_name:  `${details.firstName} ${details.lastName}`,
+          customer_phone: details.phone,
+          customer_email: details.email,
+          fulfillment_type: fulfillmentMode,
+          fulfillment_date: details.date,
+          fulfillment_time: details.time,
+          delivery_address: deliveryAddress,
+          order_items: itemLines,
+          order_total: `$${total.toFixed(2)}`,
+          notes: details.notes || '—',
+        };
+
+        try {
+          const res = await fetch('https://formspree.io/f/mkoqdyzy', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (!res.ok) throw new Error('formspree error');
+        } catch (err) {
+          console.error('[inoa] order submission failed:', err);
+          // Still show confirmation — order can be re-submitted manually
+        }
+
+        setConfirmed(true);
+        scrollTop();
+      }
+
+      function handleReset() {
+        setQtys({}); setDetails({ mode:'pickup' }); setStep(1); setConfirmed(false);
+        scrollTop();
+      }
+
+      if (confirmed) return (
+        <div className="preorder-inner">
+          <h2 className="preorder-heading">pre-order</h2>
+          <ConfirmView qtys={qtys} details={details} onReset={handleReset} />
+        </div>
+      );
+
+      return (
+        <div className="preorder-inner">
+          <h2 className="preorder-heading">pre-order</h2>
+          <StepIndicator step={step} />
+          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} />}
+          {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)} />}
+          {step===3 && <Step3 qtys={qtys} details={details} onSubmit={handleSubmit} onBack={()=>goTo(2)} />}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('preorder-root'));
+    root.render(<PreorderForm />);
+  </script>
+</body>
+</html>
