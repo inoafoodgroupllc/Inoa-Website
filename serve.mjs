@@ -67,8 +67,12 @@ http.createServer(async (req, res) => {
     return handleSubscribe(req, res);
   }
 
-  let url = req.url === '/' ? '/index.html' : req.url;
-  url = url.split('?')[0];
+  let url = req.url.split('?')[0];
+
+  // Clean URL routing (mirrors vercel.json)
+  if (url === '/' || url === '/home' || url === '/index.html') url = '/index.html';
+  else if (url === '/order' || url === '/order.html')           url = '/order.html';
+
   const filePath = path.join(__dirname, decodeURIComponent(url));
   const ext = path.extname(filePath).toLowerCase();
   const contentType = MIME[ext] || 'application/octet-stream';

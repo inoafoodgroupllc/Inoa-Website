@@ -1,6 +1,12 @@
 {
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/$1" }
+    { "source": "/home", "destination": "/index.html" },
+    { "source": "/order", "destination": "/order.html" },
+    { "source": "/api/(.*)", "destination": "/api/$1" }
+  ],
+  "redirects": [
+    { "source": "/", "permanent": false, "destination": "/home" },
+    { "source": "/index.html", "permanent": true, "destination": "/home" },
+    { "source": "/order.html", "permanent": true, "destination": "/order" }
   ]
 }
