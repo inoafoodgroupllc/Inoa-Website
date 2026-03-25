@@ -261,6 +261,10 @@
     .po-ucsc-text { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); }
     .po-ucsc-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--driftwood); margin-top: 8px; margin-left: 28px; opacity: 0.85; }
     .po-review-discount { color: #5a8a5a; }
+    .po-office-block { padding: 14px 18px; background: rgba(196,168,130,0.08); border-left: 2px solid var(--driftwood); margin-bottom: 20px; }
+    .po-office-loc { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+    .po-office-hours { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.5; letter-spacing: 0.02em; }
+    .po-office-pickup-note { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; margin-bottom: 24px; }
     .po-review-notices {
       max-width: 600px;
       margin-bottom: 8px;
@@ -368,6 +372,14 @@
       return out;
     }
     const DATES = getDates(14);
+
+    function getOfficeDates(n = 14) {
+      return getDates(n).filter(d => {
+        const day = new Date(d.key + 'T12:00:00').getDay();
+        return day === 1 || day === 3 || day === 5;
+      });
+    }
+    const OFFICE_DATES = getOfficeDates(14);
 
     function fmtPhone(v) {
       const d = v.replace(/\D/g,'').slice(0,10);
@@ -483,7 +495,7 @@
         if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'enter a valid phone number';
         if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'enter a valid email';
         if (!details.date) e.date = 'select a date';
-        if (!details.time) e.time = 'select a time';
+        if (!details.time && details.mode !== 'office') e.time = 'select a time';
         if (details.mode === 'delivery') {
           if (!details.address?.trim()) e.address = 'required';
           if (!details.city?.trim())    e.city    = 'required';
@@ -492,7 +504,9 @@
         setErrors(e);
         return Object.keys(e).length === 0;
       }
-      const isPickup = details.mode !== 'delivery';
+      const isPickup   = details.mode === 'pickup';
+      const isOffice   = details.mode === 'office';
+      const isDelivery = details.mode === 'delivery';
       return (
         <div className="po-step-content">
           <div className="po-form">
@@ -522,11 +536,19 @@
 
             <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
             <div className="po-toggle">
-              <button className={`po-toggle-opt${isPickup?' on':''}`} onClick={()=>set('mode','pickup')}>pickup</button>
-              <button className={`po-toggle-opt${!isPickup?' on':''}`} onClick={()=>set('mode','delivery')}>delivery</button>
+              <button className={`po-toggle-opt${isPickup?' on':''}`}  onClick={()=>{ set('mode','pickup');   set('date',''); set('time',''); }}>pickup</button>
+              <button className={`po-toggle-opt${isOffice?' on':''}`}  onClick={()=>{ set('mode','office');   set('date',''); set('time',''); }}>office pickup</button>
+              <button className={`po-toggle-opt${isDelivery?' on':''}`} onClick={()=>{ set('mode','delivery'); set('date',''); set('time',''); }}>delivery</button>
             </div>
 
-            {!isPickup && <>
+            {isOffice && (
+              <div className="po-office-block">
+                <p className="po-office-loc">100 Enterprise Way, Scotts Valley</p>
+                <p className="po-office-hours">available monday · wednesday · friday</p>
+              </div>
+            )}
+
+            {isDelivery && <>
               <p className="po-delivery-note">delivery availability subject to confirmation</p>
               <div className="po-form-group">
                 <label className="po-label">street address</label>
@@ -548,11 +570,11 @@
             </>}
 
             <div className="po-label" style={{marginBottom:'10px'}}>
-              {isPickup?'pickup date':'delivery date'}
+              {isOffice ? 'pickup day' : isPickup ? 'pickup date' : 'delivery date'}
               {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
             </div>
             <div className="po-date-grid">
-              {DATES.map(d => (
+              {(isOffice ? OFFICE_DATES : DATES).map(d => (
                 <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>set('date',d.key)}>
                   <span className="po-date-day">{d.day}</span>
                   <span className="po-date-num">{d.num}</span>
@@ -560,15 +582,28 @@
               ))}
             </div>
 
-            <div className="po-label" style={{marginBottom:'10px'}}>
-              {isPickup?'pickup time':'delivery time'}
-              {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
-            </div>
-            <div className="po-time-grid">
-              {TIME_SLOTS.map(t => (
-                <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
-              ))}
-            </div>
+            {isOffice
+              ? <p className="po-office-pickup-note">all orders available for pickup after 11:30 AM</p>
+              : <>
+                  <div className="po-label" style={{marginBottom:'10px'}}>
+                    {isPickup?'pickup time':'delivery time'}
+                    {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
+                  </div>
+                  <div className="po-time-grid">
+                    {TIME_SLOTS.map(t => (
+                      <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
+                    ))}
+                  </div>
+                </>
+            }
+
+            {isOffice && (
+              <div className="po-form-group">
+                <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
+                <input className="po-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
+                <span className="po-field-hint">bring your physical voucher at pickup — drop it in the jar</span>
+              </div>
+            )}
 
             <div className="po-form-group" style={{marginTop:'4px'}}>
               <label className="po-label">special instructions <span style={{opacity:0.45}}>(optional)</span></label>
@@ -604,7 +639,9 @@
       const subtotal  = total;
       const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const finalTotal = subtotal - discount;
-      const isPickup = details.mode !== 'delivery';
+      const isPickup   = details.mode === 'pickup';
+      const isOffice   = details.mode === 'office';
+      const isDelivery = details.mode === 'delivery';
       return (
         <div className="po-step-content">
           <div className="po-review-block">
@@ -624,7 +661,7 @@
               </div>
             )}
             <div className="po-review-total-row"><span>total</span><span>${finalTotal.toFixed(2)}</span></div>
-            <p className="po-payment-note">payment collected at {isPickup?'pickup':'delivery'}</p>
+            <p className="po-payment-note">payment collected at {isDelivery?'delivery':'pickup'}</p>
           </div>
 
           <div className="po-review-block">
@@ -637,11 +674,14 @@
           </div>
 
           <div className="po-review-block">
-            <div className="po-review-ttl">{isPickup?'pickup':'delivery'} details</div>
+            <div className="po-review-ttl">{isOffice?'office pickup':isPickup?'pickup':'delivery'} details</div>
             <p className="po-review-detail">
-              {fmtDate(details.date)} at {details.time}
-              {!isPickup && <><br/>{details.address}, {details.city} {details.zip}</>}
+              {isOffice
+                ? <>{fmtDate(details.date)}<br/>pickup after 11:30 AM<br/>100 Enterprise Way, Scotts Valley</>
+                : <>{fmtDate(details.date)} at {details.time}{isDelivery && <><br/>{details.address}, {details.city} {details.zip}</>}</>
+              }
             </p>
+            {isOffice && details.voucher && <p className="po-review-detail" style={{marginTop:'8px',opacity:0.55}}>voucher: {details.voucher}</p>}
             {details.notes && <p className="po-review-detail" style={{marginTop:'10px',opacity:0.45}}>note: {details.notes}</p>}
           </div>
 
@@ -711,10 +751,13 @@
         const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
         const total     = subtotal - discount;
         const itemLines = orderedItems.map(it=>`${it.name} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`).join('\n');
-        const fulfillmentMode = details.mode === 'delivery' ? 'Delivery' : 'Pickup';
-        const deliveryAddress = details.mode === 'delivery'
+        const isOffice   = details.mode === 'office';
+        const isDelivery = details.mode === 'delivery';
+        const fulfillmentMode = isOffice ? 'Office Pickup' : isDelivery ? 'Delivery' : 'Pickup';
+        const fulfillmentTime = isOffice ? 'after 11:30 AM' : details.time;
+        const deliveryAddress = isDelivery
           ? `${details.address}, ${details.city} ${details.zip}`
-          : 'N/A';
+          : isOffice ? '100 Enterprise Way, Scotts Valley' : 'N/A';
 
         const payload = {
           _subject: `New inoa Pre-Order — ${details.firstName} ${details.lastName}`,
@@ -724,8 +767,9 @@
           ucsc_student:   details.ucscStudent ? 'Yes (10% discount applied)' : 'No',
           fulfillment_type: fulfillmentMode,
           fulfillment_date: details.date,
-          fulfillment_time: details.time,
+          fulfillment_time: fulfillmentTime,
           delivery_address: deliveryAddress,
+          voucher_number:   details.voucher || 'none',
           order_items: itemLines,
           order_subtotal: `$${subtotal.toFixed(2)}`,
           order_discount: discount > 0 ? `-$${discount.toFixed(2)}` : 'none',
