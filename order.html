@@ -255,6 +255,12 @@
     .po-review-detail { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); line-height: 1.75; opacity: 0.72; }
     .po-review-total-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; color: var(--ink); padding-top: 14px; margin-top: 6px; border-top: 1px solid rgba(26,26,26,0.1); }
     .po-payment-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; font-style: italic; margin-top: 8px; }
+    .po-ucsc-section { margin-top: 24px; padding: 18px 20px; background: rgba(26,26,26,0.03); border-left: 2px solid var(--driftwood); }
+    .po-ucsc-label { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .po-ucsc-check { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--driftwood); cursor: pointer; }
+    .po-ucsc-text { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); }
+    .po-ucsc-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--driftwood); margin-top: 8px; margin-left: 28px; opacity: 0.85; }
+    .po-review-discount { color: #5a8a5a; }
     .po-review-notices {
       max-width: 600px;
       margin-bottom: 8px;
@@ -569,6 +575,19 @@
               <textarea className="po-textarea" value={details.notes||''} onChange={e=>set('notes',e.target.value)} placeholder="allergies, preferences, or notes" />
             </div>
 
+            <div className="po-ucsc-section">
+              <label className="po-ucsc-label">
+                <input
+                  type="checkbox"
+                  className="po-ucsc-check"
+                  checked={details.ucscStudent||false}
+                  onChange={e=>set('ucscStudent', e.target.checked)}
+                />
+                <span className="po-ucsc-text">i'm a UC Santa Cruz student</span>
+              </label>
+              <p className="po-ucsc-note">UC Santa Cruz students get 10% off their order</p>
+            </div>
+
             <div className="po-step-actions">
               <button className="po-btn-back" onClick={onBack}>← back</button>
               <button className="po-btn-proceed" style={{maxWidth:'240px'}} onClick={()=>{ if(validate()) onNext(); }}>review order →</button>
@@ -582,6 +601,9 @@
     function Step3({ qtys, details, onSubmit, onBack }) {
       const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
       const total    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const subtotal  = total;
+      const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+      const finalTotal = subtotal - discount;
       const isPickup = details.mode !== 'delivery';
       return (
         <div className="po-step-content">
@@ -594,7 +616,14 @@
                 <span className="po-review-row-price">${it.price*qtys[it.id]}</span>
               </div>
             ))}
-            <div className="po-review-total-row"><span>total</span><span>${total}</span></div>
+            {discount > 0 && (
+              <div className="po-review-row po-review-discount">
+                <span className="po-review-row-name">ucsc student discount (10%)</span>
+                <span className="po-review-row-qty"></span>
+                <span className="po-review-row-price">−${discount.toFixed(2)}</span>
+              </div>
+            )}
+            <div className="po-review-total-row"><span>total</span><span>${finalTotal.toFixed(2)}</span></div>
             <p className="po-payment-note">payment collected at {isPickup?'pickup':'delivery'}</p>
           </div>
 
@@ -678,7 +707,9 @@
 
       async function handleSubmit() {
         const orderedItems = ITEMS.filter(it=>(qtys[it.id]||0)>0);
-        const total = orderedItems.reduce((s,it)=>s+it.price*(qtys[it.id]||0),0);
+        const subtotal = orderedItems.reduce((s,it)=>s+it.price*(qtys[it.id]||0),0);
+        const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+        const total     = subtotal - discount;
         const itemLines = orderedItems.map(it=>`${it.name} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`).join('\n');
         const fulfillmentMode = details.mode === 'delivery' ? 'Delivery' : 'Pickup';
         const deliveryAddress = details.mode === 'delivery'
@@ -690,11 +721,14 @@
           customer_name:  `${details.firstName} ${details.lastName}`,
           customer_phone: details.phone,
           customer_email: details.email,
+          ucsc_student:   details.ucscStudent ? 'Yes (10% discount applied)' : 'No',
           fulfillment_type: fulfillmentMode,
           fulfillment_date: details.date,
           fulfillment_time: details.time,
           delivery_address: deliveryAddress,
           order_items: itemLines,
+          order_subtotal: `$${subtotal.toFixed(2)}`,
+          order_discount: discount > 0 ? `-$${discount.toFixed(2)}` : 'none',
           order_total: `$${total.toFixed(2)}`,
           notes: details.notes || '—',
         };
