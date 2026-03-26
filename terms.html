@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>terms of service — inoa</title>
+
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8dcc8;
+      --driftwood: #c4a882;
+    }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body { background: var(--cream); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Nav */
+    .policy-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 80px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .policy-nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .policy-nav-back {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      opacity: 0.45;
+      transition: opacity 0.2s ease;
+    }
+    .policy-nav-back:hover { opacity: 0.85; }
+
+    /* Page */
+    .policy-page {
+      flex: 1;
+      padding: 140px 80px 96px;
+      max-width: 1040px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .policy-header {
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(26,26,26,0.1);
+      margin-bottom: 64px;
+    }
+    .policy-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink);
+    }
+    .policy-updated {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--ink);
+      opacity: 0.35;
+      margin-top: 16px;
+      text-transform: uppercase;
+    }
+    .policy-body { max-width: 680px; }
+    .policy-section { margin-bottom: 52px; }
+    .policy-section-num {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--driftwood);
+      margin-bottom: 10px;
+    }
+    .policy-section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+    .policy-p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--ink);
+      opacity: 0.7;
+      margin-bottom: 14px;
+    }
+    .policy-ul {
+      list-style: none;
+      margin-bottom: 14px;
+    }
+    .policy-ul li {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--ink);
+      opacity: 0.7;
+      padding-left: 18px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .policy-ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      opacity: 0.4;
+    }
+    .policy-contact {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 2;
+      color: var(--ink);
+      opacity: 0.7;
+    }
+    .policy-contact a { color: var(--ink); }
+
+    /* Legal footer */
+    .legal-footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(245,240,232,0.05);
+      padding: 18px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .legal-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+    .legal-footer-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream);
+      text-decoration: none;
+      opacity: 0.28;
+      transition: opacity 0.2s ease;
+    }
+    .legal-footer-links a:hover { opacity: 0.6; }
+    .legal-footer-copy {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+      opacity: 0.16;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .policy-nav { padding: 18px 24px; }
+      .policy-page { padding: 110px 24px 72px; }
+      .legal-footer { padding: 18px 24px; justify-content: center; text-align: center; }
+      .legal-footer-links { justify-content: center; gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="policy-nav">
+    <a href="/home" class="policy-nav-logo">inoa</a>
+    <a href="/home" class="policy-nav-back">← back to home</a>
+  </nav>
+
+  <main class="policy-page">
+
+    <header class="policy-header">
+      <h1 class="policy-title">terms of<br>service</h1>
+      <p class="policy-updated">last updated: march 25, 2026</p>
+    </header>
+
+    <div class="policy-body">
+
+      <section class="policy-section">
+        <p class="policy-section-num">01</p>
+        <h2 class="policy-section-title">Agreement to Terms</h2>
+        <p class="policy-p">By accessing or using inoa.kitchen (the "Site") or placing a pre-order, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, please do not use the Site.</p>
+        <p class="policy-p">These Terms apply to all visitors, customers, and others who access or use the Site.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">02</p>
+        <h2 class="policy-section-title">About Inoa</h2>
+        <p class="policy-p">Inoa Food Group LLC ("Inoa," "we," "us," or "our") is a food business operating a ghost kitchen in Scotts Valley, California, offering pre-order poke bowls and sushi for pickup and delivery.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">03</p>
+        <h2 class="policy-section-title">Pre-Orders</h2>
+        <p class="policy-p">All orders placed through the Site are pre-orders. By submitting a pre-order, you agree to:</p>
+        <ul class="policy-ul">
+          <li>Provide accurate contact and fulfillment information</li>
+          <li>Be available to receive a confirmation text from us within a reasonable timeframe</li>
+          <li>Pick up or accept delivery of your order within the scheduled window</li>
+        </ul>
+        <p class="policy-p">An order is not confirmed until you receive a confirmation text from Inoa. We reserve the right to decline or cancel any order at our discretion.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">04</p>
+        <h2 class="policy-section-title">Pricing &amp; Payment</h2>
+        <p class="policy-p">All prices displayed on the Site are in US dollars. Prices are subject to change without notice. Payment is collected at the time of pickup or delivery. We accept cash and major credit/debit cards.</p>
+        <p class="policy-p">Promotional discounts (including student discounts) are applied at our discretion and may require verification. Inoa reserves the right to modify or discontinue any promotion at any time.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">05</p>
+        <h2 class="policy-section-title">Voucher Program</h2>
+        <p class="policy-p">Inoa participates in an office voucher program for employees at 100 Enterprise Way, Scotts Valley. Vouchers are issued by the building operator and are subject to availability. Inoa is not responsible for lost, stolen, or expired vouchers. Physical vouchers must be presented at pickup — digital or verbal claims will not be accepted.</p>
+        <p class="policy-p">Voucher values may not be combined with other promotions unless explicitly stated.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">06</p>
+        <h2 class="policy-section-title">Delivery</h2>
+        <p class="policy-p">Delivery availability is subject to our service area and scheduling. A delivery fee may apply. Free delivery is available for UC Santa Cruz students with a valid on-campus address, subject to verification.</p>
+        <p class="policy-p">We are not responsible for delays caused by inaccurate addresses, inaccessible locations, or circumstances beyond our control.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">07</p>
+        <h2 class="policy-section-title">Food Safety &amp; Allergens</h2>
+        <p class="policy-p">Our kitchen handles common allergens including soy, sesame, fish, shellfish, gluten, and tree nuts. We cannot guarantee an allergen-free environment. Our menu includes raw and undercooked fish. Consuming raw fish may increase the risk of foodborne illness.</p>
+        <p class="policy-p">Customers are responsible for informing us of any food allergies or dietary restrictions at the time of ordering. Inoa is not liable for adverse reactions resulting from undisclosed allergies or sensitivities.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">08</p>
+        <h2 class="policy-section-title">Intellectual Property</h2>
+        <p class="policy-p">All content on this Site — including text, images, logos, and design — is the property of Inoa Food Group LLC and is protected by applicable copyright and trademark laws. You may not reproduce, distribute, or use our content without express written permission.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">09</p>
+        <h2 class="policy-section-title">User Conduct</h2>
+        <p class="policy-p">You agree not to use the Site for any unlawful purpose or in any way that could damage, disable, or impair the Site or interfere with any other user's experience. You may not attempt to gain unauthorized access to any portion of the Site or its related systems.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">10</p>
+        <h2 class="policy-section-title">Disclaimer of Warranties</h2>
+        <p class="policy-p">The Site and its content are provided "as is" without warranties of any kind, either express or implied. Inoa does not warrant that the Site will be uninterrupted, error-free, or free of viruses or other harmful components.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">11</p>
+        <h2 class="policy-section-title">Limitation of Liability</h2>
+        <p class="policy-p">To the fullest extent permitted by law, Inoa Food Group LLC shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the Site or our products, even if we have been advised of the possibility of such damages.</p>
+        <p class="policy-p">Our total liability to you for any claim arising out of these Terms or your use of the Site shall not exceed the amount you paid for the specific order giving rise to the claim.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">12</p>
+        <h2 class="policy-section-title">Governing Law</h2>
+        <p class="policy-p">These Terms are governed by the laws of the State of California, without regard to its conflict of law provisions. Any disputes arising under these Terms shall be resolved in the courts of Santa Cruz County, California.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">13</p>
+        <h2 class="policy-section-title">Contact Us</h2>
+        <p class="policy-p">Questions about these Terms of Service may be directed to:</p>
+        <p class="policy-contact">
+          Inoa Food Group LLC<br>
+          100 Enterprise Way, Scotts Valley, CA 95066<br>
+          <a href="mailto:inoa.scc@gmail.com">inoa.scc@gmail.com</a>
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="legal-footer">
+    <nav class="legal-footer-links">
+      <a href="/privacy">privacy policy</a>
+      <a href="/refund">refund &amp; cancellation</a>
+      <a href="/terms">terms of service</a>
+    </nav>
+    <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
+  </div>
+
+</body>
+</html>

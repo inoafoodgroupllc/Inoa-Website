@@ -71,7 +71,10 @@ http.createServer(async (req, res) => {
 
   // Clean URL routing (mirrors vercel.json)
   if (url === '/' || url === '/home' || url === '/index.html') url = '/index.html';
-  else if (url === '/order' || url === '/order.html')           url = '/order.html';
+  else if (url === '/order'   || url === '/order.html')   url = '/order.html';
+  else if (url === '/privacy' || url === '/privacy.html') url = '/privacy.html';
+  else if (url === '/refund'  || url === '/refund.html')  url = '/refund.html';
+  else if (url === '/terms'   || url === '/terms.html')   url = '/terms.html';
 
   const filePath = path.join(__dirname, decodeURIComponent(url));
   const ext = path.extname(filePath).toLowerCase();

@@ -2,11 +2,17 @@
   "rewrites": [
     { "source": "/home", "destination": "/index.html" },
     { "source": "/order", "destination": "/order.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/refund", "destination": "/refund.html" },
+    { "source": "/terms", "destination": "/terms.html" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "redirects": [
     { "source": "/", "permanent": false, "destination": "/home" },
     { "source": "/index.html", "permanent": true, "destination": "/home" },
-    { "source": "/order.html", "permanent": true, "destination": "/order" }
+    { "source": "/order.html", "permanent": true, "destination": "/order" },
+    { "source": "/privacy.html", "permanent": true, "destination": "/privacy" },
+    { "source": "/refund.html", "permanent": true, "destination": "/refund" },
+    { "source": "/terms.html", "permanent": true, "destination": "/terms" }
   ]
 }

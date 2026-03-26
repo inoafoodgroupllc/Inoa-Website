@@ -1037,6 +1037,40 @@
       color: var(--cream);
       opacity: 0.2;
     }
+    .legal-footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(245,240,232,0.05);
+      padding: 18px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .legal-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+    .legal-footer-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream);
+      text-decoration: none;
+      opacity: 0.28;
+      transition: opacity 0.2s ease;
+    }
+    .legal-footer-links a:hover { opacity: 0.6; }
+    .legal-footer-copy {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+      opacity: 0.16;
+      white-space: nowrap;
+    }
+    @media (max-width: 640px) {
+      .legal-footer { padding: 18px 24px; justify-content: center; text-align: center; }
+      .legal-footer-links { justify-content: center; gap: 18px; }
+    }
 
     /* ────────────────────────────────────────
        SCROLL FADE-UP
@@ -1599,8 +1633,17 @@
       <li><a href="#find-us">find us</a></li>
       <li><a href="#" aria-label="inoa on instagram">instagram</a></li>
     </ul>
-    <p class="footer-copy">© 2025 inoa</p>
+    <p class="footer-copy">© 2026 inoa</p>
   </footer>
+
+  <div class="legal-footer">
+    <nav class="legal-footer-links">
+      <a href="/privacy">privacy policy</a>
+      <a href="/refund">refund &amp; cancellation</a>
+      <a href="/terms">terms of service</a>
+    </nav>
+    <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
+  </div>
 
   <script>
     // ── Nav scroll behavior ──

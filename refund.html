@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>refund & cancellation — inoa</title>
+
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8dcc8;
+      --driftwood: #c4a882;
+    }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body { background: var(--cream); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Nav */
+    .policy-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 80px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .policy-nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .policy-nav-back {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      opacity: 0.45;
+      transition: opacity 0.2s ease;
+    }
+    .policy-nav-back:hover { opacity: 0.85; }
+
+    /* Page */
+    .policy-page {
+      flex: 1;
+      padding: 140px 80px 96px;
+      max-width: 1040px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .policy-header {
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(26,26,26,0.1);
+      margin-bottom: 64px;
+    }
+    .policy-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink);
+    }
+    .policy-updated {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--ink);
+      opacity: 0.35;
+      margin-top: 16px;
+      text-transform: uppercase;
+    }
+    .policy-body { max-width: 680px; }
+    .policy-section { margin-bottom: 52px; }
+    .policy-section-num {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--driftwood);
+      margin-bottom: 10px;
+    }
+    .policy-section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+    .policy-p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--ink);
+      opacity: 0.7;
+      margin-bottom: 14px;
+    }
+    .policy-ul {
+      list-style: none;
+      margin-bottom: 14px;
+    }
+    .policy-ul li {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--ink);
+      opacity: 0.7;
+      padding-left: 18px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .policy-ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      opacity: 0.4;
+    }
+    .policy-contact {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 2;
+      color: var(--ink);
+      opacity: 0.7;
+    }
+    .policy-contact a { color: var(--ink); }
+
+    /* Legal footer */
+    .legal-footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(245,240,232,0.05);
+      padding: 18px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .legal-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+    .legal-footer-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream);
+      text-decoration: none;
+      opacity: 0.28;
+      transition: opacity 0.2s ease;
+    }
+    .legal-footer-links a:hover { opacity: 0.6; }
+    .legal-footer-copy {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+      opacity: 0.16;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .policy-nav { padding: 18px 24px; }
+      .policy-page { padding: 110px 24px 72px; }
+      .legal-footer { padding: 18px 24px; justify-content: center; text-align: center; }
+      .legal-footer-links { justify-content: center; gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="policy-nav">
+    <a href="/home" class="policy-nav-logo">inoa</a>
+    <a href="/home" class="policy-nav-back">← back to home</a>
+  </nav>
+
+  <main class="policy-page">
+
+    <header class="policy-header">
+      <h1 class="policy-title">refund &amp;<br>cancellation</h1>
+      <p class="policy-updated">last updated: march 25, 2026</p>
+    </header>
+
+    <div class="policy-body">
+
+      <section class="policy-section">
+        <p class="policy-section-num">01</p>
+        <h2 class="policy-section-title">Overview</h2>
+        <p class="policy-p">Inoa Food Group LLC ("Inoa") prepares fresh, made-to-order food. Because of the perishable nature of our products, all sales are final once preparation has begun. We appreciate your understanding and are committed to making every order right.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">02</p>
+        <h2 class="policy-section-title">Cancellation Policy</h2>
+        <p class="policy-p">You may cancel your pre-order at no charge if you do so at least 2 hours before your scheduled pickup or delivery time. To cancel, contact us directly by phone or email with your order details.</p>
+        <p class="policy-p">Cancellations made less than 2 hours before your scheduled time may not be accommodated once preparation has begun. Orders that are not confirmed within 12 hours of the confirmation text being sent will be automatically canceled.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">03</p>
+        <h2 class="policy-section-title">Payment &amp; Refunds</h2>
+        <p class="policy-p">Inoa currently operates on a pay-at-pickup or pay-at-delivery model. No payment is charged at the time of placing a pre-order online.</p>
+        <p class="policy-p">If a payment has been processed and an order is canceled within the eligible cancellation window, a full refund will be issued to the original payment method within 5–7 business days.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">04</p>
+        <h2 class="policy-section-title">Order Modifications</h2>
+        <p class="policy-p">Order modifications — including changes to items, quantities, pickup time, or delivery address — may be accommodated if requested at least 2 hours before your scheduled time. Please contact us as early as possible. We cannot guarantee modifications once preparation has begun.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">05</p>
+        <h2 class="policy-section-title">No-Show Policy</h2>
+        <p class="policy-p">If you do not pick up your order during the scheduled pickup window and have not contacted us in advance, the order will be considered forfeited. We are unable to hold orders beyond the scheduled pickup window due to food safety requirements.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">06</p>
+        <h2 class="policy-section-title">Quality Issues</h2>
+        <p class="policy-p">Your satisfaction is important to us. If you receive an order that is incorrect or does not meet our quality standards, please contact us within 2 hours of receipt with a description of the issue. We will work to make it right, which may include a replacement or credit toward a future order, at our discretion.</p>
+        <p class="policy-p">We are unable to process quality claims for food that has been partially or fully consumed.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">07</p>
+        <h2 class="policy-section-title">Allergen Disclaimer</h2>
+        <p class="policy-p">Our food is prepared in a kitchen that handles common allergens including soy, sesame, fish, shellfish, gluten, and tree nuts. While we take care to accommodate special instructions, we cannot guarantee a completely allergen-free environment. Customers with severe food allergies should contact us before ordering.</p>
+        <p class="policy-p">Inoa Food Group LLC is not liable for allergic reactions resulting from undisclosed allergen sensitivities.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">08</p>
+        <h2 class="policy-section-title">Raw Fish Advisory</h2>
+        <p class="policy-p">Our menu includes raw and undercooked fish. Consuming raw or undercooked fish may increase your risk of foodborne illness, particularly for pregnant women, young children, the elderly, and individuals with compromised immune systems. Please consult a physician if you have concerns.</p>
+        <p class="policy-p">All sushi-grade fish served by Inoa is sourced from reputable suppliers and handled according to California Department of Public Health food safety guidelines.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">09</p>
+        <h2 class="policy-section-title">Contact Us</h2>
+        <p class="policy-p">For cancellations, modifications, or questions about your order:</p>
+        <p class="policy-contact">
+          Inoa Food Group LLC<br>
+          100 Enterprise Way, Scotts Valley, CA 95066<br>
+          <a href="mailto:inoa.scc@gmail.com">inoa.scc@gmail.com</a>
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="legal-footer">
+    <nav class="legal-footer-links">
+      <a href="/privacy">privacy policy</a>
+      <a href="/refund">refund &amp; cancellation</a>
+      <a href="/terms">terms of service</a>
+    </nav>
+    <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>privacy policy — inoa</title>
+
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8dcc8;
+      --driftwood: #c4a882;
+    }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body { background: var(--cream); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Nav */
+    .policy-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 80px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .policy-nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .policy-nav-back {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      opacity: 0.45;
+      transition: opacity 0.2s ease;
+    }
+    .policy-nav-back:hover { opacity: 0.85; }
+
+    /* Page */
+    .policy-page {
+      flex: 1;
+      padding: 140px 80px 96px;
+      max-width: 1040px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .policy-header {
+      padding-bottom: 48px;
+      border-bottom: 1px solid rgba(26,26,26,0.1);
+      margin-bottom: 64px;
+    }
+    .policy-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(40px, 6vw, 68px);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      color: var(--ink);
+    }
+    .policy-updated {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--ink);
+      opacity: 0.35;
+      margin-top: 16px;
+      text-transform: uppercase;
+    }
+    .policy-body { max-width: 680px; }
+    .policy-section { margin-bottom: 52px; }
+    .policy-section-num {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--driftwood);
+      margin-bottom: 10px;
+    }
+    .policy-section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+    .policy-p {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--ink);
+      opacity: 0.7;
+      margin-bottom: 14px;
+    }
+    .policy-ul {
+      list-style: none;
+      margin-bottom: 14px;
+    }
+    .policy-ul li {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 1.85;
+      color: var(--ink);
+      opacity: 0.7;
+      padding-left: 18px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+    .policy-ul li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      opacity: 0.4;
+    }
+    .policy-contact {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      line-height: 2;
+      color: var(--ink);
+      opacity: 0.7;
+    }
+    .policy-contact a { color: var(--ink); }
+
+    /* Legal footer */
+    .legal-footer {
+      background: var(--ink);
+      border-top: 1px solid rgba(245,240,232,0.05);
+      padding: 18px 80px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .legal-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+    .legal-footer-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream);
+      text-decoration: none;
+      opacity: 0.28;
+      transition: opacity 0.2s ease;
+    }
+    .legal-footer-links a:hover { opacity: 0.6; }
+    .legal-footer-copy {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--cream);
+      opacity: 0.16;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 768px) {
+      .policy-nav { padding: 18px 24px; }
+      .policy-page { padding: 110px 24px 72px; }
+      .legal-footer { padding: 18px 24px; justify-content: center; text-align: center; }
+      .legal-footer-links { justify-content: center; gap: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="policy-nav">
+    <a href="/home" class="policy-nav-logo">inoa</a>
+    <a href="/home" class="policy-nav-back">← back to home</a>
+  </nav>
+
+  <main class="policy-page">
+
+    <header class="policy-header">
+      <h1 class="policy-title">privacy<br>policy</h1>
+      <p class="policy-updated">last updated: march 25, 2026</p>
+    </header>
+
+    <div class="policy-body">
+
+      <section class="policy-section">
+        <p class="policy-section-num">01</p>
+        <h2 class="policy-section-title">Introduction</h2>
+        <p class="policy-p">Inoa Food Group LLC ("Inoa," "we," "us," or "our") operates inoa.kitchen and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our website or place a pre-order.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">02</p>
+        <h2 class="policy-section-title">Information We Collect</h2>
+        <p class="policy-p">We collect the following personal information when you interact with our website:</p>
+        <ul class="policy-ul">
+          <li>Full name</li>
+          <li>Phone number</li>
+          <li>Email address</li>
+          <li>Delivery address (if applicable)</li>
+          <li>Order details including items, quantities, and preferences</li>
+          <li>Special instructions or notes you provide</li>
+        </ul>
+        <p class="policy-p">We collect this information when you submit a pre-order form or sign up for our newsletter.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">03</p>
+        <h2 class="policy-section-title">How We Use Your Information</h2>
+        <p class="policy-p">We use the information we collect to:</p>
+        <ul class="policy-ul">
+          <li>Process and fulfill your pre-orders</li>
+          <li>Contact you to confirm your order via text or phone</li>
+          <li>Send order receipts and updates</li>
+          <li>Deliver your order to the address provided</li>
+          <li>Send newsletter communications if you have opted in</li>
+          <li>Improve our products and services</li>
+          <li>Comply with legal obligations</li>
+        </ul>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">04</p>
+        <h2 class="policy-section-title">How We Share Your Information</h2>
+        <p class="policy-p">We do not sell, trade, or rent your personal information to third parties. We may share your information with:</p>
+        <ul class="policy-ul">
+          <li>Formspree — our form processing service that transmits your order details to us</li>
+          <li>Mailchimp — our email marketing platform for newsletter subscribers</li>
+          <li>Law enforcement or regulatory authorities when required by law</li>
+        </ul>
+        <p class="policy-p">Both Formspree and Mailchimp maintain their own privacy policies and security practices.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">05</p>
+        <h2 class="policy-section-title">California Privacy Rights (CCPA)</h2>
+        <p class="policy-p">As a California resident you have the following rights under the California Consumer Privacy Act:</p>
+        <ul class="policy-ul">
+          <li>The right to know what personal information we collect and how it is used</li>
+          <li>The right to request deletion of your personal information</li>
+          <li>The right to opt out of the sale of your personal information — we do not sell personal information</li>
+          <li>The right to non-discrimination for exercising your privacy rights</li>
+        </ul>
+        <p class="policy-p">To exercise any of these rights contact us at the information below.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">06</p>
+        <h2 class="policy-section-title">Newsletter Communications</h2>
+        <p class="policy-p">If you subscribe to our newsletter your email is stored with Mailchimp. You may unsubscribe at any time by clicking the unsubscribe link in any email or by contacting us directly. We do not send marketing texts without your explicit consent.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">07</p>
+        <h2 class="policy-section-title">Data Security</h2>
+        <p class="policy-p">We take reasonable measures to protect your personal information. However no method of transmission over the internet is 100% secure. We use HTTPS encryption on our website and work only with reputable third-party service providers.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">08</p>
+        <h2 class="policy-section-title">Data Retention</h2>
+        <p class="policy-p">We retain your personal information only as long as necessary to fulfill your order and comply with legal obligations. Newsletter subscribers' data is retained until they unsubscribe.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">09</p>
+        <h2 class="policy-section-title">Children's Privacy</h2>
+        <p class="policy-p">Our website is not directed at children under 13. We do not knowingly collect personal information from children under 13.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">10</p>
+        <h2 class="policy-section-title">Changes to This Policy</h2>
+        <p class="policy-p">We may update this Privacy Policy periodically. Changes will be posted on this page with an updated date. Continued use of our website after changes constitutes acceptance of the updated policy.</p>
+      </section>
+
+      <section class="policy-section">
+        <p class="policy-section-num">11</p>
+        <h2 class="policy-section-title">Contact Us</h2>
+        <p class="policy-p">For privacy-related questions or to exercise your California privacy rights contact:</p>
+        <p class="policy-contact">
+          Inoa Food Group LLC<br>
+          100 Enterprise Way, Scotts Valley, CA 95066<br>
+          <a href="mailto:inoa.scc@gmail.com">inoa.scc@gmail.com</a>
+        </p>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="legal-footer">
+    <nav class="legal-footer-links">
+      <a href="/privacy">privacy policy</a>
+      <a href="/refund">refund &amp; cancellation</a>
+      <a href="/terms">terms of service</a>
+    </nav>
+    <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
+  </div>
+
+</body>
+</html>
