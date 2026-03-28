@@ -250,6 +250,7 @@
     .po-time-btn:hover { border-color: rgba(26,26,26,0.28); }
     .po-time-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
     .po-delivery-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
+    .po-mode-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
 
     /* Step 3 — review */
     .po-review-block { background: #fff; border: 1px solid rgba(26,26,26,0.07); border-radius: 3px; padding: 24px; margin-bottom: 14px; max-width: 600px; }
@@ -374,28 +375,29 @@
       { id:13, group:'add-ons',                               name:'Sushi Rice',                              detail:'8oz', price:3  },
     ];
     const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons'];
-    const TIME_SLOTS = ['10:00 AM','11:00 AM','12:00 PM','1:00 PM','2:00 PM','3:00 PM','4:00 PM','5:00 PM'];
+    // Fixed dates for pickup / delivery (Mon 3/23 – Wed 3/25)
+    const DATES = [
+      { key: '2026-03-23', day: 'mon', num: 23 },
+      { key: '2026-03-24', day: 'tue', num: 24 },
+      { key: '2026-03-25', day: 'wed', num: 25 },
+    ];
 
-    function getDates(n = 14) {
-      const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
-      const out = [];
-      const today = new Date();
-      for (let i = 1; i <= n; i++) {
-        const d = new Date(today);
-        d.setDate(today.getDate() + i);
-        out.push({ key: d.toISOString().slice(0,10), day: DAYS[d.getDay()], num: d.getDate() });
+    // Fixed dates for office pickup (Mon 3/23, Wed 3/25, Fri 4/3)
+    const OFFICE_DATES = [
+      { key: '2026-03-23', day: 'mon', num: 23 },
+      { key: '2026-03-25', day: 'wed', num: 25 },
+      { key: '2026-04-03', day: 'fri', num: 3 },
+    ];
+
+    function getTimeSlots(mode, dateKey) {
+      if (mode === 'delivery') {
+        return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM', '5:00 PM – 6:00 PM'];
       }
-      return out;
+      // pickup — Tuesday gets shorter window
+      const day = dateKey ? new Date(dateKey + 'T12:00:00').getDay() : null;
+      if (day === 2) return ['12:00 PM – 1:00 PM', '1:00 PM – 2:30 PM'];
+      return ['11:00 AM – 12:00 PM', '12:00 PM – 1:00 PM', '1:00 PM – 2:30 PM'];
     }
-    const DATES = getDates(14);
-
-    function getOfficeDates(n = 14) {
-      return getDates(n).filter(d => {
-        const day = new Date(d.key + 'T12:00:00').getDay();
-        return day === 1 || day === 3 || day === 5;
-      });
-    }
-    const OFFICE_DATES = getOfficeDates(14);
 
     function fmtPhone(v) {
       const d = v.replace(/\D/g,'').slice(0,10);
@@ -557,6 +559,10 @@
               <button className={`po-toggle-opt${isDelivery?' on':''}`} onClick={()=>{ set('mode','delivery'); set('date',''); set('time',''); }}>delivery</button>
             </div>
 
+            {isPickup && (
+              <p className="po-mode-note">pickup location is five minutes away from UC Santa Cruz</p>
+            )}
+
             {isOffice && (
               <div className="po-office-block">
                 <p className="po-office-loc">100 Enterprise Way, Scotts Valley</p>
@@ -566,6 +572,7 @@
 
             {isDelivery && <>
               <p className="po-delivery-note">delivery fee may apply — free delivery for on-campus UC Santa Cruz students</p>
+              <p className="po-delivery-note" style={{marginTop:'-8px'}}>unable to deliver outside of Santa Cruz County</p>
               <div className="po-form-group">
                 <label className="po-label">street address</label>
                 <input className={`po-input${errors.address?' err':''}`} value={details.address||''} onChange={e=>set('address',e.target.value)} placeholder="123 Pacific Ave" />
@@ -591,7 +598,7 @@
             </div>
             <div className="po-date-grid">
               {(isOffice ? OFFICE_DATES : DATES).map(d => (
-                <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>set('date',d.key)}>
+                <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>{ set('date',d.key); set('time',''); }}>
                   <span className="po-date-day">{d.day}</span>
                   <span className="po-date-num">{d.num}</span>
                 </button>
@@ -606,7 +613,7 @@
                     {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
                   </div>
                   <div className="po-time-grid">
-                    {TIME_SLOTS.map(t => (
+                    {getTimeSlots(details.mode, details.date).map(t => (
                       <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
                     ))}
                   </div>
@@ -816,14 +823,14 @@
 
       if (confirmed) return (
         <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order</h2>
+          <h2 className="preorder-heading">pre-order 3/23–3/25</h2>
           <ConfirmView qtys={qtys} details={details} onReset={handleReset} />
         </div>
       );
 
       return (
         <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order</h2>
+          <h2 className="preorder-heading">pre-order 3/23–3/25</h2>
           <StepIndicator step={step} />
           {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)} />}
