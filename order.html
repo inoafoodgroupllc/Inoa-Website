@@ -442,28 +442,29 @@
       );
     }
 
-    // Fixed dates for pickup / delivery (Mon 3/23 – Wed 3/25)
-    const DATES = [
-      { key: '2026-03-23', day: 'mon', num: 23 },
-      { key: '2026-03-24', day: 'tue', num: 24 },
-      { key: '2026-03-25', day: 'wed', num: 25 },
-    ];
-
-    // Fixed dates for office pickup (Mon 3/23, Wed 3/25, Fri 4/3)
-    const OFFICE_DATES = [
-      { key: '2026-03-23', day: 'mon', num: 23 },
-      { key: '2026-03-25', day: 'wed', num: 25 },
-      { key: '2026-04-03', day: 'fri', num: 3 },
-    ];
+    function getWindowDates() {
+      const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
+      const now  = new Date();
+      return [1, 2, 3].map(i => {
+        const d = new Date(now);
+        d.setDate(now.getDate() + i);
+        return {
+          key:       d.toISOString().slice(0, 10),
+          day:       DAYS[d.getDay()],
+          num:       d.getDate(),
+          month:     d.getMonth() + 1,
+          dayOfWeek: d.getDay(),
+        };
+      });
+    }
 
     function getTimeSlots(mode, dateKey) {
       if (mode === 'delivery') {
         return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM', '5:00 PM – 6:00 PM'];
       }
-      // pickup — Tuesday gets shorter window
       const day = dateKey ? new Date(dateKey + 'T12:00:00').getDay() : null;
-      if (day === 2) return ['12:00 PM – 1:00 PM', '1:00 PM – 2:30 PM'];
-      return ['11:00 AM – 12:00 PM', '12:00 PM – 1:00 PM', '1:00 PM – 2:30 PM'];
+      if (day === 2) return ['12:00 PM – 1:00 PM', '1:00 PM – 2:30 PM']; // Tuesday
+      return ['11:30 AM – 12:30 PM', '12:30 PM – 1:30 PM', '1:30 PM – 2:30 PM']; // all other days
     }
 
     function fmtPhone(v) {
@@ -567,7 +568,7 @@
     }
 
     /* ── Step 2 ── */
-    function Step2({ details, setDetails, onNext, onBack }) {
+    function Step2({ details, setDetails, onNext, onBack, pickupDates, deliveryDates, officeDates, hasOffice, officeLabel }) {
       const [errors, setErrors] = useState({});
       function set(field, val) {
         setDetails(prev => ({ ...prev, [field]: val }));
@@ -589,9 +590,12 @@
         setErrors(e);
         return Object.keys(e).length === 0;
       }
+      // Guard: if office mode was set but no office dates exist this window, reset to pickup
+      if (details.mode === 'office' && !hasOffice) { setDetails(prev => ({ ...prev, mode: 'pickup', date: '', time: '' })); }
       const isPickup   = details.mode === 'pickup';
       const isOffice   = details.mode === 'office';
       const isDelivery = details.mode === 'delivery';
+      const activeDates = isOffice ? officeDates : isDelivery ? deliveryDates : pickupDates;
       return (
         <div className="po-step-content">
           <div className="po-form">
@@ -621,8 +625,8 @@
 
             <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
             <div className="po-toggle">
-              <button className={`po-toggle-opt${isPickup?' on':''}`}  onClick={()=>{ set('mode','pickup');   set('date',''); set('time',''); }}>pickup</button>
-              <button className={`po-toggle-opt${isOffice?' on':''}`}  onClick={()=>{ set('mode','office');   set('date',''); set('time',''); }}>office pickup</button>
+              <button className={`po-toggle-opt${isPickup?' on':''}`}   onClick={()=>{ set('mode','pickup');   set('date',''); set('time',''); }}>pickup</button>
+              {hasOffice && <button className={`po-toggle-opt${isOffice?' on':''}`} onClick={()=>{ set('mode','office'); set('date',''); set('time',''); }}>office pickup</button>}
               <button className={`po-toggle-opt${isDelivery?' on':''}`} onClick={()=>{ set('mode','delivery'); set('date',''); set('time',''); }}>delivery</button>
             </div>
 
@@ -633,7 +637,7 @@
             {isOffice && (
               <div className="po-office-block">
                 <p className="po-office-loc">100 Enterprise Way, Scotts Valley</p>
-                <p className="po-office-hours">available monday · wednesday · friday</p>
+                <p className="po-office-hours">available {officeLabel}</p>
               </div>
             )}
 
@@ -664,7 +668,7 @@
               {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
             </div>
             <div className="po-date-grid">
-              {(isOffice ? OFFICE_DATES : DATES).map(d => (
+              {activeDates.map(d => (
                 <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>{ set('date',d.key); set('time',''); }}>
                   <span className="po-date-day">{d.day}</span>
                   <span className="po-date-num">{d.num}</span>
@@ -673,7 +677,7 @@
             </div>
 
             {isOffice
-              ? <p className="po-office-pickup-note">all orders available for pickup after 11:30 AM</p>
+              ? <p className="po-office-pickup-note">all orders available for pickup after 11:00 AM</p>
               : <>
                   <div className="po-label" style={{marginBottom:'10px'}}>
                     {isPickup?'pickup time':'delivery time'}
@@ -828,6 +832,12 @@
 
     /* ── Root ── */
     function PreorderForm() {
+      const WINDOW       = getWindowDates();
+      const OFFICE_AVAIL = WINDOW.filter(d => d.dayOfWeek === 1 || d.dayOfWeek === 3 || d.dayOfWeek === 5);
+      const HAS_OFFICE   = OFFICE_AVAIL.length > 0;
+      const headerSpan   = `${WINDOW[0].month}/${WINDOW[0].num}–${WINDOW[2].month}/${WINDOW[2].num}`;
+      const officeLabel  = OFFICE_AVAIL.map(d => d.day).join(' · ');
+
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
       const [confirmed, setConfirmed] = useState(false);
@@ -845,7 +855,7 @@
         const isOffice   = details.mode === 'office';
         const isDelivery = details.mode === 'delivery';
         const fulfillmentMode = isOffice ? 'Office Pickup' : isDelivery ? 'Delivery' : 'Pickup';
-        const fulfillmentTime = isOffice ? 'after 11:30 AM' : details.time;
+        const fulfillmentTime = isOffice ? 'after 11:00 AM' : details.time;
         const deliveryAddress = isDelivery
           ? `${details.address}, ${details.city} ${details.zip}`
           : isOffice ? '100 Enterprise Way, Scotts Valley' : 'N/A';
@@ -897,17 +907,18 @@
 
       if (confirmed) return (
         <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>3/23–3/25</span></h2>
+          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
           <ConfirmView qtys={qtys} details={details} onReset={handleReset} />
         </div>
       );
 
       return (
         <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>3/23–3/25</span></h2>
+          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
           <StepIndicator step={step} />
           {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} />}
-          {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)} />}
+          {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
+            pickupDates={WINDOW} deliveryDates={WINDOW} officeDates={OFFICE_AVAIL} hasOffice={HAS_OFFICE} officeLabel={officeLabel} />}
           {step===3 && <Step3 qtys={qtys} details={details} onSubmit={handleSubmit} onBack={()=>goTo(2)} />}
         </div>
       );
