@@ -354,6 +354,122 @@
     }
 
     /* ────────────────────────────────────────
+       ORDERS COUNTDOWN
+    ──────────────────────────────────────── */
+    .orders-section {
+      background: var(--cream);
+      padding: 96px 80px;
+      text-align: center;
+      border-top: 1px solid rgba(26,26,26,0.06);
+    }
+    .orders-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--ink);
+      opacity: 0.38;
+      margin-bottom: 28px;
+    }
+    /* open state */
+    .orders-open-state, .orders-closed-state { display: none; }
+    .orders-open-state.visible, .orders-closed-state.visible { display: block; }
+    .orders-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(26px, 3.5vw, 44px);
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 24px;
+    }
+    .orders-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--ogo);
+      opacity: 0.7;
+      flex-shrink: 0;
+      animation: orders-pulse 2.6s ease-in-out infinite;
+    }
+    @keyframes orders-pulse {
+      0%, 100% { opacity: 0.7;  transform: scale(1);   }
+      50%       { opacity: 0.28; transform: scale(0.75); }
+    }
+    .orders-cta {
+      display: inline-block;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(26,26,26,0.22);
+      padding-bottom: 3px;
+      transition: opacity 0.2s ease;
+    }
+    .orders-cta:hover { opacity: 0.48; }
+    .orders-closes {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: var(--ink);
+      opacity: 0.28;
+      letter-spacing: 0.05em;
+      margin-top: 14px;
+    }
+    /* closed state */
+    .orders-next-date {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(30px, 4vw, 50px);
+      font-weight: 300;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 44px;
+    }
+    .orders-timer {
+      display: inline-flex;
+      align-items: flex-start;
+      margin-bottom: 36px;
+    }
+    .orders-timer-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 32px;
+    }
+    .orders-timer-block + .orders-timer-block {
+      border-left: 1px solid rgba(26,26,26,0.09);
+    }
+    .orders-timer-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(52px, 7vw, 84px);
+      font-weight: 300;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .orders-timer-lbl {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 8px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ink);
+      opacity: 0.28;
+    }
+    .orders-tagline {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      color: var(--ink);
+      opacity: 0.3;
+      letter-spacing: 0.06em;
+    }
+    @media (max-width: 640px) {
+      .orders-section { padding: 72px 24px; }
+      .orders-timer-block { padding: 0 18px; }
+    }
+
+    /* ────────────────────────────────────────
        MARQUEE
     ──────────────────────────────────────── */
     .marquee-wrap {
@@ -1384,6 +1500,45 @@
 
   </section>
 
+  <!-- ─── ORDERS COUNTDOWN ─── -->
+  <section class="orders-section" id="orders" aria-label="pre-order status">
+
+    <div class="orders-open-state" id="orders-open">
+      <p class="orders-eyebrow">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</p>
+      <div class="orders-status">
+        <span class="orders-dot" aria-hidden="true"></span>
+        orders are open
+      </div>
+      <a href="/order" class="orders-cta">pre-order now</a>
+      <p class="orders-closes">closes tonight at midnight</p>
+    </div>
+
+    <div class="orders-closed-state" id="orders-closed">
+      <p class="orders-eyebrow">N E X T &nbsp;&nbsp; O R D E R S</p>
+      <p class="orders-next-date" id="orders-next-date"></p>
+      <div class="orders-timer">
+        <div class="orders-timer-block">
+          <span class="orders-timer-num" id="ocd-days">00</span>
+          <span class="orders-timer-lbl">days</span>
+        </div>
+        <div class="orders-timer-block">
+          <span class="orders-timer-num" id="ocd-hours">00</span>
+          <span class="orders-timer-lbl">hours</span>
+        </div>
+        <div class="orders-timer-block">
+          <span class="orders-timer-num" id="ocd-mins">00</span>
+          <span class="orders-timer-lbl">mins</span>
+        </div>
+        <div class="orders-timer-block">
+          <span class="orders-timer-num" id="ocd-secs">00</span>
+          <span class="orders-timer-lbl">secs</span>
+        </div>
+      </div>
+      <p class="orders-tagline">orders open every sunday and thursday</p>
+    </div>
+
+  </section>
+
   <!-- ─── MARQUEE ─── -->
   <div class="marquee-wrap" aria-hidden="true">
     <div class="marquee-track">
@@ -1723,6 +1878,51 @@
         btn.disabled = false;
       }
     }
+    // ── Orders countdown ──
+    (function() {
+      function isOpen() {
+        var d = new Date().getDay();
+        return d === 0 || d === 4;
+      }
+      function getNextOpening() {
+        var now  = new Date();
+        var day  = now.getDay();
+        var toSun = (7 - day) % 7 || 7;
+        var toThu = (4 - day + 7) % 7 || 7;
+        var next  = new Date(now);
+        next.setDate(now.getDate() + Math.min(toSun, toThu));
+        next.setHours(0, 0, 0, 0);
+        return next;
+      }
+      function pad(n) { return String(n).padStart(2, '0'); }
+
+      var openEl   = document.getElementById('orders-open');
+      var closedEl = document.getElementById('orders-closed');
+      var dateEl   = document.getElementById('orders-next-date');
+      var daysEl   = document.getElementById('ocd-days');
+      var hoursEl  = document.getElementById('ocd-hours');
+      var minsEl   = document.getElementById('ocd-mins');
+      var secsEl   = document.getElementById('ocd-secs');
+
+      function tick() {
+        if (isOpen()) {
+          openEl.classList.add('visible');
+          closedEl.classList.remove('visible');
+        } else {
+          openEl.classList.remove('visible');
+          closedEl.classList.add('visible');
+          var next = getNextOpening();
+          var diff = Math.max(0, next - new Date());
+          daysEl.textContent  = pad(Math.floor(diff / 86400000));
+          hoursEl.textContent = pad(Math.floor((diff % 86400000) / 3600000));
+          minsEl.textContent  = pad(Math.floor((diff % 3600000)  / 60000));
+          secsEl.textContent  = pad(Math.floor((diff % 60000)    / 1000));
+          dateEl.textContent  = next.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }).toLowerCase();
+        }
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
   </script>
 
 </body>
