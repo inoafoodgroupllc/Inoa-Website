@@ -823,14 +823,14 @@
 
       if (confirmed) return (
         <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order 3/23–3/25</h2>
+          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>3/23–3/25</span></h2>
           <ConfirmView qtys={qtys} details={details} onReset={handleReset} />
         </div>
       );
 
       return (
         <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order 3/23–3/25</h2>
+          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>3/23–3/25</span></h2>
           <StepIndicator step={step} />
           {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)} />}
