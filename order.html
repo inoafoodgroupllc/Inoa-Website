@@ -307,6 +307,17 @@
     .po-back-home-btn { background: var(--ink); color: var(--cream); border: none; padding: 12px 32px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity 0.2s ease; text-decoration: none; display: inline-block; }
     .po-back-home-btn:hover { opacity: 0.82; }
 
+    /* Closed / countdown state */
+    .po-closed { display: flex; flex-direction: column; align-items: flex-start; padding: 64px 0 48px; max-width: 560px; animation: po-in 0.5s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+    .po-closed-label { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--driftwood); opacity: 0.7; margin-bottom: 28px; }
+    .po-closed-heading { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 62px); font-weight: 300; letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); margin-bottom: 20px; }
+    .po-closed-sub { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.42; letter-spacing: 0.02em; margin-bottom: 52px; }
+    .po-countdown { display: flex; gap: 4px; margin-bottom: 28px; }
+    .po-cd-block { display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid rgba(26,26,26,0.08); padding: 18px 22px 14px; min-width: 70px; }
+    .po-cd-num { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 300; line-height: 1; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 9px; }
+    .po-cd-lbl { font-family: 'DM Sans', sans-serif; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); opacity: 0.3; }
+    .po-closed-next { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.36; letter-spacing: 0.06em; }
+
     /* Mobile */
     @media (max-width: 900px) {
       .order-nav { padding: 18px 24px; }
@@ -357,7 +368,7 @@
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script type="text/babel">
-    const { useState } = React;
+    const { useState, useEffect } = React;
 
     const ITEMS = [
       { id:1,  group:'poke — ½lb',                           name:'Spicy Ahi Poke',                          detail:'½lb', price:17 },
@@ -375,6 +386,62 @@
       { id:13, group:'add-ons',                               name:'Sushi Rice',                              detail:'8oz', price:3  },
     ];
     const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons'];
+    /* ── Visibility helpers ── */
+    function isFormOpen() {
+      const d = new Date().getDay();
+      return d === 0 || d === 4; // Sunday=0, Thursday=4
+    }
+
+    function getNextOpening() {
+      const now  = new Date();
+      const day  = now.getDay();
+      const toSun = (7 - day) % 7 || 7;
+      const toThu = (4 - day + 7) % 7 || 7;
+      const next  = new Date(now);
+      next.setDate(now.getDate() + Math.min(toSun, toThu));
+      next.setHours(0, 0, 0, 0);
+      return next;
+    }
+
+    /* ── Closed / countdown view ── */
+    function ClosedView({ onOpen }) {
+      const [, setTick] = useState(0);
+
+      useEffect(() => {
+        const id = setInterval(() => {
+          if (isFormOpen()) { onOpen(); return; }
+          setTick(t => t + 1);
+        }, 1000);
+        return () => clearInterval(id);
+      }, []);
+
+      const next  = getNextOpening();
+      const diff  = Math.max(0, next - new Date());
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000)  / 60000);
+      const secs  = Math.floor((diff % 60000)    / 1000);
+      const units = [{ v: days, l: 'days' }, { v: hours, l: 'hrs' }, { v: mins, l: 'min' }, { v: secs, l: 'sec' }];
+      const nextLabel = next.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }).toLowerCase();
+
+      return (
+        <div className="po-closed">
+          <div className="po-closed-label">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</div>
+          <h2 className="po-closed-heading">pre-orders are<br/>currently closed</h2>
+          <p className="po-closed-sub">the order form opens every sunday and thursday</p>
+          <div className="po-countdown">
+            {units.map(({ v, l }) => (
+              <div key={l} className="po-cd-block">
+                <span className="po-cd-num">{String(v).padStart(2, '0')}</span>
+                <span className="po-cd-lbl">{l}</span>
+              </div>
+            ))}
+          </div>
+          <p className="po-closed-next">next opening — {nextLabel}</p>
+        </div>
+      );
+    }
+
     // Fixed dates for pickup / delivery (Mon 3/23 – Wed 3/25)
     const DATES = [
       { key: '2026-03-23', day: 'mon', num: 23 },
@@ -761,6 +828,7 @@
 
     /* ── Root ── */
     function PreorderForm() {
+      const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
       const [confirmed, setConfirmed] = useState(false);
       const [qtys,      setQtys]      = useState({});
@@ -820,6 +888,12 @@
         setQtys({}); setDetails({ mode:'pickup' }); setStep(1); setConfirmed(false);
         scrollTop();
       }
+
+      if (!open) return (
+        <div className="preorder-inner">
+          <ClosedView onOpen={() => setOpen(true)} />
+        </div>
+      );
 
       if (confirmed) return (
         <div className="preorder-inner">
