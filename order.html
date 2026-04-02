@@ -388,12 +388,18 @@
       { id:10, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Ahi + California Roll',     detail:'¼lb', price:17 },
       { id:11, group:'combo — ¼lb poke + california roll',   name:'Combo — Spicy Salmon + California Roll',  detail:'¼lb', price:17 },
       { id:12, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Salmon + California Roll',  detail:'¼lb', price:17 },
-      { id:14, group:'add-ons', name:'Sliced Avocado', detail:'per order', price:2, featured:true, note:'the perfect finishing touch' },
+      { id:14, group:'add-ons', name:'Sliced Avocado', detail:'per order', price:2 },
       { id:13, group:'add-ons', name:'Sushi Rice',    detail:'8oz',       price:3  },
+      { id:15, group:'drinks', name:'Hawaiian Sun — Lilikoi Passion',              detail:'11.5 fl oz', price:3 },
+      { id:16, group:'drinks', name:'Hawaiian Sun — Pass-O-Guava',                 detail:'passionfruit, orange & guava · 11.5 fl oz', price:3 },
+      { id:17, group:'drinks', name:'Hawaiian Sun — Guava Nectar',                 detail:'11.5 fl oz', price:3 },
+      { id:18, group:'drinks', name:'Hawaiian Sun — Lilikoi Lychee',               detail:'11.5 fl oz', price:3 },
+      { id:19, group:'drinks', name:'Hawaiian Sun — Strawberry Guava',             detail:'11.5 fl oz', price:3 },
     ];
-    const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons'];
+    const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons','drinks'];
     /* ── Visibility helpers ── */
     function isFormOpen() {
+      return true; // TEMP: open for testing
       const d = new Date().getDay();
       return d === 0 || d === 4; // Sunday=0, Thursday=4
     }
