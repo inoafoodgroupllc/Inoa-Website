@@ -163,6 +163,11 @@
     }
     .po-item-card:hover { border-color: rgba(26,26,26,0.16); }
     .po-item-card.selected { border-color: var(--driftwood); background: rgba(139,115,85,0.025); }
+    .po-item-card.featured { border-color: rgba(139,115,85,0.28); background: rgba(139,115,85,0.04); }
+    .po-item-card.featured:hover { border-color: rgba(139,115,85,0.5); }
+    .po-item-card.featured.selected { background: rgba(139,115,85,0.07); }
+    .po-item-tag { font-family: 'DM Sans', sans-serif; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--driftwood); opacity: 0.75; margin-top: 3px; }
+    .po-item-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; font-style: italic; margin-top: 2px; }
     .po-item-info { flex: 1; min-width: 0; }
     .po-item-name { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 2px; }
     .po-item-meta { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; }
@@ -383,7 +388,8 @@
       { id:10, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Ahi + California Roll',     detail:'¼lb', price:17 },
       { id:11, group:'combo — ¼lb poke + california roll',   name:'Combo — Spicy Salmon + California Roll',  detail:'¼lb', price:17 },
       { id:12, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Salmon + California Roll',  detail:'¼lb', price:17 },
-      { id:13, group:'add-ons',                               name:'Sushi Rice',                              detail:'8oz', price:3  },
+      { id:14, group:'add-ons', name:'Sliced Avocado', detail:'per order', price:2, featured:true, note:'the perfect finishing touch' },
+      { id:13, group:'add-ons', name:'Sushi Rice',    detail:'8oz',       price:3  },
     ];
     const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons'];
     /* ── Visibility helpers ── */
@@ -445,9 +451,19 @@
     function getWindowDates() {
       const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
       const now  = new Date();
+      const today = now.getDay();
+      // Find how many days back the most recent Sun(0) or Thu(4) was
+      let daysBack = 0;
+      for (let i = 0; i <= 6; i++) {
+        const d = (today - i + 7) % 7;
+        if (d === 0 || d === 4) { daysBack = i; break; }
+      }
+      // Anchor to that opening day, then return the 3 fulfillment days after it
+      const anchor = new Date(now);
+      anchor.setDate(now.getDate() - daysBack);
       return [1, 2, 3].map(i => {
-        const d = new Date(now);
-        d.setDate(now.getDate() + i);
+        const d = new Date(anchor);
+        d.setDate(anchor.getDate() + i);
         return {
           key:       d.toISOString().slice(0, 10),
           day:       DAYS[d.getDay()],
@@ -543,10 +559,12 @@
                 <div key={group}>
                   <div className="po-group-label">{group}</div>
                   {ITEMS.filter(it => it.group===group).map(it => (
-                    <div key={it.id} className={`po-item-card ${(qtys[it.id]||0)>0?'selected':''}`}>
+                    <div key={it.id} className={`po-item-card ${it.featured?'featured':''} ${(qtys[it.id]||0)>0?'selected':''}`}>
                       <div className="po-item-info">
                         <div className="po-item-name">{it.name}</div>
                         <div className="po-item-meta">{it.detail}</div>
+                        {it.featured && <div className="po-item-tag">recommended</div>}
+                        {it.note    && <div className="po-item-note">{it.note}</div>}
                       </div>
                       <div className="po-item-price">${it.price}</div>
                       <div className="po-qty">
