@@ -400,16 +400,16 @@
     /* ── Visibility helpers ── */
     function isFormOpen() {
       const d = new Date().getDay();
-      return d === 0 || d === 4; // Sunday=0, Thursday=4
+      return d === 0 || d === 3; // Sunday=0, Wednesday=3
     }
 
     function getNextOpening() {
       const now  = new Date();
       const day  = now.getDay();
       const toSun = (7 - day) % 7 || 7;
-      const toThu = (4 - day + 7) % 7 || 7;
+      const toWed = (3 - day + 7) % 7 || 7;
       const next  = new Date(now);
-      next.setDate(now.getDate() + Math.min(toSun, toThu));
+      next.setDate(now.getDate() + Math.min(toSun, toWed));
       next.setHours(0, 0, 0, 0);
       return next;
     }
@@ -439,7 +439,7 @@
         <div className="po-closed">
           <div className="po-closed-label">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</div>
           <h2 className="po-closed-heading">pre-orders are<br/>currently closed</h2>
-          <p className="po-closed-sub">the order form opens every sunday and thursday</p>
+          <p className="po-closed-sub">the order form opens every sunday and wednesday</p>
           <div className="po-countdown">
             {units.map(({ v, l }) => (
               <div key={l} className="po-cd-block">
@@ -457,18 +457,22 @@
       const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
       const now  = new Date();
       const today = now.getDay();
-      // Find how many days back the most recent Sun(0) or Thu(4) was
+      // Find how many days back the most recent Sun(0) or Wed(3) was
       let daysBack = 0;
       for (let i = 0; i <= 6; i++) {
         const d = (today - i + 7) % 7;
-        if (d === 0 || d === 4) { daysBack = i; break; }
+        if (d === 0 || d === 3) { daysBack = i; break; }
       }
-      // Anchor to that opening day, then return the 3 fulfillment days after it
+      // Anchor to that opening day, then return fulfillment days after it
+      // Sunday opens → Mon + Tue (2 days)
+      // Wednesday opens → Thu + Fri + Sat (3 days)
       const anchor = new Date(now);
       anchor.setDate(now.getDate() - daysBack);
-      return [1, 2, 3].map(i => {
+      const openDay = anchor.getDay(); // 0=Sun or 3=Wed
+      const numDays = openDay === 0 ? 2 : 3;
+      return Array.from({ length: numDays }, (_, i) => {
         const d = new Date(anchor);
-        d.setDate(anchor.getDate() + i);
+        d.setDate(anchor.getDate() + i + 1);
         return {
           key:       d.toISOString().slice(0, 10),
           day:       DAYS[d.getDay()],
@@ -480,12 +484,16 @@
     }
 
     function getTimeSlots(mode, dateKey) {
-      if (mode === 'delivery') {
-        return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM', '5:00 PM – 6:00 PM'];
-      }
       const day = dateKey ? new Date(dateKey + 'T12:00:00').getDay() : null;
-      if (day === 2) return ['12:00 PM – 1:00 PM', '1:00 PM – 2:30 PM']; // Tuesday
-      return ['11:30 AM – 12:30 PM', '12:30 PM – 1:30 PM', '1:30 PM – 2:30 PM']; // all other days
+      if (mode === 'delivery') {
+        if (day === 6) {
+          // Saturday — delivery only, 12:00 PM – 4:00 PM
+          return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
+        }
+        return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
+      }
+      // Pickup: Mon, Tue, Thu, Fri — 12:00 PM – 2:30 PM
+      return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 2:30 PM'];
     }
 
     function fmtPhone(v) {
@@ -591,7 +599,7 @@
     }
 
     /* ── Step 2 ── */
-    function Step2({ details, setDetails, onNext, onBack, pickupDates, deliveryDates, officeDates, hasOffice, officeLabel }) {
+    function Step2({ details, setDetails, onNext, onBack, pickupDates, deliveryDates }) {
       const [errors, setErrors] = useState({});
       function set(field, val) {
         setDetails(prev => ({ ...prev, [field]: val }));
@@ -604,7 +612,7 @@
         if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'enter a valid phone number';
         if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'enter a valid email';
         if (!details.date) e.date = 'select a date';
-        if (!details.time && details.mode !== 'office') e.time = 'select a time';
+        if (!details.time) e.time = 'select a time';
         if (details.mode === 'delivery') {
           if (!details.address?.trim()) e.address = 'required';
           if (!details.city?.trim())    e.city    = 'required';
@@ -613,12 +621,9 @@
         setErrors(e);
         return Object.keys(e).length === 0;
       }
-      // Guard: if office mode was set but no office dates exist this window, reset to pickup
-      if (details.mode === 'office' && !hasOffice) { setDetails(prev => ({ ...prev, mode: 'pickup', date: '', time: '' })); }
       const isPickup   = details.mode === 'pickup';
-      const isOffice   = details.mode === 'office';
       const isDelivery = details.mode === 'delivery';
-      const activeDates = isOffice ? officeDates : isDelivery ? deliveryDates : pickupDates;
+      const activeDates = isDelivery ? deliveryDates : pickupDates;
       return (
         <div className="po-step-content">
           <div className="po-form">
@@ -649,18 +654,12 @@
             <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
             <div className="po-toggle">
               <button className={`po-toggle-opt${isPickup?' on':''}`}   onClick={()=>{ set('mode','pickup');   set('date',''); set('time',''); }}>pickup</button>
-              {hasOffice && <button className={`po-toggle-opt${isOffice?' on':''}`} onClick={()=>{ set('mode','office'); set('date',''); set('time',''); }}>office pickup</button>}
               <button className={`po-toggle-opt${isDelivery?' on':''}`} onClick={()=>{ set('mode','delivery'); set('date',''); set('time',''); }}>delivery</button>
             </div>
 
             {isPickup && (
-              <p className="po-mode-note">pickup location is five minutes away from UC Santa Cruz</p>
-            )}
-
-            {isOffice && (
               <div className="po-office-block">
-                <p className="po-office-loc">100 Enterprise Way, Scotts Valley</p>
-                <p className="po-office-hours">available {officeLabel}</p>
+                <p className="po-office-loc">100 Enterprise Way, Scotts Valley, CA 95066</p>
               </div>
             )}
 
@@ -687,7 +686,7 @@
             </>}
 
             <div className="po-label" style={{marginBottom:'10px'}}>
-              {isOffice ? 'pickup day' : isPickup ? 'pickup date' : 'delivery date'}
+              {isPickup ? 'pickup date' : 'delivery date'}
               {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
             </div>
             <div className="po-date-grid">
@@ -699,22 +698,17 @@
               ))}
             </div>
 
-            {isOffice
-              ? <p className="po-office-pickup-note">all orders available for pickup after 11:00 AM</p>
-              : <>
-                  <div className="po-label" style={{marginBottom:'10px'}}>
-                    {isPickup?'pickup time':'delivery time'}
-                    {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
-                  </div>
-                  <div className="po-time-grid">
-                    {getTimeSlots(details.mode, details.date).map(t => (
-                      <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
-                    ))}
-                  </div>
-                </>
-            }
+            <div className="po-label" style={{marginBottom:'10px'}}>
+              {isPickup?'pickup time':'delivery time'}
+              {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
+            </div>
+            <div className="po-time-grid">
+              {getTimeSlots(details.mode, details.date).map(t => (
+                <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
+              ))}
+            </div>
 
-            {isOffice && (
+            {isPickup && (
               <div className="po-form-group">
                 <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
                 <input className="po-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
@@ -757,7 +751,6 @@
       const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const finalTotal = subtotal - discount;
       const isPickup   = details.mode === 'pickup';
-      const isOffice   = details.mode === 'office';
       const isDelivery = details.mode === 'delivery';
       return (
         <div className="po-step-content">
@@ -791,14 +784,13 @@
           </div>
 
           <div className="po-review-block">
-            <div className="po-review-ttl">{isOffice?'office pickup':isPickup?'pickup':'delivery'} details</div>
+            <div className="po-review-ttl">{isPickup?'pickup':'delivery'} details</div>
             <p className="po-review-detail">
-              {isOffice
-                ? <>{fmtDate(details.date)}<br/>pickup after 11:30 AM<br/>100 Enterprise Way, Scotts Valley</>
-                : <>{fmtDate(details.date)} at {details.time}{isDelivery && <><br/>{details.address}, {details.city} {details.zip}</>}</>
-              }
+              {fmtDate(details.date)} at {details.time}
+              {isPickup && <><br/>100 Enterprise Way, Scotts Valley, CA 95066</>}
+              {isDelivery && <><br/>{details.address}, {details.city} {details.zip}</>}
             </p>
-            {isOffice && details.voucher && <p className="po-review-detail" style={{marginTop:'8px',opacity:0.55}}>voucher: {details.voucher}</p>}
+            {isPickup && details.voucher && <p className="po-review-detail" style={{marginTop:'8px',opacity:0.55}}>voucher: {details.voucher}</p>}
             {details.notes && <p className="po-review-detail" style={{marginTop:'10px',opacity:0.45}}>note: {details.notes}</p>}
           </div>
 
@@ -824,7 +816,7 @@
     function ConfirmView({ qtys, details, onReset }) {
       const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
       const total    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const isPickup = details.mode !== 'delivery';
+      const isPickup = details.mode === 'pickup';
       return (
         <div className="po-confirm po-step-content">
           <div className="po-confirm-check">✓</div>
@@ -855,11 +847,11 @@
 
     /* ── Root ── */
     function PreorderForm() {
-      const WINDOW       = getWindowDates();
-      const OFFICE_AVAIL = WINDOW.filter(d => d.dayOfWeek === 1 || d.dayOfWeek === 3 || d.dayOfWeek === 5);
-      const HAS_OFFICE   = OFFICE_AVAIL.length > 0;
-      const headerSpan   = `${WINDOW[0].month}/${WINDOW[0].num}–${WINDOW[2].month}/${WINDOW[2].num}`;
-      const officeLabel  = OFFICE_AVAIL.map(d => d.day).join(' · ');
+      const WINDOW         = getWindowDates();
+      const PICKUP_DATES   = WINDOW.filter(d => d.dayOfWeek !== 6); // exclude Saturday (delivery only)
+      const DELIVERY_DATES = WINDOW;                                   // all days
+      const last           = WINDOW[WINDOW.length - 1];
+      const headerSpan     = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
@@ -875,13 +867,12 @@
         const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
         const total     = subtotal - discount;
         const itemLines = orderedItems.map(it=>`${it.name} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`).join('\n');
-        const isOffice   = details.mode === 'office';
         const isDelivery = details.mode === 'delivery';
-        const fulfillmentMode = isOffice ? 'Office Pickup' : isDelivery ? 'Delivery' : 'Pickup';
-        const fulfillmentTime = isOffice ? 'after 11:00 AM' : details.time;
+        const fulfillmentMode = isDelivery ? 'Delivery' : 'Pickup';
+        const fulfillmentTime = details.time;
         const deliveryAddress = isDelivery
           ? `${details.address}, ${details.city} ${details.zip}`
-          : isOffice ? '100 Enterprise Way, Scotts Valley' : 'N/A';
+          : '100 Enterprise Way, Scotts Valley, CA 95066';
 
         const payload = {
           _subject: `New inoa Pre-Order — ${details.firstName} ${details.lastName}`,
@@ -941,7 +932,7 @@
           <StepIndicator step={step} />
           {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
-            pickupDates={WINDOW} deliveryDates={WINDOW} officeDates={OFFICE_AVAIL} hasOffice={HAS_OFFICE} officeLabel={officeLabel} />}
+            pickupDates={PICKUP_DATES} deliveryDates={DELIVERY_DATES} />}
           {step===3 && <Step3 qtys={qtys} details={details} onSubmit={handleSubmit} onBack={()=>goTo(2)} />}
         </div>
       );

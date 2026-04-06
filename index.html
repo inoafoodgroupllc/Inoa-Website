@@ -1534,7 +1534,7 @@
           <span class="orders-timer-lbl">secs</span>
         </div>
       </div>
-      <p class="orders-tagline">orders open every sunday and thursday</p>
+      <p class="orders-tagline">orders open every sunday and wednesday</p>
     </div>
 
   </section>
@@ -1720,9 +1720,9 @@
         <p class="info-label">hours</p>
         <table class="hours-table" aria-label="business hours">
           <tbody>
-            <tr><td>monday – friday</td><td>11 am – 8 pm</td></tr>
-            <tr><td>saturday</td>       <td>10 am – 9 pm</td></tr>
-            <tr><td>sunday</td>         <td>10 am – 7 pm</td></tr>
+            <tr><td>mon, tue, thu, fri</td><td>12:00 – 2:30 pm pickup · 3:00 – 5:00 pm delivery</td></tr>
+            <tr><td>saturday</td>           <td>12:00 – 4:00 pm delivery only</td></tr>
+            <tr><td>wednesday &amp; sunday</td><td>closed</td></tr>
           </tbody>
         </table>
       </div>
@@ -1863,15 +1863,15 @@
     (function() {
       function isOpen() {
         var d = new Date().getDay();
-        return d === 0 || d === 4;
+        return d === 0 || d === 3;
       }
       function getNextOpening() {
         var now  = new Date();
         var day  = now.getDay();
         var toSun = (7 - day) % 7 || 7;
-        var toThu = (4 - day + 7) % 7 || 7;
+        var toWed = (3 - day + 7) % 7 || 7;
         var next  = new Date(now);
-        next.setDate(now.getDate() + Math.min(toSun, toThu));
+        next.setDate(now.getDate() + Math.min(toSun, toWed));
         next.setHours(0, 0, 0, 0);
         return next;
       }
