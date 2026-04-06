@@ -1862,7 +1862,11 @@
     // ── Orders countdown ──
     (function() {
       function isOpen() {
-        var d = new Date().getDay();
+        var now = new Date();
+        // Temporary: Mon Apr 6 2026 — open until 2:00 PM
+        var isMon6Apr = now.getFullYear() === 2026 && now.getMonth() === 3 && now.getDate() === 6;
+        if (isMon6Apr && now.getHours() < 14) return true;
+        var d = now.getDay();
         return d === 0 || d === 3;
       }
       function getNextOpening() {

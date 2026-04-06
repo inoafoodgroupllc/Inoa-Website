@@ -399,7 +399,11 @@
     const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons','drinks'];
     /* ── Visibility helpers ── */
     function isFormOpen() {
-      const d = new Date().getDay();
+      const now = new Date();
+      // Temporary: Mon Apr 6 2026 — open until 2:00 PM
+      const isMon6Apr = now.getFullYear() === 2026 && now.getMonth() === 3 && now.getDate() === 6;
+      if (isMon6Apr && now.getHours() < 14) return true;
+      const d = now.getDay();
       return d === 0 || d === 3; // Sunday=0, Wednesday=3
     }
 
