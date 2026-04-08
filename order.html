@@ -388,6 +388,8 @@
       { id:10, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Ahi + California Roll',     detail:'¼lb', price:17 },
       { id:11, group:'combo — ¼lb poke + california roll',   name:'Combo — Spicy Salmon + California Roll',  detail:'¼lb', price:17 },
       { id:12, group:'combo — ¼lb poke + california roll',   name:'Combo — Shoyu Salmon + California Roll',  detail:'¼lb', price:17 },
+      { id:20, group:'specials', name:'Spicy Tuna Bowl',   detail:'minced spicy tuna over rice w/ sliced avocado', price:15 },
+      { id:21, group:'specials', name:'Salmon Belly Bowl', detail:'minced salmon belly over rice w/ sliced avocado', price:13 },
       { id:14, group:'add-ons', name:'Sliced Avocado', detail:'per order', price:2 },
       { id:13, group:'add-ons', name:'Sushi Rice',    detail:'8oz',       price:3  },
       { id:15, group:'drinks', name:'Hawaiian Sun — Lilikoi Passion',              detail:'11.5 fl oz', price:3 },
@@ -396,7 +398,7 @@
       { id:18, group:'drinks', name:'Hawaiian Sun — Lilikoi Lychee',               detail:'11.5 fl oz', price:3 },
       { id:19, group:'drinks', name:'Hawaiian Sun — Strawberry Guava',             detail:'11.5 fl oz', price:3 },
     ];
-    const GROUPS = ['poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons','drinks'];
+    const GROUPS = ['specials','poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons','drinks'];
     /* ── Visibility helpers ── */
     function isFormOpen() {
       const now = new Date();
@@ -491,9 +493,10 @@
       const day = dateKey ? new Date(dateKey + 'T12:00:00').getDay() : null;
       if (mode === 'delivery') {
         if (day === 6) {
-          // Saturday — delivery only, 12:00 PM – 4:00 PM
           return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
         }
+        // Temp: Fri Apr 10 2026 — delivery 2:00–3:00 PM only
+        if (dateKey === '2026-04-10') return ['2:00 PM – 3:00 PM'];
         return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       }
       // Pickup: Mon, Tue, Thu, Fri — 12:00 PM – 2:30 PM
@@ -852,9 +855,11 @@
     /* ── Root ── */
     function PreorderForm() {
       const WINDOW         = getWindowDates();
-      const PICKUP_DATES   = WINDOW.filter(d => d.dayOfWeek !== 6); // exclude Saturday (delivery only)
-      const DELIVERY_DATES = WINDOW;                                   // all days
-      const last           = WINDOW[WINDOW.length - 1];
+      // Temp: no Saturday ordering week of Apr 8 2026
+      const noSatWeek = ['2026-04-11'];
+      const PICKUP_DATES   = WINDOW.filter(d => d.dayOfWeek !== 6 && !noSatWeek.includes(d.key));
+      const DELIVERY_DATES = WINDOW.filter(d => !noSatWeek.includes(d.key));
+      const last           = DELIVERY_DATES[DELIVERY_DATES.length - 1] || WINDOW[WINDOW.length - 1];
       const headerSpan     = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
