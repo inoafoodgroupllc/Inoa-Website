@@ -480,7 +480,7 @@
         const d = new Date(anchor);
         d.setDate(anchor.getDate() + i + 1);
         return {
-          key:       d.toISOString().slice(0, 10),
+          key:       `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,
           day:       DAYS[d.getDay()],
           num:       d.getDate(),
           month:     d.getMonth() + 1,
