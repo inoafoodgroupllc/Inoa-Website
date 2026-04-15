@@ -496,7 +496,7 @@
           return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
         }
         // Temp: week of Apr 15 — delivery 3:00–4:00 PM only on Thu/Fri
-        if (dateKey === '2026-04-17' || dateKey === '2026-04-18') return ['3:00 PM – 4:00 PM'];
+        if (dateKey === '2026-04-16' || dateKey === '2026-04-17') return ['3:00 PM – 4:00 PM'];
         return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       }
       // Pickup: Mon, Tue, Thu, Fri — 12:00 PM – 2:30 PM
@@ -855,13 +855,13 @@
     /* ── Root ── */
     function PreorderForm() {
       const WINDOW         = getWindowDates();
-      // Temp: week of Apr 15 — Thu/Fri only, no Saturday
-      const thisWeekOnly = ['2026-04-17', '2026-04-18'];
+      // Temp: week of Apr 15 — Thu Apr 16 + Fri Apr 17 only
+      const thisWeekOnly = ['2026-04-16', '2026-04-17'];
       const isThisWeek = WINDOW.some(d => thisWeekOnly.includes(d.key));
       const PICKUP_DATES   = isThisWeek ? WINDOW.filter(d => thisWeekOnly.includes(d.key)) : WINDOW.filter(d => d.dayOfWeek !== 6);
       const DELIVERY_DATES = isThisWeek ? WINDOW.filter(d => thisWeekOnly.includes(d.key)) : WINDOW;
       const last           = DELIVERY_DATES[DELIVERY_DATES.length - 1] || WINDOW[WINDOW.length - 1];
-      const headerSpan     = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const headerSpan     = isThisWeek ? '4/16–4/17' : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
