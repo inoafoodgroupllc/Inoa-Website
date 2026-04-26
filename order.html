@@ -855,13 +855,13 @@
     /* ── Root ── */
     function PreorderForm() {
       const WINDOW         = getWindowDates();
-      // Temp: week of Apr 15 — Thu Apr 16 + Fri Apr 17 only
-      const thisWeekOnly = ['2026-04-16', '2026-04-17'];
+      // Temp: week of Apr 26 — Tue Apr 28 only (Mon skipped for midterm)
+      const thisWeekOnly = ['2026-04-28'];
       const isThisWeek = WINDOW.some(d => thisWeekOnly.includes(d.key));
       const PICKUP_DATES   = isThisWeek ? WINDOW.filter(d => thisWeekOnly.includes(d.key)) : WINDOW.filter(d => d.dayOfWeek !== 6);
       const DELIVERY_DATES = isThisWeek ? WINDOW.filter(d => thisWeekOnly.includes(d.key)) : WINDOW;
       const last           = DELIVERY_DATES[DELIVERY_DATES.length - 1] || WINDOW[WINDOW.length - 1];
-      const headerSpan     = isThisWeek ? '4/16–4/17' : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const headerSpan     = isThisWeek ? '4/28' : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
