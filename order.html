@@ -425,9 +425,9 @@
 
     /* ── Delivery tiers ── */
     const DELIVERY_TIERS = {
-      ucsc_on:  { label: 'ucsc — on campus',  fee: 0, min: 15, feeLabel: 'free' },
-      ucsc_off: { label: 'ucsc — off campus', fee: 3, min: 20, feeLabel: '$3'   },
-      regular:  { label: 'regular',           fee: 5, min: 25, feeLabel: '$5'   },
+      ucsc_on:  { label: 'ucsc — on campus',  fee: 0, min: 15, freeAt: 15 },
+      ucsc_off: { label: 'ucsc — off campus', fee: 3, min: 20, freeAt: 30 },
+      regular:  { label: 'regular',           fee: 5, min: 25, freeAt: 40 },
     };
 
     /* ── Visibility helpers ── */
@@ -568,15 +568,32 @@
 
     /* ── Running total panel ── */
     function TotalPanel({ qtys, onProceed, mode, customerType }) {
-      const lines      = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
-      const subtotal   = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const isDelivery = mode === 'delivery';
-      const tier       = isDelivery ? DELIVERY_TIERS[customerType || 'regular'] : null;
-      const deliveryFee = tier ? tier.fee : 0;
-      const grandTotal  = subtotal + deliveryFee;
-      const belowMin    = lines.length > 0 && isDelivery && subtotal < (tier ? tier.min : 15);
-      const needed      = tier ? tier.min - subtotal : 15 - subtotal;
-      const disabled    = lines.length === 0;
+      const lines       = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
+      const subtotal    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const isDelivery  = mode === 'delivery';
+      const tier        = isDelivery ? DELIVERY_TIERS[customerType || 'regular'] : null;
+      const freeUnlocked = tier && subtotal >= tier.freeAt;
+      const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
+      const grandTotal   = subtotal + deliveryFee;
+      const belowMin     = isDelivery && lines.length > 0 && subtotal < tier.min;
+      const disabled     = lines.length === 0 || belowMin;
+
+      let nudge = null;
+      if (isDelivery && lines.length > 0) {
+        if (belowMin) {
+          nudge = { text: `add $${tier.min - subtotal} more to meet the $${tier.min} minimum`, qualify: false };
+        } else if (!freeUnlocked && tier.freeAt > tier.min) {
+          nudge = { text: `add $${tier.freeAt - subtotal} more for free delivery`, qualify: false };
+        } else {
+          nudge = { text: `free delivery ${freeUnlocked && tier.fee > 0 ? 'unlocked' : ''} ✓`.trim(), qualify: true };
+        }
+      } else if (!isDelivery && lines.length > 0) {
+        const onCampMin = DELIVERY_TIERS.ucsc_on.min;
+        nudge = subtotal < onCampMin
+          ? { text: `free delivery on orders $${onCampMin}+ — add $${onCampMin - subtotal} more to qualify`, qualify: false }
+          : { text: `you qualify for free delivery ✓`, qualify: true };
+      }
+
       return (
         <div className="po-total-panel">
           <div className="po-total-ttl">your order</div>
@@ -596,27 +613,15 @@
           {isDelivery && lines.length > 0
             ? <>
                 <div className="po-total-sub-row"><span>subtotal</span><span>${subtotal}</span></div>
-                <div className="po-total-fee-row"><span>delivery</span><span>{tier.fee === 0 ? 'free' : `$${tier.fee}`}</span></div>
+                <div className="po-total-fee-row"><span>delivery</span><span>{deliveryFee === 0 ? 'free' : `$${deliveryFee}`}</span></div>
                 <div className="po-total-divider" style={{margin:'8px 0'}} />
                 <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${grandTotal}</span></div>
               </>
             : <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${subtotal}</span></div>
           }
-          {lines.length > 0 && (
-            isDelivery
-              ? <p className={`po-delivery-min${belowMin ? '' : ' qualify'}`}>
-                  {belowMin
-                    ? `add $${needed} more to meet the $${tier.min} minimum`
-                    : tier.fee === 0 ? `free delivery ✓` : `minimum met ✓`}
-                </p>
-              : <p className={`po-delivery-min${subtotal < 15 ? '' : ' qualify'}`}>
-                  {subtotal < 15
-                    ? `free delivery on orders $15+ — add $${15 - subtotal} more to qualify`
-                    : `you qualify for free delivery ✓`}
-                </p>
-          )}
+          {nudge && <p className={`po-delivery-min${nudge.qualify ? ' qualify' : ''}`}>{nudge.text}</p>}
           <button className="po-btn-proceed" onClick={onProceed} disabled={disabled} style={{marginTop: lines.length > 0 ? '14px' : undefined}}>
-            {lines.length === 0 ? 'add items to continue' : 'continue to details →'}
+            {lines.length === 0 ? 'add items to continue' : belowMin ? `add $${tier.min - subtotal} more to continue` : 'continue to details →'}
           </button>
         </div>
       );
@@ -846,10 +851,11 @@
       const discount   = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const isPickup   = details.mode === 'pickup';
       const isDelivery = details.mode === 'delivery';
-      const tier       = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
-      const deliveryFee = tier ? tier.fee : 0;
-      const belowMin    = isDelivery && subtotal < tier.min;
-      const finalTotal  = subtotal - discount + deliveryFee;
+      const tier         = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
+      const freeUnlocked = tier && subtotal >= tier.freeAt;
+      const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
+      const belowMin     = isDelivery && subtotal < tier.min;
+      const finalTotal   = subtotal - discount + deliveryFee;
       return (
         <div className="po-step-content">
           <div className="po-review-block">
@@ -979,10 +985,11 @@
         const subtotal    = orderedItems.reduce((s,it)=>s+it.price*(qtys[it.id]||0),0);
         const discount    = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
         const isDelivery  = details.mode === 'delivery';
-        const tier        = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
-        const deliveryFee = tier ? tier.fee : 0;
-        const total       = subtotal - discount + deliveryFee;
-        const belowMin    = isDelivery && subtotal < tier.min;
+        const tier         = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
+        const freeUnlocked = tier && subtotal >= tier.freeAt;
+        const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
+        const total        = subtotal - discount + deliveryFee;
+        const belowMin     = isDelivery && subtotal < tier.min;
         const itemLines   = orderedItems.map(it=>`${it.name} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`).join('\n');
         const fulfillmentMode = isDelivery ? 'Delivery' : 'Pickup';
         const fulfillmentTime = details.time;
@@ -1005,7 +1012,7 @@
           order_items:      itemLines,
           order_subtotal:   `$${subtotal.toFixed(2)}`,
           order_discount:   discount > 0 ? `-$${discount.toFixed(2)}` : 'none',
-          delivery_fee:     isDelivery ? (deliveryFee === 0 ? 'free' : `$${deliveryFee}`) : 'n/a',
+          delivery_fee:     isDelivery ? (deliveryFee === 0 ? (freeUnlocked && tier.fee > 0 ? 'free (unlocked)' : 'free') : `$${deliveryFee}`) : 'n/a',
           order_total:      `$${total.toFixed(2)}`,
           below_minimum:    belowMin ? `YES — order is $${subtotal.toFixed(2)}, minimum is $${tier.min}` : 'no',
           notes:            details.notes || '—',
