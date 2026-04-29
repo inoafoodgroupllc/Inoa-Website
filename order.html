@@ -557,7 +557,7 @@
       const isDelivery   = mode === 'delivery';
       const belowMin     = isDelivery && total < DELIVERY_MIN;
       const needed       = DELIVERY_MIN - total;
-      const disabled     = lines.length === 0 || belowMin;
+      const disabled     = lines.length === 0;
       return (
         <div className="po-total-panel">
           <div className="po-total-ttl">your order</div>
@@ -586,7 +586,7 @@
             </p>
           )}
           <button className="po-btn-proceed" onClick={onProceed} disabled={disabled} style={{marginTop: isDelivery ? '14px' : undefined}}>
-            {lines.length === 0 ? 'add items to continue' : belowMin ? `add $${needed} more for delivery` : 'continue to details →'}
+            {lines.length === 0 ? 'add items to continue' : 'continue to details →'}
           </button>
         </div>
       );
