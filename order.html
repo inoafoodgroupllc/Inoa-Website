@@ -196,6 +196,8 @@
     .po-total-row-qty { opacity: 0.42; flex-shrink: 0; }
     .po-total-row-price { flex-shrink: 0; opacity: 0.78; }
     .po-total-empty { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.28; text-align: center; padding: 16px 0 12px; }
+    .po-delivery-min { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; margin-top: 10px; line-height: 1.55; transition: opacity 0.3s ease; }
+    .po-delivery-min.qualify { color: var(--ogo); opacity: 0.65; }
     .po-total-divider { height: 1px; background: rgba(26,26,26,0.08); margin: 14px 0; }
     .po-total-amount { display: flex; justify-content: space-between; align-items: baseline; font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 18px; }
     .po-total-lbl { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.08em; opacity: 0.42; }
@@ -548,9 +550,14 @@
     }
 
     /* ── Running total panel ── */
-    function TotalPanel({ qtys, onProceed }) {
-      const lines = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
-      const total = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+    function TotalPanel({ qtys, onProceed, mode }) {
+      const lines      = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
+      const total      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const DELIVERY_MIN = 15;
+      const isDelivery   = mode === 'delivery';
+      const belowMin     = isDelivery && total < DELIVERY_MIN;
+      const needed       = DELIVERY_MIN - total;
+      const disabled     = lines.length === 0 || belowMin;
       return (
         <div className="po-total-panel">
           <div className="po-total-ttl">your order</div>
@@ -571,15 +578,22 @@
             <span className="po-total-lbl">total</span>
             <span>${total}</span>
           </div>
-          <button className="po-btn-proceed" onClick={onProceed} disabled={lines.length===0}>
-            {lines.length===0 ? 'add items to continue' : 'continue to details →'}
+          {isDelivery && (
+            <p className={`po-delivery-min${belowMin ? '' : ' qualify'}`}>
+              {belowMin
+                ? `free delivery on orders $${DELIVERY_MIN}+ — add $${needed} more to qualify`
+                : `you qualify for free delivery ✓`}
+            </p>
+          )}
+          <button className="po-btn-proceed" onClick={onProceed} disabled={disabled} style={{marginTop: isDelivery ? '14px' : undefined}}>
+            {lines.length === 0 ? 'add items to continue' : belowMin ? `add $${needed} more for delivery` : 'continue to details →'}
           </button>
         </div>
       );
     }
 
     /* ── Step 1 ── */
-    function Step1({ qtys, setQtys, onNext }) {
+    function Step1({ qtys, setQtys, onNext, mode }) {
       function change(id, delta) {
         setQtys(prev => ({ ...prev, [id]: Math.max(0, (prev[id]||0) + delta) }));
       }
@@ -615,7 +629,7 @@
               ))}
             </div>
             <div className="po-total-col">
-              <TotalPanel qtys={qtys} onProceed={onNext} />
+              <TotalPanel qtys={qtys} onProceed={onNext} mode={mode} />
             </div>
           </div>
         </div>
@@ -957,7 +971,7 @@
         <div className="preorder-inner">
           <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
           <StepIndicator step={step} />
-          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} />}
+          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} mode={details.mode} />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
             pickupDates={PICKUP_DATES} deliveryDates={DELIVERY_DATES} />}
           {step===3 && <Step3 qtys={qtys} details={details} onSubmit={handleSubmit} onBack={()=>goTo(2)} />}
