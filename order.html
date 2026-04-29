@@ -554,8 +554,7 @@
       const lines      = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
       const total      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       const DELIVERY_MIN = 15;
-      const isDelivery   = mode === 'delivery';
-      const belowMin     = isDelivery && total < DELIVERY_MIN;
+      const belowMin     = lines.length > 0 && total < DELIVERY_MIN;
       const needed       = DELIVERY_MIN - total;
       const disabled     = lines.length === 0;
       return (
@@ -578,7 +577,7 @@
             <span className="po-total-lbl">total</span>
             <span>${total}</span>
           </div>
-          {isDelivery && (
+          {lines.length > 0 && (
             <p className={`po-delivery-min${belowMin ? '' : ' qualify'}`}>
               {belowMin
                 ? `free delivery on orders $${DELIVERY_MIN}+ — add $${needed} more to qualify`
