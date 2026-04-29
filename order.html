@@ -254,6 +254,9 @@
     .po-time-btn { padding: 8px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; }
     .po-time-btn:hover { border-color: rgba(26,26,26,0.28); }
     .po-time-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .po-desc-card { padding: 12px 16px; background: rgba(139,115,85,0.04); border: 1px solid rgba(139,115,85,0.16); border-radius: 3px; margin-bottom: 7px; }
+    .po-desc-card-name { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--driftwood); margin-bottom: 4px; letter-spacing: 0.02em; }
+    .po-desc-card-text { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.5; line-height: 1.65; }
     .po-delivery-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
     .po-mode-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
 
@@ -376,14 +379,17 @@
     const { useState, useEffect } = React;
 
     const ITEMS = [
+      { id:100, type:'desc', group:'new', name:'Chili Garlic', detail:'a garlicky and spicy marinade made with our homemade chili garlic crunch, shoyu, sesame oil, hawaiian sea salt, and masago.' },
       { id:22, group:'new',            name:'Chili Garlic Ahi Poke',           detail:'½lb',        price:17 },
       { id:23, group:'new',            name:'Chili Garlic Salmon Poke',         detail:'½lb',        price:16 },
       { id:24, group:'new',            name:'Chili Garlic Ahi Poke + Rice',     detail:'⅓lb',        price:16 },
       { id:25, group:'new',            name:'Chili Garlic Salmon Poke + Rice',  detail:'⅓lb',        price:15 },
-      { id:26, group:'new',            name:'Spam Musubi',                       detail:'single · grilled spam, sushi rice, wrapped in nori', price:4 },
-      { id:27, group:'specials',       name:'3 Spam Musubi',                     detail:'3 pack special · grilled spam, sushi rice, wrapped in nori', price:10 },
+      { id:26, group:'new',            name:'Spam Musubi',                       detail:'single',     price:4 },
+      { id:27, group:'specials',       name:'3 Spam Musubi',                     detail:'3 pack special', price:10 },
       { id:20, group:'bowls',          name:'Spicy Tuna Bowl',                   detail:'minced spicy tuna over rice w/ sliced avocado', price:15 },
       { id:21, group:'bowls',          name:'Salmon Belly Bowl',                 detail:'minced salmon belly over rice w/ sliced avocado', price:13 },
+      { id:101, type:'desc', group:'poke — ½lb', name:'Spicy', detail:'a creamy and spicy marinade made with our secret spicy mayo, togarashi, sesame oil, hawaiian sea salt, and masago.' },
+      { id:102, type:'desc', group:'poke — ½lb', name:'Shoyu', detail:'a simple and umami packed marinade made with our house shoyu, hawaiian sea salt, and fresh ogo seaweed.' },
       { id:1,  group:'poke — ½lb',    name:'Spicy Ahi Poke',                   detail:'½lb', price:17 },
       { id:2,  group:'poke — ½lb',    name:'Shoyu Ahi Poke',                   detail:'½lb', price:17 },
       { id:3,  group:'poke — ½lb',    name:'Spicy Salmon Poke',                detail:'½lb', price:16 },
@@ -543,7 +549,7 @@
 
     /* ── Running total panel ── */
     function TotalPanel({ qtys, onProceed }) {
-      const lines = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const lines = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
       const total = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       return (
         <div className="po-total-panel">
@@ -584,7 +590,12 @@
               {GROUPS.map(group => (
                 <div key={group}>
                   <div className="po-group-label">{group}</div>
-                  {ITEMS.filter(it => it.group===group).map(it => (
+                  {ITEMS.filter(it => it.group===group).map(it => it.type==='desc' ? (
+                    <div key={it.id} className="po-desc-card">
+                      <div className="po-desc-card-name">{it.name}</div>
+                      <div className="po-desc-card-text">{it.detail}</div>
+                    </div>
+                  ) : (
                     <div key={it.id} className={`po-item-card ${it.featured?'featured':''} ${(qtys[it.id]||0)>0?'selected':''}`}>
                       <div className="po-item-info">
                         <div className="po-item-name">{it.name}</div>
@@ -758,7 +769,7 @@
 
     /* ── Step 3 ── */
     function Step3({ qtys, details, onSubmit, onBack }) {
-      const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const lines    = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
       const total    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       const subtotal  = total;
       const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
@@ -827,7 +838,7 @@
 
     /* ── Confirmation ── */
     function ConfirmView({ qtys, details, onReset }) {
-      const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const lines    = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
       const total    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       const isPickup = details.mode === 'pickup';
       return (
@@ -878,7 +889,7 @@
       function goTo(n) { setStep(n); setTimeout(scrollTop, 60); }
 
       async function handleSubmit() {
-        const orderedItems = ITEMS.filter(it=>(qtys[it.id]||0)>0);
+        const orderedItems = ITEMS.filter(it=>!it.type && (qtys[it.id]||0)>0);
         const subtotal = orderedItems.reduce((s,it)=>s+it.price*(qtys[it.id]||0),0);
         const discount  = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
         const total     = subtotal - discount;
