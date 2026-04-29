@@ -584,7 +584,7 @@
                 : `you qualify for free delivery ✓`}
             </p>
           )}
-          <button className="po-btn-proceed" onClick={onProceed} disabled={disabled} style={{marginTop: isDelivery ? '14px' : undefined}}>
+          <button className="po-btn-proceed" onClick={onProceed} disabled={disabled} style={{marginTop: lines.length > 0 ? '14px' : undefined}}>
             {lines.length === 0 ? 'add items to continue' : 'continue to details →'}
           </button>
         </div>
