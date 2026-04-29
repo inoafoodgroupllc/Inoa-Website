@@ -628,7 +628,7 @@
     }
 
     /* ── Step 1 ── */
-    function Step1({ qtys, setQtys, onNext, mode, customerType }) {
+    function Step1({ qtys, setQtys, onNext, mode, customerType, onSetMode, onSetCustomerType }) {
       function change(id, delta) {
         setQtys(prev => ({ ...prev, [id]: Math.max(0, (prev[id]||0) + delta) }));
       }
@@ -636,6 +636,29 @@
         <div className="po-step-content">
           <div className="po-order-layout">
             <div className="po-items-col">
+              <div style={{marginBottom:'28px'}}>
+                <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
+                <div className="po-toggle">
+                  <button className={`po-toggle-opt${mode==='pickup'?' on':''}`} onClick={()=>onSetMode('pickup')}>pickup</button>
+                  <button className={`po-toggle-opt${mode==='delivery'?' on':''}`} onClick={()=>onSetMode('delivery')}>delivery</button>
+                </div>
+                {mode === 'pickup' && (
+                  <p className="po-mode-note" style={{marginTop:'8px'}}>100 Enterprise Way, Scotts Valley, CA 95066 · no minimum</p>
+                )}
+                {mode === 'delivery' && (
+                  <>
+                    <div className="po-label" style={{marginBottom:'8px', marginTop:'16px'}}>customer type</div>
+                    <div className="po-ctype-selector">
+                      <button className={`po-ctype-opt${customerType==='ucsc_on'?' on':''}`} onClick={()=>onSetCustomerType('ucsc_on')}>ucsc<br/>on campus</button>
+                      <button className={`po-ctype-opt${customerType==='ucsc_off'?' on':''}`} onClick={()=>onSetCustomerType('ucsc_off')}>ucsc<br/>off campus</button>
+                      <button className={`po-ctype-opt${customerType==='regular'?' on':''}`} onClick={()=>onSetCustomerType('regular')}>regular</button>
+                    </div>
+                    {customerType==='ucsc_on'  && <p className="po-mode-note">free delivery · $15 minimum · @ucsc.edu email required</p>}
+                    {customerType==='ucsc_off' && <p className="po-mode-note">$3 delivery fee · $20 minimum · free delivery at $30</p>}
+                    {customerType==='regular'  && <p className="po-mode-note">$5 delivery fee · $25 minimum · free delivery at $40</p>}
+                  </>
+                )}
+              </div>
               {GROUPS.map(group => (
                 <div key={group}>
                   <div className="po-group-label">{group}</div>
@@ -1056,7 +1079,15 @@
         <div className="preorder-inner">
           <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
           <StepIndicator step={step} />
-          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)} mode={details.mode} customerType={details.customerType} />}
+          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} onNext={()=>goTo(2)}
+            mode={details.mode} customerType={details.customerType}
+            onSetMode={m => setDetails(prev => ({ ...prev, mode: m }))}
+            onSetCustomerType={ct => setDetails(prev => {
+              const next = { ...prev, customerType: ct };
+              if (ct === 'ucsc_on' && !prev.address) { next.address = 'UC Santa Cruz'; next.city = 'Santa Cruz'; next.zip = '95064'; }
+              return next;
+            })}
+          />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
             pickupDates={PICKUP_DATES} deliveryDates={DELIVERY_DATES} />}
           {step===3 && <Step3 qtys={qtys} details={details} onSubmit={handleSubmit} onBack={()=>goTo(2)} />}
