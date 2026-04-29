@@ -831,6 +831,11 @@
           </div>
 
           <div className="po-review-notices">
+            {isDelivery && subtotal < 15 && (
+              <p className="po-notice" style={{borderLeftColor:'var(--driftwood)', opacity:0.7}}>
+                your order is under $15 — an additional delivery fee will be included in your confirmation. the exact amount will be noted when we text you to confirm.
+              </p>
+            )}
             <p className="po-notice">
               <em>*Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness. By ordering you voluntarily relinquish any liability of any illnesses that may occur.*</em>
             </p>
@@ -928,6 +933,7 @@
           order_subtotal: `$${subtotal.toFixed(2)}`,
           order_discount: discount > 0 ? `-$${discount.toFixed(2)}` : 'none',
           order_total: `$${total.toFixed(2)}`,
+          delivery_fee_note: (isDelivery && subtotal < 15) ? 'ORDER UNDER $15 — additional delivery fee applies' : 'n/a',
           notes: details.notes || '—',
         };
 
