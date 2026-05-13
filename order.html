@@ -432,7 +432,8 @@
 
     /* ── Visibility helpers ── */
     function isFormOpen() {
-      return true; // Temp: unlocked for review
+      const d = new Date().getDay();
+      return d === 0 || d === 3;
     }
 
     function getNextOpening() {
@@ -956,13 +957,10 @@
     /* ── Root ── */
     function PreorderForm() {
       const WINDOW         = getWindowDates();
-      // Temp: week of Apr 26 — Tue Apr 28 only (Mon skipped for midterm)
-      const thisWeekOnly = ['2026-04-28'];
-      const isThisWeek = WINDOW.some(d => thisWeekOnly.includes(d.key));
-      const PICKUP_DATES   = isThisWeek ? WINDOW.filter(d => thisWeekOnly.includes(d.key)) : WINDOW.filter(d => d.dayOfWeek !== 6);
-      const DELIVERY_DATES = isThisWeek ? WINDOW.filter(d => thisWeekOnly.includes(d.key)) : WINDOW;
+      const PICKUP_DATES   = WINDOW.filter(d => d.dayOfWeek !== 6);
+      const DELIVERY_DATES = WINDOW;
       const last           = DELIVERY_DATES[DELIVERY_DATES.length - 1] || WINDOW[WINDOW.length - 1];
-      const headerSpan     = isThisWeek ? '4/28' : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const headerSpan     = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
