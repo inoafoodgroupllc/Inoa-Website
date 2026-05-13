@@ -696,17 +696,6 @@
         setDetails(prev => ({ ...prev, [field]: val }));
         setErrors(prev => ({ ...prev, [field]: false }));
       }
-      function selectCtype(type) {
-        setDetails(prev => {
-          const next = { ...prev, customerType: type };
-          if (type === 'ucsc_on' && !prev.address) {
-            next.address = 'UC Santa Cruz';
-            next.city    = 'Santa Cruz';
-            next.zip     = '95064';
-          }
-          return next;
-        });
-      }
       function validate() {
         const e = {};
         if (!details.firstName?.trim()) e.firstName = 'required';
@@ -762,32 +751,17 @@
               )}
             </div>
 
-            <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
-            <div className="po-toggle">
-              <button className={`po-toggle-opt${isPickup?' on':''}`}   onClick={()=>{ set('mode','pickup');   set('date',''); set('time',''); }}>pickup</button>
-              <button className={`po-toggle-opt${isDelivery?' on':''}`} onClick={()=>{ set('mode','delivery'); set('date',''); set('time',''); }}>delivery</button>
-            </div>
-
             {isPickup && (
-              <div className="po-office-block">
-                <p className="po-office-loc">100 Enterprise Way, Scotts Valley, CA 95066</p>
+              <div className="po-office-block" style={{marginBottom:'20px'}}>
+                <p className="po-office-loc">pickup · 100 Enterprise Way, Scotts Valley, CA 95066</p>
               </div>
             )}
 
             {isDelivery && <>
-              <div className="po-label" style={{marginBottom:'8px'}}>customer type</div>
-              <div className="po-ctype-selector">
-                <button className={`po-ctype-opt${ctype==='ucsc_on'?' on':''}`}   onClick={()=>selectCtype('ucsc_on')}>ucsc<br/>on campus</button>
-                <button className={`po-ctype-opt${ctype==='ucsc_off'?' on':''}`}  onClick={()=>selectCtype('ucsc_off')}>ucsc<br/>off campus</button>
-                <button className={`po-ctype-opt${ctype==='regular'?' on':''}`}   onClick={()=>selectCtype('regular')}>regular</button>
-              </div>
-              {ctype === 'ucsc_on'  && <p className="po-delivery-note">free delivery · $15 minimum · @ucsc.edu email required</p>}
-              {ctype === 'ucsc_off' && <p className="po-delivery-note">$3 delivery fee · $20 minimum</p>}
-              {ctype === 'regular'  && <p className="po-delivery-note">$5 delivery fee · $25 minimum</p>}
-              <p className="po-delivery-note" style={{marginTop:'-6px'}}>unable to deliver outside of Santa Cruz County</p>
+              <p className="po-delivery-note">unable to deliver outside of Santa Cruz County</p>
               <div className="po-form-group">
                 <label className="po-label">street address</label>
-                <input className={`po-input${errors.address?' err':''}`} value={details.address||''} onChange={e=>set('address',e.target.value)} placeholder={ctype==='ucsc_on'?'college, dorm, or building':'123 Pacific Ave'} />
+                <input className={`po-input${errors.address?' err':''}`} value={details.address||''} onChange={e=>set('address',e.target.value)} placeholder={ctype==='ucsc_on'?'college, dorm, or building (e.g. Cowell College)':'123 Pacific Ave'} />
                 {errors.address && <span className="po-field-err">{errors.address}</span>}
               </div>
               <div className="po-form-row">
@@ -798,7 +772,7 @@
                 </div>
                 <div className="po-form-group">
                   <label className="po-label">zip</label>
-                  <input className={`po-input${errors.zip?' err':''}`} value={details.zip||''} onChange={e=>set('zip',e.target.value)} placeholder="95064" inputMode="numeric" />
+                  <input className={`po-input${errors.zip?' err':''}`} value={details.zip||''} onChange={e=>set('zip',e.target.value)} placeholder={ctype==='ucsc_on'?'95064':'95060'} inputMode="numeric" />
                   {errors.zip && <span className="po-field-err">{errors.zip}</span>}
                 </div>
               </div>
@@ -1079,7 +1053,7 @@
             onSetMode={m => setDetails(prev => ({ ...prev, mode: m }))}
             onSetCustomerType={ct => setDetails(prev => {
               const next = { ...prev, customerType: ct };
-              if (ct === 'ucsc_on' && !prev.address) { next.address = 'UC Santa Cruz'; next.city = 'Santa Cruz'; next.zip = '95064'; }
+              if (ct === 'ucsc_on') { next.city = 'Santa Cruz'; next.zip = '95064'; }
               return next;
             })}
           />}
