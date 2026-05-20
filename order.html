@@ -417,8 +417,8 @@
       { id:13, group:'add-ons', name:'Sushi Rice',     detail:'8oz',       price:3 },
       { id:15, group:'drinks', name:'Hawaiian Sun — Lilikoi Passion',             detail:'11.5 fl oz', price:3 },
       { id:16, group:'drinks', name:'Hawaiian Sun — Pass-O-Guava',                detail:'passionfruit, orange & guava · 11.5 fl oz', price:3 },
-      { id:17, group:'drinks', name:'Hawaiian Sun — Guava Nectar',                detail:'11.5 fl oz', price:3 },
-      { id:18, group:'drinks', name:'Hawaiian Sun — Lilikoi Lychee',              detail:'11.5 fl oz', price:3 },
+      { id:17, group:'drinks', name:'Hawaiian Sun — Guava Nectar',                detail:'11.5 fl oz', price:3, soldOut:true },
+      { id:18, group:'drinks', name:'Hawaiian Sun — Lilikoi Lychee',              detail:'11.5 fl oz', price:3, soldOut:true },
       { id:19, group:'drinks', name:'Hawaiian Sun — Strawberry Guava',            detail:'11.5 fl oz', price:3 },
     ];
     const GROUPS = ['new','specials','bowls','poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons','drinks'];
@@ -672,11 +672,14 @@
                         {it.note    && <div className="po-item-note">{it.note}</div>}
                       </div>
                       <div className="po-item-price">${it.price}</div>
-                      <div className="po-qty">
-                        <button className="po-qty-btn" onClick={() => change(it.id,-1)} disabled={(qtys[it.id]||0)===0}>−</button>
-                        <span className="po-qty-val">{qtys[it.id]||0}</span>
-                        <button className="po-qty-btn" onClick={() => change(it.id, 1)}>+</button>
-                      </div>
+                      {it.soldOut
+                        ? <div style={{fontSize:'11px',fontFamily:"'DM Sans',sans-serif",color:'var(--driftwood)',opacity:0.6,fontStyle:'italic',minWidth:'64px',textAlign:'right'}}>sold out</div>
+                        : <div className="po-qty">
+                            <button className="po-qty-btn" onClick={() => change(it.id,-1)} disabled={(qtys[it.id]||0)===0}>−</button>
+                            <span className="po-qty-val">{qtys[it.id]||0}</span>
+                            <button className="po-qty-btn" onClick={() => change(it.id, 1)}>+</button>
+                          </div>
+                      }
                     </div>
                   ))}
                 </div>
