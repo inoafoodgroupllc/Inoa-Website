@@ -397,6 +397,8 @@
       { id:25, group:'new',            name:'Chili Garlic Salmon Poke + Rice',  detail:'⅓lb',        price:15 },
       { id:26, group:'new',            name:'Spam Musubi',                       detail:'single',     price:4 },
       { id:27, group:'specials',       name:'3 Spam Musubi',                     detail:'3 pack special', price:10 },
+      { id:28, group:'specials',       name:'Special Combo',                     detail:'salmon belly sashimi, your choice of poke, bed of rice, pickled ginger, pickled daikon, wasabi', price:18 },
+      { id:29, group:'specials',       name:'Poke Nachos',                       detail:'your choice of poke, homemade fried wonton chips, cubed avocado, serrano pepper, cilantro, green onions, homemade sweet soy sauce & spicy mayo', price:16.50 },
       { id:20, group:'bowls',          name:'Spicy Tuna Bowl',                   detail:'minced spicy tuna over rice w/ sliced avocado', price:15 },
       { id:21, group:'bowls',          name:'Salmon Belly Bowl',                 detail:'minced salmon belly over rice w/ sliced avocado', price:13 },
       { id:101, type:'desc', group:'poke — ½lb', name:'Spicy', detail:'a creamy and spicy marinade made with our secret spicy mayo, togarashi, sesame oil, hawaiian sea salt, and masago.' },
@@ -432,8 +434,10 @@
 
     /* ── Visibility helpers ── */
     function isFormOpen() {
-      const d = new Date().getDay();
-      return d === 0 || d === 3;
+      const now = new Date();
+      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (key === '2026-06-01') return true; // Temp: open Mon for Tue Jun 2 UCSC popup
+      return now.getDay() === 0 || now.getDay() === 3;
     }
 
     function getNextOpening() {
@@ -960,10 +964,12 @@
     /* ── Root ── */
     function PreorderForm() {
       const WINDOW         = getWindowDates();
-      const PICKUP_DATES   = WINDOW.filter(d => d.dayOfWeek !== 6);
-      const DELIVERY_DATES = WINDOW;
+      const popupOnly      = ['2026-06-02']; // Temp: Tue Jun 2 UCSC popup only
+      const isPopup        = WINDOW.some(d => popupOnly.includes(d.key));
+      const PICKUP_DATES   = isPopup ? WINDOW.filter(d => popupOnly.includes(d.key)) : WINDOW.filter(d => d.dayOfWeek !== 6);
+      const DELIVERY_DATES = isPopup ? WINDOW.filter(d => popupOnly.includes(d.key)) : WINDOW;
       const last           = DELIVERY_DATES[DELIVERY_DATES.length - 1] || WINDOW[WINDOW.length - 1];
-      const headerSpan     = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const headerSpan     = isPopup ? '6/2' : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
