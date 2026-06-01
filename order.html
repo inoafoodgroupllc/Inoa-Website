@@ -678,8 +678,8 @@
                       <div className="po-desc-card-text">{it.detail}</div>
                     </div>
                   ) : (
-                    <React.Fragment key={it.id}>
-                      <div className={`po-item-card ${it.featured?'featured':''} ${(qtys[it.id]||0)>0?'selected':''}`}>
+                    <div key={it.id}>
+                      <div className={`po-item-card ${it.featured?'featured':''} ${(qtys[it.id]||0)>0?'selected':''}`} style={{marginBottom:(qtys[it.id]||0)>0&&it.requiresPokeChoice?0:undefined}}>
                         <div className="po-item-info">
                           <div className="po-item-name">{it.name}</div>
                           <div className="po-item-meta">{it.detail}</div>
@@ -697,18 +697,18 @@
                         }
                       </div>
                       {(qtys[it.id]||0) > 0 && it.requiresPokeChoice && (
-                        <div style={{marginTop:'-7px',marginBottom:'14px',padding:'10px 18px 12px',background:'rgba(139,115,85,0.03)',border:'1px solid rgba(139,115,85,0.18)',borderTop:'none',borderRadius:'0 0 3px 3px'}}>
+                        <div style={{marginBottom:'14px',padding:'10px 18px 12px',background:'rgba(139,115,85,0.03)',border:'1px solid rgba(139,115,85,0.18)',borderTop:'none',borderRadius:'0 0 3px 3px'}}>
                           <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:'10px',fontWeight:500,letterSpacing:'0.06em',textTransform:'uppercase',color:'var(--driftwood)',marginBottom:'8px',opacity:0.8}}>choice of poke</div>
                           <div style={{display:'flex',flexWrap:'wrap',gap:'5px'}}>
                             {POKE_CHOICES.map(c => (
-                              <button key={c} onClick={()=>setChoices(prev=>({...prev,[it.id]:c}))} style={{fontFamily:"'DM Sans',sans-serif",fontSize:'11px',padding:'4px 10px',border:`1px solid ${choices[it.id]===c?'var(--driftwood)':'rgba(26,26,26,0.12)'}`,borderRadius:'2px',background:choices[it.id]===c?'var(--driftwood)':'transparent',color:choices[it.id]===c?'#fff':'var(--ink)',cursor:'pointer',transition:'background 0.15s ease, border-color 0.15s ease, color 0.15s ease'}}>
+                              <button key={c} onClick={()=>setChoices(prev=>({...prev,[it.id]:c}))} style={{fontFamily:"'DM Sans',sans-serif",fontSize:'11px',padding:'4px 10px',border:'1px solid '+(choices[it.id]===c?'var(--driftwood)':'rgba(26,26,26,0.12)'),borderRadius:'2px',background:choices[it.id]===c?'var(--driftwood)':'transparent',color:choices[it.id]===c?'#fff':'var(--ink)',cursor:'pointer',transition:'background 0.15s ease, border-color 0.15s ease, color 0.15s ease'}}>
                                 {c}
                               </button>
                             ))}
                           </div>
                         </div>
                       )}
-                    </React.Fragment>
+                    </div>
                   ))}
                 </div>
               ))}
