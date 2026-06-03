@@ -434,19 +434,10 @@
 
     const POKE_CHOICES = ['Spicy Ahi','Shoyu Ahi','Chili Garlic Ahi','Spicy Salmon','Shoyu Salmon','Chili Garlic Salmon'];
 
-    // Temp: Jun 1–2 UCSC popup — simplified pickup-only mode
-    const IS_POPUP = (() => {
-      const now = new Date();
-      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      return key === '2026-06-01' || key === '2026-06-02';
-    })();
-
     /* ── Visibility helpers ── */
     function isFormOpen() {
-      const now = new Date();
-      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key === '2026-06-01') return true; // Temp: open Mon for Tue Jun 2 UCSC popup
-      return now.getDay() === 0 || now.getDay() === 3;
+      const d = new Date().getDay();
+      return d === 0 || d === 3;
     }
 
     function getNextOpening() {
@@ -535,9 +526,7 @@
         if (day === 6) {
           return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
         }
-        // Temp: week of Apr 15 — delivery 3:00–4:00 PM only on Thu/Fri
-        if (dateKey === '2026-04-16' || dateKey === '2026-04-17') return ['3:00 PM – 4:00 PM'];
-        return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
+return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       }
       // Pickup: Mon, Tue, Thu, Fri — 12:00 PM – 2:30 PM
       return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 2:30 PM'];
@@ -646,7 +635,7 @@
         <div className="po-step-content">
           <div className="po-order-layout">
             <div className="po-items-col">
-              {!IS_POPUP && <div style={{marginBottom:'28px'}}>
+              <div style={{marginBottom:'28px'}}>
                 <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
                 <div className="po-toggle">
                   <button className={`po-toggle-opt${mode==='pickup'?' on':''}`} onClick={()=>onSetMode('pickup')}>pickup</button>
@@ -668,7 +657,7 @@
                     {customerType==='regular'  && <p className="po-mode-note">$5 delivery fee · $25 minimum · free delivery at $40</p>}
                   </>
                 )}
-              </div>}
+              </div>
               {GROUPS.map(group => (
                 <div key={group}>
                   <div className="po-group-label">{group}</div>
@@ -737,14 +726,12 @@
         if (details.mode === 'delivery' && details.customerType === 'ucsc_on' && !details.email?.toLowerCase().endsWith('@ucsc.edu')) {
           e.email = 'please use your ucsc.edu email for on-campus delivery';
         }
-        if (!IS_POPUP) {
-          if (!details.date) e.date = 'select a date';
-          if (!details.time) e.time = 'select a time';
-          if (details.mode === 'delivery') {
-            if (!details.address?.trim()) e.address = 'required';
-            if (!details.city?.trim())    e.city    = 'required';
-            if (!details.zip?.trim())     e.zip     = 'required';
-          }
+        if (!details.date) e.date = 'select a date';
+        if (!details.time) e.time = 'select a time';
+        if (details.mode === 'delivery') {
+          if (!details.address?.trim()) e.address = 'required';
+          if (!details.city?.trim())    e.city    = 'required';
+          if (!details.zip?.trim())     e.zip     = 'required';
         }
         setErrors(e);
         return Object.keys(e).length === 0;
@@ -785,70 +772,63 @@
               )}
             </div>
 
-            {IS_POPUP ? (
-              <div className="po-office-block" style={{marginBottom:'24px'}}>
-                <p className="po-office-loc">pickup · UC Santa Cruz Science & Engineering Quad</p>
-                <p style={{fontFamily:"'DM Sans',sans-serif",fontSize:'12px',color:'var(--ink)',opacity:0.55,marginTop:'5px'}}>Tuesday, June 2 · 12:30pm – 4:00pm</p>
+            {isPickup && (
+              <div className="po-office-block" style={{marginBottom:'20px'}}>
+                <p className="po-office-loc">pickup · 100 Enterprise Way, Scotts Valley, CA 95066</p>
               </div>
-            ) : (<>
-              {isPickup && (
-                <div className="po-office-block" style={{marginBottom:'20px'}}>
-                  <p className="po-office-loc">pickup · 100 Enterprise Way, Scotts Valley, CA 95066</p>
-                </div>
-              )}
+            )}
 
-              {isDelivery && <>
-                <p className="po-delivery-note">unable to deliver outside of Santa Cruz County</p>
+            {isDelivery && <>
+              <p className="po-delivery-note">unable to deliver outside of Santa Cruz County</p>
+              <div className="po-form-group">
+                <label className="po-label">street address</label>
+                <input className={`po-input${errors.address?' err':''}`} value={details.address||''} onChange={e=>set('address',e.target.value)} placeholder={ctype==='ucsc_on'?'college, dorm, or building (e.g. Cowell College)':'123 Pacific Ave'} />
+                {errors.address && <span className="po-field-err">{errors.address}</span>}
+              </div>
+              <div className="po-form-row">
                 <div className="po-form-group">
-                  <label className="po-label">street address</label>
-                  <input className={`po-input${errors.address?' err':''}`} value={details.address||''} onChange={e=>set('address',e.target.value)} placeholder={ctype==='ucsc_on'?'college, dorm, or building (e.g. Cowell College)':'123 Pacific Ave'} />
-                  {errors.address && <span className="po-field-err">{errors.address}</span>}
+                  <label className="po-label">city</label>
+                  <input className={`po-input${errors.city?' err':''}`} value={details.city||''} onChange={e=>set('city',e.target.value)} placeholder="Santa Cruz" />
+                  {errors.city && <span className="po-field-err">{errors.city}</span>}
                 </div>
-                <div className="po-form-row">
-                  <div className="po-form-group">
-                    <label className="po-label">city</label>
-                    <input className={`po-input${errors.city?' err':''}`} value={details.city||''} onChange={e=>set('city',e.target.value)} placeholder="Santa Cruz" />
-                    {errors.city && <span className="po-field-err">{errors.city}</span>}
-                  </div>
-                  <div className="po-form-group">
-                    <label className="po-label">zip</label>
-                    <input className={`po-input${errors.zip?' err':''}`} value={details.zip||''} onChange={e=>set('zip',e.target.value)} placeholder={ctype==='ucsc_on'?'95064':'95060'} inputMode="numeric" />
-                    {errors.zip && <span className="po-field-err">{errors.zip}</span>}
-                  </div>
-                </div>
-              </>}
-
-              <div className="po-label" style={{marginBottom:'10px'}}>
-                {isPickup ? 'pickup date' : 'delivery date'}
-                {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
-              </div>
-              <div className="po-date-grid">
-                {activeDates.map(d => (
-                  <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>{ set('date',d.key); set('time',''); }}>
-                    <span className="po-date-day">{d.day}</span>
-                    <span className="po-date-num">{d.num}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="po-label" style={{marginBottom:'10px'}}>
-                {isPickup?'pickup time':'delivery time'}
-                {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
-              </div>
-              <div className="po-time-grid">
-                {getTimeSlots(details.mode, details.date).map(t => (
-                  <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
-                ))}
-              </div>
-
-              {isPickup && (
                 <div className="po-form-group">
-                  <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
-                  <input className="po-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
-                  <span className="po-field-hint">bring your physical voucher at pickup — drop it in the jar</span>
+                  <label className="po-label">zip</label>
+                  <input className={`po-input${errors.zip?' err':''}`} value={details.zip||''} onChange={e=>set('zip',e.target.value)} placeholder={ctype==='ucsc_on'?'95064':'95060'} inputMode="numeric" />
+                  {errors.zip && <span className="po-field-err">{errors.zip}</span>}
                 </div>
-              )}
-            </>)}
+              </div>
+            </>}
+
+            <div className="po-label" style={{marginBottom:'10px'}}>
+              {isPickup ? 'pickup date' : 'delivery date'}
+              {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
+            </div>
+            <div className="po-date-grid">
+              {activeDates.map(d => (
+                <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>{ set('date',d.key); set('time',''); }}>
+                  <span className="po-date-day">{d.day}</span>
+                  <span className="po-date-num">{d.num}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="po-label" style={{marginBottom:'10px'}}>
+              {isPickup?'pickup time':'delivery time'}
+              {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
+            </div>
+            <div className="po-time-grid">
+              {getTimeSlots(details.mode, details.date).map(t => (
+                <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
+              ))}
+            </div>
+
+            {isPickup && (
+              <div className="po-form-group">
+                <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
+                <input className="po-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
+                <span className="po-field-hint">bring your physical voucher at pickup — drop it in the jar</span>
+              </div>
+            )}
 
             <div className="po-form-group" style={{marginTop:'4px'}}>
               <label className="po-label">special instructions <span style={{opacity:0.45}}>(optional)</span></label>
@@ -997,19 +977,17 @@
     /* ── Root ── */
     function PreorderForm() {
       const WINDOW         = getWindowDates();
-      const popupOnly      = ['2026-06-02']; // Temp: Tue Jun 2 UCSC popup only
-      const isPopup        = WINDOW.some(d => popupOnly.includes(d.key));
-      const PICKUP_DATES   = isPopup ? WINDOW.filter(d => popupOnly.includes(d.key)) : WINDOW.filter(d => d.dayOfWeek !== 6);
-      const DELIVERY_DATES = isPopup ? WINDOW.filter(d => popupOnly.includes(d.key)) : WINDOW;
+      const PICKUP_DATES   = WINDOW.filter(d => d.dayOfWeek !== 6);
+      const DELIVERY_DATES = WINDOW;
       const last           = DELIVERY_DATES[DELIVERY_DATES.length - 1] || WINDOW[WINDOW.length - 1];
-      const headerSpan     = isPopup ? '6/2' : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const headerSpan     = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
       const [confirmed, setConfirmed] = useState(false);
       const [qtys,      setQtys]      = useState({});
       const [choices,   setChoices]   = useState({});
-      const [details,   setDetails]   = useState({ mode:'pickup', customerType:'regular', ...(IS_POPUP ? { date:'2026-06-02', time:'12:30 PM – 4:00 PM' } : {}) });
+      const [details,   setDetails]   = useState({ mode:'pickup', customerType:'regular' });
 
       function goTo(n) { setStep(n); setTimeout(scrollTop, 60); }
 
