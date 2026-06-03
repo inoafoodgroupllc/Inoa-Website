@@ -436,13 +436,18 @@
 
     /* ── Visibility helpers ── */
     function isFormOpen() {
-      const d = new Date().getDay();
+      const now = new Date();
+      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (key < '2026-06-14') return false; // Closed for finals break
+      const d = now.getDay();
       return d === 0 || d === 3;
     }
 
     function getNextOpening() {
-      const now  = new Date();
-      const day  = now.getDay();
+      const now = new Date();
+      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (key < '2026-06-14') return new Date('2026-06-14T00:00:00');
+      const day   = now.getDay();
       const toSun = (7 - day) % 7 || 7;
       const toWed = (3 - day + 7) % 7 || 7;
       const next  = new Date(now);
