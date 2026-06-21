@@ -148,13 +148,27 @@
     /* Step 1 — order layout */
     .po-order-layout { display: grid; grid-template-columns: 1fr 272px; gap: 40px; align-items: start; }
     .po-items-col { min-width: 0; }
+
+    /* Group section header */
+    .po-group-hdr {
+      margin-top: 36px;
+      margin-bottom: 14px;
+      padding-bottom: 11px;
+      border-bottom: 1px solid rgba(26,26,26,0.07);
+    }
     .po-group-label {
       font-family: 'DM Sans', sans-serif; font-size: 9px;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--driftwood); opacity: 0.6;
-      margin-top: 32px; margin-bottom: 10px;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--driftwood); opacity: 0.75;
+      margin-bottom: 5px;
     }
-    .po-group-label:first-child { margin-top: 0; }
+    .po-group-desc {
+      font-family: 'DM Sans', sans-serif; font-size: 11px;
+      color: var(--ink); opacity: 0.36;
+      line-height: 1.65; font-style: italic;
+    }
+
+    /* Item cards */
     .po-item-card {
       display: flex; align-items: center;
       padding: 13px 18px; background: #fff;
@@ -163,15 +177,10 @@
     }
     .po-item-card:hover { border-color: rgba(26,26,26,0.16); }
     .po-item-card.selected { border-color: var(--driftwood); background: rgba(139,115,85,0.025); }
-    .po-item-card.featured { border-color: rgba(139,115,85,0.28); background: rgba(139,115,85,0.04); }
-    .po-item-card.featured:hover { border-color: rgba(139,115,85,0.5); }
-    .po-item-card.featured.selected { background: rgba(139,115,85,0.07); }
-    .po-item-tag { font-family: 'DM Sans', sans-serif; font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--driftwood); opacity: 0.75; margin-top: 3px; }
-    .po-item-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; font-style: italic; margin-top: 2px; }
     .po-item-info { flex: 1; min-width: 0; }
     .po-item-name { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 2px; }
-    .po-item-meta { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; }
-    .po-item-price { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); opacity: 0.52; flex-shrink: 0; width: 36px; text-align: right; }
+    .po-item-meta { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; line-height: 1.55; }
+    .po-item-price { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); opacity: 0.52; flex-shrink: 0; width: 48px; text-align: right; }
     .po-qty { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
     .po-qty-btn {
       width: 28px; height: 28px; border-radius: 50%;
@@ -184,6 +193,35 @@
     .po-qty-btn:active:not(:disabled) { transform: scale(0.92); }
     .po-qty-btn:disabled { opacity: 0.2; cursor: default; }
     .po-qty-val { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); min-width: 14px; text-align: center; }
+
+    /* Flavor / poke choice pickers */
+    .po-flavor-picker {
+      margin-bottom: 14px;
+      padding: 12px 18px 14px;
+      background: rgba(26,26,26,0.018);
+      border: 1px solid rgba(26,26,26,0.08);
+      border-top: none;
+      border-radius: 0 0 3px 3px;
+    }
+    .po-flavor-hdr {
+      font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.42; margin-bottom: 10px;
+    }
+    .po-flavor-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .po-flavor-chip {
+      padding: 5px 12px; border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400;
+      cursor: pointer; border: 1.5px solid; line-height: 1.2;
+      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+      background: transparent; white-space: nowrap;
+    }
+    .po-poke-fish-row { margin-bottom: 10px; }
+    .po-poke-fish-lbl {
+      font-family: 'DM Sans', sans-serif; font-size: 9px;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.32; margin-bottom: 7px;
+    }
 
     /* Total panel */
     .po-total-col { position: sticky; top: 84px; }
@@ -202,8 +240,7 @@
     .po-ctype-opt { flex: 1; padding: 10px 6px; font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; text-align: center; cursor: pointer; border: none; border-right: 1px solid rgba(26,26,26,0.1); background: transparent; color: var(--ink); opacity: 0.4; transition: all 0.2s ease; line-height: 1.45; }
     .po-ctype-opt:last-child { border-right: none; }
     .po-ctype-opt.on { background: var(--ink); color: var(--cream); opacity: 1; }
-    .po-tier-msg { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; margin-bottom: 18px; line-height: 1.65; transition: opacity 0.3s ease; }
-    .po-tier-msg.qualify { color: var(--ogo); opacity: 0.65; }
+    .po-tier-msg { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; margin-bottom: 18px; line-height: 1.65; }
     .po-ucsc-email-hint { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--driftwood); opacity: 0.7; margin-top: 5px; display: block; }
     .po-total-sub-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; padding: 3px 0; }
     .po-total-fee-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; padding: 3px 0; }
@@ -265,9 +302,6 @@
     .po-time-btn { padding: 8px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; }
     .po-time-btn:hover { border-color: rgba(26,26,26,0.28); }
     .po-time-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
-    .po-desc-card { padding: 12px 16px; background: rgba(139,115,85,0.04); border: 1px solid rgba(139,115,85,0.16); border-radius: 3px; margin-bottom: 7px; }
-    .po-desc-card-name { font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500; color: var(--driftwood); margin-bottom: 4px; letter-spacing: 0.02em; }
-    .po-desc-card-text { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.5; line-height: 1.65; }
     .po-delivery-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
     .po-mode-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
 
@@ -290,8 +324,6 @@
     .po-review-discount { color: #5a8a5a; }
     .po-office-block { padding: 14px 18px; background: rgba(196,168,130,0.08); border-left: 2px solid var(--driftwood); margin-bottom: 20px; }
     .po-office-loc { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
-    .po-office-hours { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.5; letter-spacing: 0.02em; }
-    .po-office-pickup-note { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; margin-bottom: 24px; }
     .po-review-notices {
       max-width: 600px;
       margin-bottom: 8px;
@@ -391,45 +423,85 @@
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.26.10/babel.min.js"></script>
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    /* ── Menu items ── */
     const ITEMS = [
-      { id:100, type:'desc', group:'new', name:'Chili Garlic', detail:'a garlicky and spicy marinade made with our homemade chili garlic crunch, shoyu, sesame oil, hawaiian sea salt, and masago.' },
-      { id:22, group:'new',            name:'Chili Garlic Ahi Poke',           detail:'½lb',        price:17 },
-      { id:23, group:'new',            name:'Chili Garlic Salmon Poke',         detail:'½lb',        price:16 },
-      { id:24, group:'new',            name:'Chili Garlic Ahi Poke + Rice',     detail:'⅓lb',        price:16 },
-      { id:25, group:'new',            name:'Chili Garlic Salmon Poke + Rice',  detail:'⅓lb',        price:15 },
-      { id:26, group:'new',            name:'Spam Musubi',                       detail:'single',     price:4 },
-      { id:27, group:'specials',       name:'3 Spam Musubi',                     detail:'3 pack special', price:10 },
-      { id:28, group:'specials',       name:'Special Combo',                     detail:'fresh salmon belly sashimi and your choice of poke over a bed of seasoned sushi rice paired with pickled ginger, pickled daikon and wasabi', price:18,    requiresPokeChoice:true },
-      { id:29, group:'specials',       name:'Poke Nachos',                       detail:'your choice of poke, homemade fried wonton chips, cubed avocado, serrano pepper, cilantro, green onions, homemade sweet soy sauce & spicy mayo',  price:16.50, requiresPokeChoice:true },
-      { id:20, group:'bowls',          name:'Spicy Tuna Bowl',                   detail:'minced spicy tuna over rice w/ sliced avocado', price:15 },
-      { id:21, group:'bowls',          name:'Salmon Belly Bowl',                 detail:'minced salmon belly over rice w/ sliced avocado', price:13 },
-      { id:101, type:'desc', group:'poke — ½lb', name:'Spicy', detail:'a creamy and spicy marinade made with our secret spicy mayo, togarashi, sesame oil, hawaiian sea salt, and masago.' },
-      { id:102, type:'desc', group:'poke — ½lb', name:'Shoyu', detail:'a simple and umami packed marinade made with our house shoyu, hawaiian sea salt, and fresh ogo seaweed.' },
-      { id:1,  group:'poke — ½lb',    name:'Spicy Ahi Poke',                   detail:'½lb', price:17 },
-      { id:2,  group:'poke — ½lb',    name:'Shoyu Ahi Poke',                   detail:'½lb', price:17 },
-      { id:3,  group:'poke — ½lb',    name:'Spicy Salmon Poke',                detail:'½lb', price:16 },
-      { id:4,  group:'poke — ½lb',    name:'Shoyu Salmon Poke',                detail:'½lb', price:16 },
-      { id:5,  group:'poke + rice — ⅓lb', name:'Spicy Ahi Poke + Rice',       detail:'⅓lb', price:16 },
-      { id:6,  group:'poke + rice — ⅓lb', name:'Shoyu Ahi Poke + Rice',       detail:'⅓lb', price:16 },
-      { id:7,  group:'poke + rice — ⅓lb', name:'Spicy Salmon Poke + Rice',    detail:'⅓lb', price:15 },
-      { id:8,  group:'poke + rice — ⅓lb', name:'Shoyu Salmon Poke + Rice',    detail:'⅓lb', price:15 },
-      { id:9,  group:'combo — ¼lb poke + california roll', name:'Combo — Spicy Ahi + California Roll',    detail:'¼lb', price:17 },
-      { id:10, group:'combo — ¼lb poke + california roll', name:'Combo — Shoyu Ahi + California Roll',    detail:'¼lb', price:17 },
-      { id:11, group:'combo — ¼lb poke + california roll', name:'Combo — Spicy Salmon + California Roll', detail:'¼lb', price:17 },
-      { id:12, group:'combo — ¼lb poke + california roll', name:'Combo — Shoyu Salmon + California Roll', detail:'¼lb', price:17 },
-      { id:14, group:'add-ons', name:'Sliced Avocado', detail:'per order', price:2 },
-      { id:13, group:'add-ons', name:'Sushi Rice',     detail:'8oz',       price:3 },
-      { id:15, group:'drinks', name:'Hawaiian Sun — Lilikoi Passion',             detail:'11.5 fl oz', price:3 },
-      { id:16, group:'drinks', name:'Hawaiian Sun — Pass-O-Guava',                detail:'passionfruit, orange & guava · 11.5 fl oz', price:3 },
-      { id:17, group:'drinks', name:'Hawaiian Sun — Guava Nectar',                detail:'11.5 fl oz', price:3, soldOut:true },
-      { id:18, group:'drinks', name:'Hawaiian Sun — Lilikoi Lychee',              detail:'11.5 fl oz', price:3, soldOut:true },
-      { id:19, group:'drinks', name:'Hawaiian Sun — Strawberry Guava',            detail:'11.5 fl oz', price:3 },
+      /* poke — ½ lb */
+      { id:1,  group:'poke',         name:'Ahi Poke',             detail:'½ lb · fresh ahi',                                                                                  price:17, requiresFlavorChoice:true },
+      { id:3,  group:'poke',         name:'Salmon Poke',          detail:'½ lb · fresh salmon',                                                                               price:16, requiresFlavorChoice:true },
+
+      /* poke + rice — ⅓ lb */
+      { id:5,  group:'poke + rice',  name:'Ahi Poke + Rice',      detail:'⅓ lb · seasoned sushi rice, furikake, pickled daikon & fresno chili',                               price:16, requiresFlavorChoice:true },
+      { id:7,  group:'poke + rice',  name:'Salmon Poke + Rice',   detail:'⅓ lb · seasoned sushi rice, furikake, pickled daikon & fresno chili',                               price:15, requiresFlavorChoice:true },
+
+      /* handroll box */
+      { id:30, group:'handroll box', name:'Inoa Handroll Box',    detail:'sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',                   price:22, requiresHandrollChoice:true },
+
+      /* combos */
+      { id:28, group:'combos',       name:'Salmon Belly Combo',   detail:'fresh salmon belly sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili', price:18, requiresPokeChoice:true },
+      { id:31, group:'combos',       name:'Ahi Combo',            detail:'fresh ahi sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili',      price:18, requiresPokeChoice:true },
+
+      /* poke nachos */
+      { id:29, group:'poke nachos',  name:'Poke Nachos',          detail:'your choice of poke · homemade wonton chips, avocado, serrano, cilantro, green onions, homemade sweet soy & spicy mayo', price:16.50, requiresPokeChoice:true },
+
+      /* spam musubi */
+      { id:26, group:'spam musubi',  name:'Spam Musubi',          detail:'single',                                                                                             price:4  },
+      { id:27, group:'spam musubi',  name:'3 Spam Musubi',        detail:'triple pack',                                                                                        price:10 },
+
+      /* add-ons */
+      { id:32, group:'add-ons',      name:'Seasoned Sushi Rice',         detail:'side',                  price:4 },
+      { id:14, group:'add-ons',      name:'Sliced Avocado',              detail:'from Brokaw Farms',     price:2 },
+      { id:33, group:'add-ons',      name:'Homemade Pickled Daikon',     detail:'side',                  price:3 },
+      { id:34, group:'add-ons',      name:'Side of Spicy Mayo',          detail:'',                      price:2 },
+      { id:35, group:'add-ons',      name:'Side of Sweet Soy',           detail:'',                      price:2 },
+      { id:36, group:'add-ons',      name:'Homemade Pickled Fresno Chilis', detail:'',                   price:3 },
+
+      /* drinks */
+      { id:15, group:'drinks',       name:'Hawaiian Sun — Lilikoi Passion',    detail:'11.5 fl oz',                              price:3 },
+      { id:16, group:'drinks',       name:'Hawaiian Sun — Pass-O-Guava',       detail:'passionfruit, orange & guava · 11.5 fl oz', price:3 },
+      { id:17, group:'drinks',       name:'Hawaiian Sun — Guava Nectar',       detail:'11.5 fl oz',                              price:3, soldOut:true },
+      { id:18, group:'drinks',       name:'Hawaiian Sun — Lilikoi Lychee',     detail:'11.5 fl oz',                              price:3, soldOut:true },
+      { id:19, group:'drinks',       name:'Hawaiian Sun — Strawberry Guava',   detail:'11.5 fl oz',                              price:3 },
+      { id:37, group:'drinks',       name:'Water',                             detail:'',                                        price:2 },
     ];
-    const GROUPS = ['specials','new','bowls','poke — ½lb','poke + rice — ⅓lb','combo — ¼lb poke + california roll','add-ons','drinks'];
+
+    const GROUPS = ['poke','poke + rice','handroll box','combos','poke nachos','spam musubi','add-ons','drinks'];
+
+    const GROUP_META = {
+      'poke':         'choose ahi or salmon · ½ lb of fresh fish, no rice · pick your flavor below',
+      'poke + rice':  '⅓ lb over seasoned sushi rice with furikake, pickled daikon & fresno chili · pick your flavor below',
+      'handroll box': 'choice of 2 poke flavors · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',
+      'combos':       '$18 · fresh sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili',
+      'poke nachos':  '',
+      'spam musubi':  'seared spam in house soy glaze · seasoned sushi rice · homemade furikake · wrapped in nori',
+      'add-ons':      '',
+      'drinks':       '',
+    };
+
+    /* ── Flavor & poke choice constants ── */
+    const FLAVOR_CHOICES = [
+      { name: 'Hawaiian',     color: '#5ba8a0' },
+      { name: 'Shoyu',        color: '#4a6080' },
+      { name: 'Wasabi Shoyu', color: '#6a9a5a' },
+      { name: 'Chili Garlic', color: '#c4523a' },
+      { name: 'Spicy',        color: '#c96b3a' },
+    ];
+
+    const POKE_CHOICES = [
+      { name: 'Hawaiian Ahi',        fish: 'ahi',    color: '#5ba8a0' },
+      { name: 'Shoyu Ahi',           fish: 'ahi',    color: '#4a6080' },
+      { name: 'Wasabi Shoyu Ahi',    fish: 'ahi',    color: '#6a9a5a' },
+      { name: 'Chili Garlic Ahi',    fish: 'ahi',    color: '#c4523a' },
+      { name: 'Spicy Ahi',           fish: 'ahi',    color: '#c96b3a' },
+      { name: 'Hawaiian Salmon',     fish: 'salmon', color: '#5ba8a0' },
+      { name: 'Shoyu Salmon',        fish: 'salmon', color: '#4a6080' },
+      { name: 'Wasabi Shoyu Salmon', fish: 'salmon', color: '#6a9a5a' },
+      { name: 'Chili Garlic Salmon', fish: 'salmon', color: '#c4523a' },
+      { name: 'Spicy Salmon',        fish: 'salmon', color: '#c96b3a' },
+    ];
 
     /* ── Delivery tiers ── */
     const DELIVERY_TIERS = {
@@ -438,13 +510,33 @@
       regular:  { label: 'regular',           fee: 5, min: 25, freeAt: 40 },
     };
 
-    const POKE_CHOICES = ['Spicy Ahi','Shoyu Ahi','Chili Garlic Ahi','Spicy Salmon','Shoyu Salmon','Chili Garlic Salmon'];
+    /* ── Choice helpers ── */
+    function needsChoice(it) {
+      return it.requiresFlavorChoice || it.requiresPokeChoice || it.requiresHandrollChoice;
+    }
+
+    function hasChoice(it, choices) {
+      if (!needsChoice(it)) return true;
+      if (it.requiresHandrollChoice) {
+        const c = choices[it.id];
+        return Array.isArray(c) && c.length >= 2;
+      }
+      return !!choices[it.id];
+    }
+
+    function choiceText(it, choices) {
+      const c = choices[it.id];
+      if (!c) return '';
+      if (Array.isArray(c) && c.length > 0) return c.join(' + ');
+      if (typeof c === 'string') return c;
+      return '';
+    }
 
     /* ── Visibility helpers ── */
     function isFormOpen() {
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key < '2026-06-14') return false; // Closed for finals break
+      if (key < '2026-06-14') return false;
       const d = now.getDay();
       return d === 0 || d === 3;
     }
@@ -505,18 +597,14 @@
       const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
       const now  = new Date();
       const today = now.getDay();
-      // Find how many days back the most recent Sun(0) or Wed(3) was
       let daysBack = 0;
       for (let i = 0; i <= 6; i++) {
         const d = (today - i + 7) % 7;
         if (d === 0 || d === 3) { daysBack = i; break; }
       }
-      // Anchor to that opening day, then return fulfillment days after it
-      // Sunday opens → Mon + Tue (2 days)
-      // Wednesday opens → Thu + Fri + Sat (3 days)
       const anchor = new Date(now);
       anchor.setDate(now.getDate() - daysBack);
-      const openDay = anchor.getDay(); // 0=Sun or 3=Wed
+      const openDay = anchor.getDay();
       const numDays = openDay === 0 ? 2 : 3;
       return Array.from({ length: numDays }, (_, i) => {
         const d = new Date(anchor);
@@ -537,9 +625,8 @@
         if (day === 6) {
           return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
         }
-return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
+        return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       }
-      // Pickup: Mon, Tue, Thu, Fri — 12:00 PM – 2:30 PM
       return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 2:30 PM'];
     }
 
@@ -575,17 +662,115 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       );
     }
 
+    /* ── Flavor picker (single or multi-select) ── */
+    function FlavorPicker({ itemId, choices, setChoices, multi }) {
+      const selected = choices[itemId];
+
+      function toggle(name) {
+        if (!multi) {
+          setChoices(prev => ({ ...prev, [itemId]: name }));
+        } else {
+          setChoices(prev => {
+            const cur = Array.isArray(prev[itemId]) ? prev[itemId] : [];
+            if (cur.includes(name)) return { ...prev, [itemId]: cur.filter(f => f !== name) };
+            if (cur.length >= 2) return prev;
+            return { ...prev, [itemId]: [...cur, name] };
+          });
+        }
+      }
+
+      function isSelected(name) {
+        if (!multi) return selected === name;
+        return Array.isArray(selected) && selected.includes(name);
+      }
+
+      const count = multi ? (Array.isArray(selected) ? selected.length : 0) : null;
+
+      return (
+        <div className="po-flavor-picker">
+          <div className="po-flavor-hdr">
+            {multi
+              ? count >= 2 ? 'flavors selected ✓' : `choose 2 flavors · ${count}/2`
+              : 'pick a flavor'}
+          </div>
+          <div className="po-flavor-chips">
+            {FLAVOR_CHOICES.map(f => {
+              const on = isSelected(f.name);
+              const disabled = multi && !on && count >= 2;
+              return (
+                <button
+                  key={f.name}
+                  className="po-flavor-chip"
+                  onClick={() => !disabled && toggle(f.name)}
+                  style={{
+                    borderColor: on ? f.color : 'rgba(26,26,26,0.12)',
+                    color: on ? f.color : 'rgba(26,26,26,0.45)',
+                    background: on ? f.color + '1a' : 'transparent',
+                    opacity: disabled ? 0.22 : 1,
+                  }}
+                >
+                  {f.name}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      );
+    }
+
+    /* ── Poke choice picker (fish × flavor for combos / nachos) ── */
+    function PokeChoicePicker({ itemId, choices, setChoices }) {
+      const selected = choices[itemId];
+      const ahi    = POKE_CHOICES.filter(c => c.fish === 'ahi');
+      const salmon = POKE_CHOICES.filter(c => c.fish === 'salmon');
+
+      function pick(name) {
+        setChoices(prev => ({ ...prev, [itemId]: name }));
+      }
+
+      return (
+        <div className="po-flavor-picker">
+          <div className="po-flavor-hdr">choice of poke</div>
+          {[{ label: 'ahi', items: ahi }, { label: 'salmon', items: salmon }].map(grp => (
+            <div key={grp.label} className="po-poke-fish-row">
+              <div className="po-poke-fish-lbl">{grp.label}</div>
+              <div className="po-flavor-chips">
+                {grp.items.map(c => {
+                  const on = selected === c.name;
+                  const flavor = c.name.replace(' Ahi','').replace(' Salmon','');
+                  return (
+                    <button
+                      key={c.name}
+                      className="po-flavor-chip"
+                      onClick={() => pick(c.name)}
+                      style={{
+                        borderColor: on ? c.color : 'rgba(26,26,26,0.12)',
+                        color: on ? c.color : 'rgba(26,26,26,0.45)',
+                        background: on ? c.color + '1a' : 'transparent',
+                      }}
+                    >
+                      {flavor}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     /* ── Running total panel ── */
     function TotalPanel({ qtys, onProceed, mode, customerType, choices }) {
-      const lines       = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
-      const subtotal    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const isDelivery  = mode === 'delivery';
-      const tier        = isDelivery ? DELIVERY_TIERS[customerType || 'regular'] : null;
+      const lines        = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const subtotal     = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const isDelivery   = mode === 'delivery';
+      const tier         = isDelivery ? DELIVERY_TIERS[customerType || 'regular'] : null;
       const freeUnlocked = tier && subtotal >= tier.freeAt;
       const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
       const grandTotal   = subtotal + deliveryFee;
       const belowMin     = isDelivery && lines.length > 0 && subtotal < tier.min;
-      const missingChoice = lines.some(it => it.requiresPokeChoice && !choices[it.id]);
+      const missingChoice = lines.some(it => !hasChoice(it, choices));
       const disabled     = lines.length === 0 || belowMin || missingChoice;
 
       let nudge = null;
@@ -610,28 +795,42 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
           {lines.length === 0
             ? <div className="po-total-empty">no items yet</div>
             : <div className="po-total-rows">
-                {lines.map(it => (
-                  <div key={it.id} className="po-total-row">
-                    <span className="po-total-row-name">{it.name}{choices[it.id] ? ` — ${choices[it.id]}` : ''}</span>
-                    <span className="po-total-row-qty">×{qtys[it.id]}</span>
-                    <span className="po-total-row-price">${it.price*qtys[it.id]}</span>
-                  </div>
-                ))}
+                {lines.map(it => {
+                  const ct = choiceText(it, choices);
+                  return (
+                    <div key={it.id} className="po-total-row">
+                      <span className="po-total-row-name">{it.name}{ct ? ` — ${ct}` : ''}</span>
+                      <span className="po-total-row-qty">×{qtys[it.id]}</span>
+                      <span className="po-total-row-price">${(it.price*qtys[it.id]).toFixed(2).replace('.00','')}</span>
+                    </div>
+                  );
+                })}
               </div>
           }
           <div className="po-total-divider" />
           {isDelivery && lines.length > 0
             ? <>
-                <div className="po-total-sub-row"><span>subtotal</span><span>${subtotal}</span></div>
+                <div className="po-total-sub-row"><span>subtotal</span><span>${subtotal.toFixed(2).replace('.00','')}</span></div>
                 <div className="po-total-fee-row"><span>delivery</span><span>{deliveryFee === 0 ? 'free' : `$${deliveryFee}`}</span></div>
                 <div className="po-total-divider" style={{margin:'8px 0'}} />
-                <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${grandTotal}</span></div>
+                <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${grandTotal.toFixed(2).replace('.00','')}</span></div>
               </>
-            : <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${subtotal}</span></div>
+            : <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${subtotal.toFixed(2).replace('.00','')}</span></div>
           }
           {nudge && <p className={`po-delivery-min${nudge.qualify ? ' qualify' : ''}`}>{nudge.text}</p>}
-          <button className="po-btn-proceed" onClick={onProceed} disabled={disabled} style={{marginTop: lines.length > 0 ? '14px' : undefined}}>
-            {lines.length === 0 ? 'add items to continue' : belowMin ? `add $${tier.min - subtotal} more to continue` : missingChoice ? 'select poke choice to continue' : 'continue to details →'}
+          <button
+            className="po-btn-proceed"
+            onClick={onProceed}
+            disabled={disabled}
+            style={{marginTop: lines.length > 0 ? '14px' : undefined}}
+          >
+            {lines.length === 0
+              ? 'add items to continue'
+              : belowMin
+              ? `add $${tier.min - subtotal} more to continue`
+              : missingChoice
+              ? 'select your flavors to continue'
+              : 'continue to details →'}
           </button>
         </div>
       );
@@ -642,10 +841,13 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       function change(id, delta) {
         setQtys(prev => ({ ...prev, [id]: Math.max(0, (prev[id]||0) + delta) }));
       }
+
       return (
         <div className="po-step-content">
           <div className="po-order-layout">
             <div className="po-items-col">
+
+              {/* Mode + customer type */}
               <div style={{marginBottom:'28px'}}>
                 <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
                 <div className="po-toggle">
@@ -669,26 +871,27 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
                   </>
                 )}
               </div>
-              {GROUPS.map(group => (
+
+              {/* Menu groups */}
+              {GROUPS.map((group, gi) => (
                 <div key={group}>
-                  <div className="po-group-label">{group}</div>
-                  {ITEMS.filter(it => it.group===group).map(it => it.type==='desc' ? (
-                    <div key={it.id} className="po-desc-card">
-                      <div className="po-desc-card-name">{it.name}</div>
-                      <div className="po-desc-card-text">{it.detail}</div>
-                    </div>
-                  ) : (
+                  <div className="po-group-hdr" style={{marginTop: gi===0 ? 0 : 36}}>
+                    <div className="po-group-label">{group}</div>
+                    {GROUP_META[group] && <p className="po-group-desc">{GROUP_META[group]}</p>}
+                  </div>
+                  {ITEMS.filter(it => it.group===group).map(it => (
                     <div key={it.id}>
-                      <div className={`po-item-card ${it.featured?'featured':''} ${(qtys[it.id]||0)>0?'selected':''}`} style={{marginBottom:(qtys[it.id]||0)>0&&it.requiresPokeChoice?0:undefined}}>
+                      <div
+                        className={`po-item-card${(qtys[it.id]||0)>0?' selected':''}`}
+                        style={{marginBottom: needsChoice(it) && (qtys[it.id]||0)>0 ? 0 : undefined}}
+                      >
                         <div className="po-item-info">
                           <div className="po-item-name">{it.name}</div>
-                          <div className="po-item-meta">{it.detail}</div>
-                          {it.featured && <div className="po-item-tag">recommended</div>}
-                          {it.note    && <div className="po-item-note">{it.note}</div>}
+                          {it.detail && <div className="po-item-meta">{it.detail}</div>}
                         </div>
                         <div className="po-item-price">${it.price}</div>
                         {it.soldOut
-                          ? <div style={{fontSize:'11px',fontFamily:"'DM Sans',sans-serif",color:'var(--driftwood)',opacity:0.6,fontStyle:'italic',minWidth:'64px',textAlign:'right'}}>sold out</div>
+                          ? <div style={{fontSize:'11px',fontFamily:"'DM Sans',sans-serif",color:'var(--driftwood)',opacity:0.55,fontStyle:'italic',minWidth:'60px',textAlign:'right'}}>sold out</div>
                           : <div className="po-qty">
                               <button className="po-qty-btn" onClick={() => change(it.id,-1)} disabled={(qtys[it.id]||0)===0}>−</button>
                               <span className="po-qty-val">{qtys[it.id]||0}</span>
@@ -696,22 +899,20 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
                             </div>
                         }
                       </div>
+                      {(qtys[it.id]||0) > 0 && it.requiresFlavorChoice && (
+                        <FlavorPicker itemId={it.id} choices={choices} setChoices={setChoices} multi={false} />
+                      )}
+                      {(qtys[it.id]||0) > 0 && it.requiresHandrollChoice && (
+                        <FlavorPicker itemId={it.id} choices={choices} setChoices={setChoices} multi={true} />
+                      )}
                       {(qtys[it.id]||0) > 0 && it.requiresPokeChoice && (
-                        <div style={{marginBottom:'14px',padding:'10px 18px 12px',background:'rgba(139,115,85,0.03)',border:'1px solid rgba(139,115,85,0.18)',borderTop:'none',borderRadius:'0 0 3px 3px'}}>
-                          <div style={{fontFamily:"'DM Sans',sans-serif",fontSize:'10px',fontWeight:500,letterSpacing:'0.06em',textTransform:'uppercase',color:'var(--driftwood)',marginBottom:'8px',opacity:0.8}}>choice of poke</div>
-                          <div style={{display:'flex',flexWrap:'wrap',gap:'5px'}}>
-                            {POKE_CHOICES.map(c => (
-                              <button key={c} onClick={()=>setChoices(prev=>({...prev,[it.id]:c}))} style={{fontFamily:"'DM Sans',sans-serif",fontSize:'11px',padding:'4px 10px',border:'1px solid '+(choices[it.id]===c?'var(--driftwood)':'rgba(26,26,26,0.12)'),borderRadius:'2px',background:choices[it.id]===c?'var(--driftwood)':'transparent',color:choices[it.id]===c?'#fff':'var(--ink)',cursor:'pointer',transition:'background 0.15s ease, border-color 0.15s ease, color 0.15s ease'}}>
-                                {c}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
+                        <PokeChoicePicker itemId={it.id} choices={choices} setChoices={setChoices} />
                       )}
                     </div>
                   ))}
                 </div>
               ))}
+
             </div>
             <div className="po-total-col">
               <TotalPanel qtys={qtys} onProceed={onNext} mode={mode} customerType={customerType} choices={choices} />
@@ -751,7 +952,6 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       const isDelivery = details.mode === 'delivery';
       const activeDates = isDelivery ? deliveryDates : pickupDates;
       const ctype      = details.customerType || 'regular';
-      const tier       = DELIVERY_TIERS[ctype];
       const emailIsUcsc = details.email?.toLowerCase().endsWith('@ucsc.edu');
       return (
         <div className="po-step-content">
@@ -876,7 +1076,7 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
         if (!smsConsent) { setSmsError(true); return; }
         onSubmit();
       }
-      const lines      = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
+      const lines      = ITEMS.filter(it => (qtys[it.id]||0) > 0);
       const subtotal   = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       const discount   = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const isPickup   = details.mode === 'pickup';
@@ -890,13 +1090,16 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
         <div className="po-step-content">
           <div className="po-review-block">
             <div className="po-review-ttl">your order</div>
-            {lines.map(it => (
-              <div key={it.id} className="po-review-row">
-                <span className="po-review-row-name">{it.name}{choices[it.id] ? ` — ${choices[it.id]}` : ''}</span>
-                <span className="po-review-row-qty">×{qtys[it.id]}</span>
-                <span className="po-review-row-price">${it.price*qtys[it.id]}</span>
-              </div>
-            ))}
+            {lines.map(it => {
+              const ct = choiceText(it, choices);
+              return (
+                <div key={it.id} className="po-review-row">
+                  <span className="po-review-row-name">{it.name}{ct ? ` — ${ct}` : ''}</span>
+                  <span className="po-review-row-qty">×{qtys[it.id]}</span>
+                  <span className="po-review-row-price">${(it.price*qtys[it.id]).toFixed(2).replace('.00','')}</span>
+                </div>
+              );
+            })}
             {discount > 0 && (
               <div className="po-review-row po-review-discount">
                 <span className="po-review-row-name">ucsc student discount (10%)</span>
@@ -908,7 +1111,7 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
               <div className="po-review-row" style={{opacity:0.55}}>
                 <span className="po-review-row-name">delivery fee</span>
                 <span className="po-review-row-qty"></span>
-                <span className="po-review-row-price">{tier.fee === 0 ? 'free' : `$${tier.fee}`}</span>
+                <span className="po-review-row-price">{deliveryFee === 0 ? 'free' : `$${deliveryFee}`}</span>
               </div>
             )}
             <div className="po-review-total-row"><span>total</span><span>${finalTotal.toFixed(2)}</span></div>
@@ -972,10 +1175,16 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
     }
 
     /* ── Confirmation ── */
-    function ConfirmView({ qtys, details, onReset }) {
-      const lines    = ITEMS.filter(it => !it.type && (qtys[it.id]||0) > 0);
-      const total    = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+    function ConfirmView({ qtys, details, choices, onReset }) {
+      const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const subtotal = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const discount = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const isPickup = details.mode === 'pickup';
+      const isDelivery = details.mode === 'delivery';
+      const tier         = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
+      const freeUnlocked = tier && subtotal >= tier.freeAt;
+      const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
+      const total = subtotal - discount + deliveryFee;
       return (
         <div className="po-confirm po-step-content">
           <div className="po-confirm-check">✓</div>
@@ -985,13 +1194,16 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
           </p>
           <div className="po-confirm-summary">
             <div className="po-review-ttl">order summary</div>
-            {lines.map(it => (
-              <div key={it.id} className="po-confirm-row">
-                <span>{it.name} ×{qtys[it.id]}</span>
-                <span>${it.price*qtys[it.id]}</span>
-              </div>
-            ))}
-            <div className="po-review-total-row"><span>total</span><span>${total}</span></div>
+            {lines.map(it => {
+              const ct = choiceText(it, choices);
+              return (
+                <div key={it.id} className="po-confirm-row">
+                  <span>{it.name}{ct ? ` — ${ct}` : ''} ×{qtys[it.id]}</span>
+                  <span>${(it.price*qtys[it.id]).toFixed(2).replace('.00','')}</span>
+                </div>
+              );
+            })}
+            <div className="po-review-total-row"><span>total</span><span>${total.toFixed(2)}</span></div>
             <p className="po-review-detail" style={{marginTop:'12px',fontSize:'12px'}}>
               {isPickup?'pickup':'delivery'}: {fmtDate(details.date)} at {details.time}
             </p>
@@ -1022,8 +1234,8 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       function goTo(n) { setStep(n); setTimeout(scrollTop, 60); }
 
       async function handleSubmit() {
-        const orderedItems = ITEMS.filter(it=>!it.type && (qtys[it.id]||0)>0);
-        const subtotal    = orderedItems.reduce((s,it)=>s+it.price*(qtys[it.id]||0),0);
+        const orderedItems = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+        const subtotal    = orderedItems.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
         const discount    = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
         const isDelivery  = details.mode === 'delivery';
         const tier         = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
@@ -1031,9 +1243,12 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
         const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
         const total        = subtotal - discount + deliveryFee;
         const belowMin     = isDelivery && subtotal < tier.min;
-        const itemLines   = orderedItems.map(it=>`${it.name}${it.requiresPokeChoice && choices[it.id] ? ` (${choices[it.id]})` : ''} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`).join('\n');
-        const fulfillmentMode = isDelivery ? 'Delivery' : 'Pickup';
-        const fulfillmentTime = details.time;
+
+        const itemLines = orderedItems.map(it => {
+          const ct = choiceText(it, choices);
+          return `${it.name}${ct ? ` (${ct})` : ''} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`;
+        }).join('\n');
+
         const deliveryAddress = isDelivery
           ? `${details.address}, ${details.city} ${details.zip}`
           : '100 Enterprise Way, Scotts Valley, CA 95066';
@@ -1045,9 +1260,9 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
           customer_email:   details.email,
           customer_type:    isDelivery ? (DELIVERY_TIERS[details.customerType || 'regular'].label) : 'pickup',
           ucsc_student:     details.ucscStudent ? 'Yes (10% discount applied)' : 'No',
-          fulfillment_type: fulfillmentMode,
+          fulfillment_type: isDelivery ? 'Delivery' : 'Pickup',
           fulfillment_date: details.date,
-          fulfillment_time: fulfillmentTime,
+          fulfillment_time: details.time,
           delivery_address: deliveryAddress,
           voucher_number:   details.voucher || 'none',
           order_items:      itemLines,
@@ -1068,7 +1283,6 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
           if (!res.ok) throw new Error('formspree error');
         } catch (err) {
           console.error('[inoa] order submission failed:', err);
-          // Still show confirmation — order can be re-submitted manually
         }
 
         setConfirmed(true);
@@ -1089,7 +1303,7 @@ return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
       if (confirmed) return (
         <div className="preorder-inner">
           <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
-          <ConfirmView qtys={qtys} details={details} onReset={handleReset} />
+          <ConfirmView qtys={qtys} details={details} choices={choices} onReset={handleReset} />
         </div>
       );
 
