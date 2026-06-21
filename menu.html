@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>menu — inoa</title>
+  <meta name="description" content="Fresh poke, handrolls, and musubi made daily. View the full inoa menu.">
+
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8dcc8;
+      --driftwood: #8b7355;
+      --ogo:       #5a8a6a;
+
+      --hawaiian:  #5ba8a0;
+      --shoyu:     #4a6080;
+      --wasabi:    #6a9a5a;
+      --chili:     #c4523a;
+      --spicy:     #c96b3a;
+    }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; }
+    body { background: var(--cream); color: var(--ink); min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* ── Nav ── */
+    .menu-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 80px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .menu-nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 17px; font-weight: 400; letter-spacing: 0.04em;
+      color: var(--ink); text-decoration: none;
+    }
+    .menu-nav-order {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--cream); background: var(--ink);
+      text-decoration: none; padding: 10px 22px; border-radius: 2px;
+      transition: opacity 0.2s ease;
+    }
+    .menu-nav-order:hover { opacity: 0.78; }
+
+    /* ── Hero ── */
+    .menu-hero {
+      padding: 160px 80px 72px;
+      border-bottom: 1px solid rgba(26,26,26,0.07);
+    }
+    .menu-hero-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--driftwood); opacity: 0.7; margin-bottom: 18px;
+    }
+    .menu-hero-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(64px, 9vw, 112px);
+      font-weight: 300; letter-spacing: -0.02em; line-height: 0.9;
+      color: var(--ink);
+    }
+    .menu-hero-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; letter-spacing: 0.04em;
+      color: var(--ink); opacity: 0.38; margin-top: 28px;
+    }
+
+    /* ── Shared section ── */
+    .menu-section {
+      padding: 72px 80px;
+      border-bottom: 1px solid rgba(26,26,26,0.07);
+    }
+    .section-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(28px, 4vw, 38px);
+      font-weight: 400; letter-spacing: -0.01em;
+      color: var(--ink); margin-bottom: 8px;
+    }
+    .section-rule {
+      width: 100%; height: 1px;
+      background: rgba(26,26,26,0.1);
+      margin-bottom: 36px;
+    }
+    .section-note {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-style: italic;
+      color: var(--ink); opacity: 0.5;
+      margin-bottom: 28px; line-height: 1.65;
+    }
+
+    /* ── Flavors ── */
+    .flavors-list { display: flex; flex-direction: column; gap: 20px; max-width: 680px; }
+    .flavor-row { display: flex; align-items: baseline; gap: 16px; }
+    .flavor-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0; margin-bottom: 2px; align-self: center;
+    }
+    .flavor-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 500;
+      flex-shrink: 0;
+    }
+    .flavor-dash {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; color: var(--ink); opacity: 0.3;
+      flex-shrink: 0;
+    }
+    .flavor-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-style: italic;
+      color: var(--ink); opacity: 0.55; line-height: 1.5;
+    }
+
+    /* ── Items grid (two-column) ── */
+    .items-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 80px;
+    }
+    .item-group { margin-bottom: 52px; }
+    .item-group-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(24px, 3vw, 32px);
+      font-weight: 400; letter-spacing: -0.01em;
+      color: var(--ink); margin-bottom: 6px;
+    }
+    .item-group-size {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px; color: var(--ink); opacity: 0.38;
+      margin-left: 8px; font-weight: 300;
+    }
+    .item-group-rule {
+      width: 100%; height: 1px;
+      background: rgba(26,26,26,0.08); margin-bottom: 12px;
+    }
+    .item-group-note {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-style: italic;
+      color: var(--ink); opacity: 0.48;
+      margin-bottom: 16px; line-height: 1.65;
+    }
+    .item-group-sub {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px; letter-spacing: 0.04em;
+      color: var(--ink); opacity: 0.35;
+      margin-bottom: 14px;
+    }
+    .item-row {
+      display: flex; align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 1px dotted rgba(26,26,26,0.15);
+      padding-bottom: 8px; margin-bottom: 10px;
+    }
+    .item-row:last-child { border-bottom: none; margin-bottom: 0; }
+    .item-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px; font-weight: 400;
+      color: var(--chili);
+    }
+    .item-price {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: var(--ink); opacity: 0.7;
+      flex-shrink: 0; margin-left: 12px;
+    }
+    .item-price-block {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(22px, 3vw, 30px);
+      font-weight: 400; color: var(--ink);
+      margin-bottom: 10px;
+    }
+    .item-sub-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-style: italic;
+      color: var(--ink); opacity: 0.48;
+      line-height: 1.6; margin-bottom: 16px;
+    }
+    .item-combo-name {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px; font-weight: 500;
+      color: var(--chili); margin-bottom: 2px;
+    }
+    .item-combo-desc {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px; font-style: italic;
+      color: var(--ink); opacity: 0.45;
+      margin-bottom: 14px;
+    }
+
+    /* ── Add-ons ── */
+    .addons-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0 80px;
+    }
+
+    /* ── Footer tagline ── */
+    .menu-tagline {
+      padding: 40px 80px;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--ink); opacity: 0.22;
+      border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+
+    /* ── Legal footer ── */
+    .legal-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 80px;
+      background: var(--cream);
+    }
+    .legal-footer-links { display: flex; gap: 28px; }
+    .legal-footer-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ink); text-decoration: none; opacity: 0.35;
+      transition: opacity 0.2s ease;
+    }
+    .legal-footer-links a:hover { opacity: 0.6; }
+    .legal-footer-copy {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px; letter-spacing: 0.06em;
+      color: var(--ink); opacity: 0.28;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 860px) {
+      .menu-nav { padding: 18px 24px; }
+      .menu-hero { padding: 120px 24px 52px; }
+      .menu-section { padding: 52px 24px; }
+      .items-grid { grid-template-columns: 1fr; gap: 0; }
+      .addons-grid { grid-template-columns: 1fr; gap: 0; }
+      .menu-tagline { padding: 32px 24px; }
+      .legal-footer { padding: 18px 24px; flex-direction: column; gap: 14px; text-align: center; }
+      .legal-footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="menu-nav">
+    <a href="/home" class="menu-nav-logo">inoa</a>
+    <a href="/order" class="menu-nav-order">order now</a>
+  </nav>
+
+  <!-- Hero -->
+  <header class="menu-hero">
+    <p class="menu-hero-eyebrow">inoa food group</p>
+    <h1 class="menu-hero-heading">menu</h1>
+    <p class="menu-hero-sub">made fresh daily &nbsp;·&nbsp; santa cruz county</p>
+  </header>
+
+  <!-- Flavors -->
+  <section class="menu-section">
+    <h2 class="section-label">flavors</h2>
+    <div class="section-rule"></div>
+
+    <div class="flavors-list">
+      <div class="flavor-row">
+        <span class="flavor-dot" style="background:var(--hawaiian)"></span>
+        <span class="flavor-name" style="color:var(--hawaiian)">Hawaiian</span>
+        <span class="flavor-dash">—</span>
+        <span class="flavor-desc">toasted sesame oil, monterey bay ogo, ginger, alaea sea salt</span>
+      </div>
+      <div class="flavor-row">
+        <span class="flavor-dot" style="background:var(--shoyu)"></span>
+        <span class="flavor-name" style="color:var(--shoyu)">Shoyu</span>
+        <span class="flavor-dash">—</span>
+        <span class="flavor-desc">house shoyu marinade, toasted sesame oil, monterey bay ogo, ginger, alaea sea salt</span>
+      </div>
+      <div class="flavor-row">
+        <span class="flavor-dot" style="background:var(--wasabi)"></span>
+        <span class="flavor-name" style="color:var(--wasabi)">Wasabi Shoyu</span>
+        <span class="flavor-dash">—</span>
+        <span class="flavor-desc">house shoyu marinade, wasabi, toasted sesame oil, alaea sea salt</span>
+      </div>
+      <div class="flavor-row">
+        <span class="flavor-dot" style="background:var(--chili)"></span>
+        <span class="flavor-name" style="color:var(--chili)">Chili Garlic</span>
+        <span class="flavor-dash">—</span>
+        <span class="flavor-desc">house shoyu marinade, homemade chili crisp, fried garlic, tobiko, toasted sesame oil, ginger, alaea sea salt</span>
+      </div>
+      <div class="flavor-row">
+        <span class="flavor-dot" style="background:var(--spicy)"></span>
+        <span class="flavor-name" style="color:var(--spicy)">Spicy</span>
+        <span class="flavor-dash">—</span>
+        <span class="flavor-desc">house spicy mayo, toasted sesame oil, tobiko, togarashi, ginger, alaea sea salt</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main items -->
+  <section class="menu-section">
+    <div class="items-grid">
+
+      <!-- Left column -->
+      <div>
+        <div class="item-group">
+          <div style="display:flex;align-items:baseline;gap:0;margin-bottom:6px;">
+            <h2 class="item-group-label">poke</h2>
+            <span class="item-group-size">½ lb</span>
+          </div>
+          <div class="item-group-rule"></div>
+          <p class="item-group-sub">pick any flavor</p>
+          <div class="item-row">
+            <span class="item-name">ahi</span>
+            <span class="item-price">17</span>
+          </div>
+          <div class="item-row">
+            <span class="item-name">salmon</span>
+            <span class="item-price">16</span>
+          </div>
+        </div>
+
+        <div class="item-group">
+          <h2 class="item-group-label">poke + rice</h2>
+          <div class="item-group-rule"></div>
+          <p class="item-group-note">⅓ lb choice of poke over seasoned sushi rice with homemade furikake, pickled daikon &amp; fresno chili</p>
+          <p class="item-group-sub">pick any flavor</p>
+          <div class="item-row">
+            <span class="item-name">ahi</span>
+            <span class="item-price">16</span>
+          </div>
+          <div class="item-row">
+            <span class="item-name">salmon</span>
+            <span class="item-price">15</span>
+          </div>
+        </div>
+
+        <div class="item-group">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
+            <h2 class="item-group-label">inoa handroll box</h2>
+            <span class="item-price-block">22</span>
+          </div>
+          <div class="item-group-rule"></div>
+          <p class="item-group-note">choice of two poke flavors over seasoned sushi rice with sliced avocado, pickled daikon, fresno chili, homemade furikake &amp; nori sheets</p>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div>
+        <div class="item-group">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
+            <h2 class="item-group-label">combos</h2>
+            <span class="item-price-block">18</span>
+          </div>
+          <div class="item-group-rule"></div>
+          <p class="item-group-note">served on seasoned sushi rice with homemade furikake, pickled daikon &amp; fresno chili</p>
+          <p class="item-combo-name">salmon belly combo</p>
+          <p class="item-combo-desc">fresh salmon belly sashimi &amp; choice of poke</p>
+          <p class="item-combo-name">ahi combo</p>
+          <p class="item-combo-desc">fresh ahi sashimi &amp; choice of poke</p>
+        </div>
+
+        <div class="item-group">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
+            <h2 class="item-group-label">poke nachos</h2>
+            <span class="item-price-block">16.50</span>
+          </div>
+          <div class="item-group-rule"></div>
+          <p class="item-group-note">choice of poke, homemade wonton chips, avocado, serrano, cilantro, green onions, homemade sweet soy &amp; spicy mayo</p>
+        </div>
+
+        <div class="item-group">
+          <h2 class="item-group-label">spam musubi</h2>
+          <div class="item-group-rule"></div>
+          <p class="item-group-note">seared spam brushed in house soy glaze over seasoned sushi rice &amp; homemade furikake, wrapped in nori</p>
+          <div class="item-row">
+            <span class="item-name">single</span>
+            <span class="item-price">4</span>
+          </div>
+          <div class="item-row">
+            <span class="item-name">triple</span>
+            <span class="item-price">10</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Add-ons -->
+  <section class="menu-section" style="border-bottom:none;">
+    <h2 class="section-label">add-ons</h2>
+    <div class="section-rule"></div>
+
+    <div class="addons-grid">
+      <div>
+        <div class="item-row">
+          <span class="item-name">seasoned sushi rice</span>
+          <span class="item-price">4</span>
+        </div>
+        <div class="item-row">
+          <span style="font-family:'DM Sans',sans-serif;font-size:14px;color:var(--chili);">sliced avocado <span style="font-size:11px;opacity:0.5;color:var(--ink);">from Brokaw Farms</span></span>
+          <span class="item-price">2</span>
+        </div>
+        <div class="item-row">
+          <span class="item-name">homemade pickled daikon</span>
+          <span class="item-price">3</span>
+        </div>
+      </div>
+      <div>
+        <div class="item-row">
+          <span class="item-name">side of spicy mayo</span>
+          <span class="item-price">2</span>
+        </div>
+        <div class="item-row">
+          <span class="item-name">side of sweet soy</span>
+          <span class="item-price">2</span>
+        </div>
+        <div class="item-row">
+          <span class="item-name">homemade pickled fresno chilis</span>
+          <span class="item-price">3</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <p class="menu-tagline">S &nbsp;A &nbsp;N &nbsp;T &nbsp;A &nbsp; &nbsp;C &nbsp;R &nbsp;U &nbsp;Z &nbsp; &nbsp;C &nbsp;O &nbsp;U &nbsp;N &nbsp;T &nbsp;Y</p>
+
+  <div class="legal-footer">
+    <nav class="legal-footer-links">
+      <a href="/privacy">privacy policy</a>
+      <a href="/refund">refund &amp; cancellation</a>
+      <a href="/terms">terms of service</a>
+    </nav>
+    <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
+  </div>
+
+</body>
+</html>
