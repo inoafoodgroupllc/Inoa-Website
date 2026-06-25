@@ -234,13 +234,6 @@
     .po-total-row-qty { opacity: 0.42; flex-shrink: 0; }
     .po-total-row-price { flex-shrink: 0; opacity: 0.78; }
     .po-total-empty { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.28; text-align: center; padding: 16px 0 12px; }
-    .po-delivery-min { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; margin-top: 10px; line-height: 1.55; transition: opacity 0.3s ease; }
-    .po-delivery-min.qualify { color: var(--ogo); opacity: 0.65; }
-    .po-ctype-selector { display: flex; border: 1px solid rgba(26,26,26,0.14); border-radius: 2px; overflow: hidden; margin-bottom: 16px; }
-    .po-ctype-opt { flex: 1; padding: 10px 6px; font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; text-align: center; cursor: pointer; border: none; border-right: 1px solid rgba(26,26,26,0.1); background: transparent; color: var(--ink); opacity: 0.4; transition: all 0.2s ease; line-height: 1.45; }
-    .po-ctype-opt:last-child { border-right: none; }
-    .po-ctype-opt.on { background: var(--ink); color: var(--cream); opacity: 1; }
-    .po-tier-msg { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; margin-bottom: 18px; line-height: 1.65; }
     .po-ucsc-email-hint { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--driftwood); opacity: 0.7; margin-top: 5px; display: block; }
     .po-total-sub-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; padding: 3px 0; }
     .po-total-fee-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; padding: 3px 0; }
@@ -284,10 +277,6 @@
     .po-field-err { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #b87a5a; }
     .po-field-hint { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; line-height: 1.6; margin-top: 5px; display: block; }
     .po-textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
-    .po-toggle { display: flex; border: 1px solid rgba(26,26,26,0.14); border-radius: 2px; overflow: hidden; margin-bottom: 24px; }
-    .po-toggle-opt { flex: 1; padding: 11px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; text-align: center; cursor: pointer; border: none; background: transparent; color: var(--ink); opacity: 0.4; transition: all 0.2s ease; }
-    .po-toggle-opt.on { background: var(--ink); color: var(--cream); opacity: 1; }
-
     /* Date grid */
     .po-date-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
     .po-date-btn { padding: 9px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 50px; }
@@ -302,7 +291,6 @@
     .po-time-btn { padding: 8px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; }
     .po-time-btn:hover { border-color: rgba(26,26,26,0.28); }
     .po-time-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
-    .po-delivery-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
     .po-mode-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
 
     /* Step 3 — review */
@@ -503,13 +491,6 @@
       { name: 'Spicy Salmon',        fish: 'salmon', color: '#c96b3a' },
     ];
 
-    /* ── Delivery tiers ── */
-    const DELIVERY_TIERS = {
-      ucsc_on:  { label: 'ucsc — on campus',  fee: 0, min: 15, freeAt: 15 },
-      ucsc_off: { label: 'ucsc — off campus', fee: 3, min: 20, freeAt: 30 },
-      regular:  { label: 'regular',           fee: 5, min: 25, freeAt: 40 },
-    };
-
     /* ── Choice helpers ── */
     function needsChoice(it) {
       return it.requiresFlavorChoice || it.requiresPokeChoice || it.requiresHandrollChoice;
@@ -619,15 +600,8 @@
       });
     }
 
-    function getTimeSlots(mode, dateKey) {
-      const day = dateKey ? new Date(dateKey + 'T12:00:00').getDay() : null;
-      if (mode === 'delivery') {
-        if (day === 6) {
-          return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
-        }
-        return ['3:00 PM – 4:00 PM', '4:00 PM – 5:00 PM'];
-      }
-      return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 2:30 PM'];
+    function getTimeSlots() {
+      return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
     }
 
     function fmtPhone(v) {
@@ -761,33 +735,11 @@
     }
 
     /* ── Running total panel ── */
-    function TotalPanel({ qtys, onProceed, mode, customerType, choices }) {
-      const lines        = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-      const subtotal     = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const isDelivery   = mode === 'delivery';
-      const tier         = isDelivery ? DELIVERY_TIERS[customerType || 'regular'] : null;
-      const freeUnlocked = tier && subtotal >= tier.freeAt;
-      const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
-      const grandTotal   = subtotal + deliveryFee;
-      const belowMin     = isDelivery && lines.length > 0 && subtotal < tier.min;
+    function TotalPanel({ qtys, onProceed, choices }) {
+      const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const subtotal      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       const missingChoice = lines.some(it => !hasChoice(it, choices));
-      const disabled     = lines.length === 0 || belowMin || missingChoice;
-
-      let nudge = null;
-      if (isDelivery && lines.length > 0) {
-        if (belowMin) {
-          nudge = { text: `add $${tier.min - subtotal} more to meet the $${tier.min} minimum`, qualify: false };
-        } else if (!freeUnlocked && tier.freeAt > tier.min) {
-          nudge = { text: `add $${tier.freeAt - subtotal} more for free delivery`, qualify: false };
-        } else {
-          nudge = { text: `free delivery ${freeUnlocked && tier.fee > 0 ? 'unlocked' : ''} ✓`.trim(), qualify: true };
-        }
-      } else if (!isDelivery && lines.length > 0) {
-        const onCampMin = DELIVERY_TIERS.ucsc_on.min;
-        nudge = subtotal < onCampMin
-          ? { text: `free delivery on orders $${onCampMin}+ — add $${onCampMin - subtotal} more to qualify`, qualify: false }
-          : { text: `you qualify for free delivery ✓`, qualify: true };
-      }
+      const disabled      = lines.length === 0 || missingChoice;
 
       return (
         <div className="po-total-panel">
@@ -808,16 +760,7 @@
               </div>
           }
           <div className="po-total-divider" />
-          {isDelivery && lines.length > 0
-            ? <>
-                <div className="po-total-sub-row"><span>subtotal</span><span>${subtotal.toFixed(2).replace('.00','')}</span></div>
-                <div className="po-total-fee-row"><span>delivery</span><span>{deliveryFee === 0 ? 'free' : `$${deliveryFee}`}</span></div>
-                <div className="po-total-divider" style={{margin:'8px 0'}} />
-                <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${grandTotal.toFixed(2).replace('.00','')}</span></div>
-              </>
-            : <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${subtotal.toFixed(2).replace('.00','')}</span></div>
-          }
-          {nudge && <p className={`po-delivery-min${nudge.qualify ? ' qualify' : ''}`}>{nudge.text}</p>}
+          <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${subtotal.toFixed(2).replace('.00','')}</span></div>
           <button
             className="po-btn-proceed"
             onClick={onProceed}
@@ -826,8 +769,6 @@
           >
             {lines.length === 0
               ? 'add items to continue'
-              : belowMin
-              ? `add $${tier.min - subtotal} more to continue`
               : missingChoice
               ? 'select your flavors to continue'
               : 'continue to details →'}
@@ -837,7 +778,7 @@
     }
 
     /* ── Step 1 ── */
-    function Step1({ qtys, setQtys, onNext, mode, customerType, onSetMode, onSetCustomerType, choices, setChoices }) {
+    function Step1({ qtys, setQtys, onNext, choices, setChoices }) {
       function change(id, delta) {
         setQtys(prev => ({ ...prev, [id]: Math.max(0, (prev[id]||0) + delta) }));
       }
@@ -847,30 +788,8 @@
           <div className="po-order-layout">
             <div className="po-items-col">
 
-              {/* Mode + customer type */}
-              <div style={{marginBottom:'28px'}}>
-                <div className="po-label" style={{marginBottom:'10px'}}>pickup or delivery</div>
-                <div className="po-toggle">
-                  <button className={`po-toggle-opt${mode==='pickup'?' on':''}`} onClick={()=>onSetMode('pickup')}>pickup</button>
-                  <button className={`po-toggle-opt${mode==='delivery'?' on':''}`} onClick={()=>onSetMode('delivery')}>delivery</button>
-                </div>
-                {mode === 'pickup' && (
-                  <p className="po-mode-note" style={{marginTop:'8px'}}>100 Enterprise Way, Scotts Valley, CA 95066 · no minimum</p>
-                )}
-                {mode === 'delivery' && (
-                  <>
-                    <div className="po-label" style={{marginBottom:'8px', marginTop:'16px'}}>customer type</div>
-                    <div className="po-ctype-selector">
-                      <button className={`po-ctype-opt${customerType==='ucsc_on'?' on':''}`} onClick={()=>onSetCustomerType('ucsc_on')}>ucsc<br/>on campus</button>
-                      <button className={`po-ctype-opt${customerType==='ucsc_off'?' on':''}`} onClick={()=>onSetCustomerType('ucsc_off')}>ucsc<br/>off campus</button>
-                      <button className={`po-ctype-opt${customerType==='regular'?' on':''}`} onClick={()=>onSetCustomerType('regular')}>regular</button>
-                    </div>
-                    {customerType==='ucsc_on'  && <p className="po-mode-note">free delivery · $15 minimum · @ucsc.edu email required</p>}
-                    {customerType==='ucsc_off' && <p className="po-mode-note">$3 delivery fee · $20 minimum · free delivery at $30</p>}
-                    {customerType==='regular'  && <p className="po-mode-note">$5 delivery fee · $25 minimum · free delivery at $40</p>}
-                  </>
-                )}
-              </div>
+              {/* Pickup notice */}
+              <p className="po-mode-note" style={{marginTop:'0',marginBottom:'28px'}}>pickup only · 100 Enterprise Way, Scotts Valley, CA 95066</p>
 
               {/* Menu groups */}
               {GROUPS.map((group, gi) => (
@@ -915,7 +834,7 @@
 
             </div>
             <div className="po-total-col">
-              <TotalPanel qtys={qtys} onProceed={onNext} mode={mode} customerType={customerType} choices={choices} />
+              <TotalPanel qtys={qtys} onProceed={onNext} choices={choices} />
             </div>
           </div>
         </div>
@@ -923,7 +842,7 @@
     }
 
     /* ── Step 2 ── */
-    function Step2({ details, setDetails, onNext, onBack, pickupDates, deliveryDates }) {
+    function Step2({ details, setDetails, onNext, onBack, pickupDates }) {
       const [errors, setErrors] = useState({});
       function set(field, val) {
         setDetails(prev => ({ ...prev, [field]: val }));
@@ -935,24 +854,11 @@
         if (!details.lastName?.trim())  e.lastName  = 'required';
         if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'enter a valid phone number';
         if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'enter a valid email';
-        if (details.mode === 'delivery' && details.customerType === 'ucsc_on' && !details.email?.toLowerCase().endsWith('@ucsc.edu')) {
-          e.email = 'please use your ucsc.edu email for on-campus delivery';
-        }
         if (!details.date) e.date = 'select a date';
         if (!details.time) e.time = 'select a time';
-        if (details.mode === 'delivery') {
-          if (!details.address?.trim()) e.address = 'required';
-          if (!details.city?.trim())    e.city    = 'required';
-          if (!details.zip?.trim())     e.zip     = 'required';
-        }
         setErrors(e);
         return Object.keys(e).length === 0;
       }
-      const isPickup   = details.mode === 'pickup';
-      const isDelivery = details.mode === 'delivery';
-      const activeDates = isDelivery ? deliveryDates : pickupDates;
-      const ctype      = details.customerType || 'regular';
-      const emailIsUcsc = details.email?.toLowerCase().endsWith('@ucsc.edu');
       return (
         <div className="po-step-content">
           <div className="po-form">
@@ -972,50 +878,24 @@
               <label className="po-label">phone</label>
               <input className={`po-input${errors.phone?' err':''}`} value={details.phone||''} onChange={e=>set('phone',fmtPhone(e.target.value))} placeholder="(831) 555-0100" inputMode="tel" />
               {errors.phone && <span className="po-field-err">{errors.phone}</span>}
-              <span className="po-field-hint">confirmation / pick up address will be texted to this number</span>
+              <span className="po-field-hint">confirmation and pickup details will be texted to this number</span>
             </div>
             <div className="po-form-group">
               <label className="po-label">email</label>
               <input className={`po-input${errors.email?' err':''}`} type="email" value={details.email||''} onChange={e=>set('email',e.target.value)} placeholder="you@email.com" />
               {errors.email && <span className="po-field-err">{errors.email}</span>}
-              {isDelivery && ctype === 'ucsc_on' && !errors.email && details.email && !emailIsUcsc && (
-                <span className="po-ucsc-email-hint">please use your ucsc.edu email to qualify for on campus free delivery</span>
-              )}
             </div>
 
-            {isPickup && (
-              <div className="po-office-block" style={{marginBottom:'20px'}}>
-                <p className="po-office-loc">pickup · 100 Enterprise Way, Scotts Valley, CA 95066</p>
-              </div>
-            )}
-
-            {isDelivery && <>
-              <p className="po-delivery-note">unable to deliver outside of Santa Cruz County</p>
-              <div className="po-form-group">
-                <label className="po-label">street address</label>
-                <input className={`po-input${errors.address?' err':''}`} value={details.address||''} onChange={e=>set('address',e.target.value)} placeholder={ctype==='ucsc_on'?'college, dorm, or building (e.g. Cowell College)':'123 Pacific Ave'} />
-                {errors.address && <span className="po-field-err">{errors.address}</span>}
-              </div>
-              <div className="po-form-row">
-                <div className="po-form-group">
-                  <label className="po-label">city</label>
-                  <input className={`po-input${errors.city?' err':''}`} value={details.city||''} onChange={e=>set('city',e.target.value)} placeholder="Santa Cruz" />
-                  {errors.city && <span className="po-field-err">{errors.city}</span>}
-                </div>
-                <div className="po-form-group">
-                  <label className="po-label">zip</label>
-                  <input className={`po-input${errors.zip?' err':''}`} value={details.zip||''} onChange={e=>set('zip',e.target.value)} placeholder={ctype==='ucsc_on'?'95064':'95060'} inputMode="numeric" />
-                  {errors.zip && <span className="po-field-err">{errors.zip}</span>}
-                </div>
-              </div>
-            </>}
+            <div className="po-office-block" style={{marginBottom:'20px'}}>
+              <p className="po-office-loc">pickup · 100 Enterprise Way, Scotts Valley, CA 95066</p>
+            </div>
 
             <div className="po-label" style={{marginBottom:'10px'}}>
-              {isPickup ? 'pickup date' : 'delivery date'}
+              pickup date
               {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
             </div>
             <div className="po-date-grid">
-              {activeDates.map(d => (
+              {pickupDates.map(d => (
                 <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>{ set('date',d.key); set('time',''); }}>
                   <span className="po-date-day">{d.day}</span>
                   <span className="po-date-num">{d.num}</span>
@@ -1024,22 +904,20 @@
             </div>
 
             <div className="po-label" style={{marginBottom:'10px'}}>
-              {isPickup?'pickup time':'delivery time'}
+              pickup time
               {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
             </div>
             <div className="po-time-grid">
-              {getTimeSlots(details.mode, details.date).map(t => (
+              {getTimeSlots().map(t => (
                 <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
               ))}
             </div>
 
-            {isPickup && (
-              <div className="po-form-group">
-                <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
-                <input className="po-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
-                <span className="po-field-hint">bring your physical voucher at pickup — drop it in the jar</span>
-              </div>
-            )}
+            <div className="po-form-group">
+              <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
+              <input className="po-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
+              <span className="po-field-hint">bring your physical voucher at pickup — drop it in the jar</span>
+            </div>
 
             <div className="po-form-group" style={{marginTop:'4px'}}>
               <label className="po-label">special instructions <span style={{opacity:0.45}}>(optional)</span></label>
@@ -1079,13 +957,7 @@
       const lines      = ITEMS.filter(it => (qtys[it.id]||0) > 0);
       const subtotal   = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       const discount   = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-      const isPickup   = details.mode === 'pickup';
-      const isDelivery = details.mode === 'delivery';
-      const tier         = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
-      const freeUnlocked = tier && subtotal >= tier.freeAt;
-      const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
-      const belowMin     = isDelivery && subtotal < tier.min;
-      const finalTotal   = subtotal - discount + deliveryFee;
+      const finalTotal = subtotal - discount;
       return (
         <div className="po-step-content">
           <div className="po-review-block">
@@ -1107,15 +979,8 @@
                 <span className="po-review-row-price">−${discount.toFixed(2)}</span>
               </div>
             )}
-            {isDelivery && (
-              <div className="po-review-row" style={{opacity:0.55}}>
-                <span className="po-review-row-name">delivery fee</span>
-                <span className="po-review-row-qty"></span>
-                <span className="po-review-row-price">{deliveryFee === 0 ? 'free' : `$${deliveryFee}`}</span>
-              </div>
-            )}
             <div className="po-review-total-row"><span>total</span><span>${finalTotal.toFixed(2)}</span></div>
-            <p className="po-payment-note">payment collected at {isDelivery?'delivery':'pickup'}</p>
+            <p className="po-payment-note">payment collected at pickup</p>
           </div>
 
           <div className="po-review-block">
@@ -1128,27 +993,21 @@
           </div>
 
           <div className="po-review-block">
-            <div className="po-review-ttl">{isPickup?'pickup':'delivery'} details</div>
+            <div className="po-review-ttl">pickup details</div>
             <p className="po-review-detail">
-              {fmtDate(details.date)} at {details.time}
-              {isPickup && <><br/>100 Enterprise Way, Scotts Valley, CA 95066</>}
-              {isDelivery && <><br/>{details.address}, {details.city} {details.zip}</>}
+              {fmtDate(details.date)} at {details.time}<br/>
+              100 Enterprise Way, Scotts Valley, CA 95066
             </p>
-            {isPickup && details.voucher && <p className="po-review-detail" style={{marginTop:'8px',opacity:0.55}}>voucher: {details.voucher}</p>}
+            {details.voucher && <p className="po-review-detail" style={{marginTop:'8px',opacity:0.55}}>voucher: {details.voucher}</p>}
             {details.notes && <p className="po-review-detail" style={{marginTop:'10px',opacity:0.45}}>note: {details.notes}</p>}
           </div>
 
           <div className="po-review-notices">
-            {isDelivery && belowMin && (
-              <p className="po-notice" style={{borderLeftColor:'var(--driftwood)', opacity:0.7}}>
-                your order is under the ${tier.min} minimum — a delivery fee may apply. we'll confirm the exact amount when we text you.
-              </p>
-            )}
             <p className="po-notice">
               <em>*Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness. By ordering you voluntarily relinquish any liability of any illnesses that may occur.*</em>
             </p>
             <p className="po-notice">
-              A text will be sent regarding your receipt &amp; pickup/delivery details and confirmation following order placement.<br/>
+              A text will be sent regarding your receipt &amp; pickup details and confirmation following order placement.<br/>
               <strong>Order will be canceled if not confirmed within 12 hours after confirmation text is sent.</strong>
             </p>
           </div>
@@ -1179,12 +1038,7 @@
       const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
       const subtotal = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
       const discount = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-      const isPickup = details.mode === 'pickup';
-      const isDelivery = details.mode === 'delivery';
-      const tier         = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
-      const freeUnlocked = tier && subtotal >= tier.freeAt;
-      const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
-      const total = subtotal - discount + deliveryFee;
+      const total    = subtotal - discount;
       return (
         <div className="po-confirm po-step-content">
           <div className="po-confirm-check">✓</div>
@@ -1205,7 +1059,7 @@
             })}
             <div className="po-review-total-row"><span>total</span><span>${total.toFixed(2)}</span></div>
             <p className="po-review-detail" style={{marginTop:'12px',fontSize:'12px'}}>
-              {isPickup?'pickup':'delivery'}: {fmtDate(details.date)} at {details.time}
+              pickup: {fmtDate(details.date)} at {details.time}
             </p>
           </div>
           <div className="po-confirm-actions">
@@ -1218,59 +1072,46 @@
 
     /* ── Root ── */
     function PreorderForm() {
-      const WINDOW         = getWindowDates();
-      const PICKUP_DATES   = WINDOW.filter(d => d.dayOfWeek !== 6);
-      const DELIVERY_DATES = WINDOW;
-      const last           = DELIVERY_DATES[DELIVERY_DATES.length - 1] || WINDOW[WINDOW.length - 1];
-      const headerSpan     = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const WINDOW       = getWindowDates();
+      const PICKUP_DATES = WINDOW;
+      const last         = WINDOW[WINDOW.length - 1];
+      const headerSpan   = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
       const [confirmed, setConfirmed] = useState(false);
       const [qtys,      setQtys]      = useState({});
       const [choices,   setChoices]   = useState({});
-      const [details,   setDetails]   = useState({ mode:'pickup', customerType:'regular' });
+      const [details,   setDetails]   = useState({ mode:'pickup' });
 
       function goTo(n) { setStep(n); setTimeout(scrollTop, 60); }
 
       async function handleSubmit() {
         const orderedItems = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-        const subtotal    = orderedItems.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-        const discount    = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-        const isDelivery  = details.mode === 'delivery';
-        const tier         = isDelivery ? DELIVERY_TIERS[details.customerType || 'regular'] : null;
-        const freeUnlocked = tier && subtotal >= tier.freeAt;
-        const deliveryFee  = tier ? (freeUnlocked ? 0 : tier.fee) : 0;
-        const total        = subtotal - discount + deliveryFee;
-        const belowMin     = isDelivery && subtotal < tier.min;
+        const subtotal = orderedItems.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+        const discount = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+        const total    = subtotal - discount;
 
         const itemLines = orderedItems.map(it => {
           const ct = choiceText(it, choices);
           return `${it.name}${ct ? ` (${ct})` : ''} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`;
         }).join('\n');
 
-        const deliveryAddress = isDelivery
-          ? `${details.address}, ${details.city} ${details.zip}`
-          : '100 Enterprise Way, Scotts Valley, CA 95066';
-
         const payload = {
-          _subject: `New inoa Pre-Order — ${details.firstName} ${details.lastName}`,
+          _subject:         `New inoa Pre-Order — ${details.firstName} ${details.lastName}`,
           customer_name:    `${details.firstName} ${details.lastName}`,
           customer_phone:   details.phone,
           customer_email:   details.email,
-          customer_type:    isDelivery ? (DELIVERY_TIERS[details.customerType || 'regular'].label) : 'pickup',
           ucsc_student:     details.ucscStudent ? 'Yes (10% discount applied)' : 'No',
-          fulfillment_type: isDelivery ? 'Delivery' : 'Pickup',
+          fulfillment_type: 'Pickup',
           fulfillment_date: details.date,
           fulfillment_time: details.time,
-          delivery_address: deliveryAddress,
+          pickup_address:   '100 Enterprise Way, Scotts Valley, CA 95066',
           voucher_number:   details.voucher || 'none',
           order_items:      itemLines,
           order_subtotal:   `$${subtotal.toFixed(2)}`,
           order_discount:   discount > 0 ? `-$${discount.toFixed(2)}` : 'none',
-          delivery_fee:     isDelivery ? (deliveryFee === 0 ? (freeUnlocked && tier.fee > 0 ? 'free (unlocked)' : 'free') : `$${deliveryFee}`) : 'n/a',
           order_total:      `$${total.toFixed(2)}`,
-          below_minimum:    belowMin ? `YES — order is $${subtotal.toFixed(2)}, minimum is $${tier.min}` : 'no',
           notes:            details.notes || '—',
         };
 
@@ -1290,7 +1131,7 @@
       }
 
       function handleReset() {
-        setQtys({}); setChoices({}); setDetails({ mode:'pickup', customerType:'regular' }); setStep(1); setConfirmed(false);
+        setQtys({}); setChoices({}); setDetails({ mode:'pickup' }); setStep(1); setConfirmed(false);
         scrollTop();
       }
 
@@ -1311,17 +1152,9 @@
         <div className="preorder-inner">
           <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
           <StepIndicator step={step} />
-          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} choices={choices} setChoices={setChoices} onNext={()=>goTo(2)}
-            mode={details.mode} customerType={details.customerType}
-            onSetMode={m => setDetails(prev => ({ ...prev, mode: m }))}
-            onSetCustomerType={ct => setDetails(prev => {
-              const next = { ...prev, customerType: ct };
-              if (ct === 'ucsc_on') { next.city = 'Santa Cruz'; next.zip = '95064'; }
-              return next;
-            })}
-          />}
+          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} choices={choices} setChoices={setChoices} onNext={()=>goTo(2)} />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
-            pickupDates={PICKUP_DATES} deliveryDates={DELIVERY_DATES} />}
+            pickupDates={PICKUP_DATES} />}
           {step===3 && <Step3 qtys={qtys} details={details} choices={choices} onSubmit={handleSubmit} onBack={()=>goTo(2)} />}
         </div>
       );
