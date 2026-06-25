@@ -293,6 +293,15 @@
     .po-time-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
     .po-mode-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
 
+    /* Promo code */
+    .po-promo-row { display: flex; gap: 8px; margin-bottom: 5px; }
+    .po-promo-row .po-input { flex: 1; margin-bottom: 0; text-transform: uppercase; letter-spacing: 0.06em; }
+    .po-promo-apply { padding: 0 18px; border: 1px solid rgba(26,26,26,0.18); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; background: transparent; color: var(--ink); cursor: pointer; white-space: nowrap; transition: all 0.15s ease; }
+    .po-promo-apply:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .po-promo-feedback { font-family: 'DM Sans', sans-serif; font-size: 11px; margin-top: 5px; }
+    .po-promo-feedback.valid { color: var(--ogo); }
+    .po-promo-feedback.invalid { color: #b87a5a; }
+
     /* Step 3 — review */
     .po-review-block { background: #fff; border: 1px solid rgba(26,26,26,0.07); border-radius: 3px; padding: 24px; margin-bottom: 14px; max-width: 600px; }
     .po-review-ttl { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--driftwood); opacity: 0.6; margin-bottom: 14px; }
@@ -490,6 +499,11 @@
       { name: 'Chili Garlic Salmon', fish: 'salmon', color: '#c4523a' },
       { name: 'Spicy Salmon',        fish: 'salmon', color: '#c96b3a' },
     ];
+
+    /* ── Promo codes ── */
+    const PROMO_CODES = {
+      nextdoor: { label: 'Nextdoor', discount: 0.10 },
+    };
 
     /* ── Choice helpers ── */
     function needsChoice(it) {
@@ -843,10 +857,24 @@
 
     /* ── Step 2 ── */
     function Step2({ details, setDetails, onNext, onBack, pickupDates }) {
-      const [errors, setErrors] = useState({});
+      const [errors,      setErrors]      = useState({});
+      const [promoInput,  setPromoInput]  = useState(details.promoCode || '');
+      const [promoStatus, setPromoStatus] = useState(details.promoCode ? 'valid' : null);
+
       function set(field, val) {
         setDetails(prev => ({ ...prev, [field]: val }));
         setErrors(prev => ({ ...prev, [field]: false }));
+      }
+      function applyPromo() {
+        const code  = promoInput.trim().toLowerCase();
+        const promo = PROMO_CODES[code];
+        if (promo) {
+          setDetails(prev => ({ ...prev, promoCode: code, promoDiscount: promo.discount }));
+          setPromoStatus('valid');
+        } else {
+          setDetails(prev => ({ ...prev, promoCode: '', promoDiscount: 0 }));
+          setPromoStatus('invalid');
+        }
       }
       function validate() {
         const e = {};
@@ -924,6 +952,23 @@
               <textarea className="po-textarea" value={details.notes||''} onChange={e=>set('notes',e.target.value)} placeholder="allergies, preferences, or notes" />
             </div>
 
+            <div className="po-form-group">
+              <label className="po-label">promo code <span style={{opacity:0.45}}>(optional)</span></label>
+              <div className="po-promo-row">
+                <input
+                  className="po-input"
+                  value={promoInput}
+                  onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoStatus(null); setDetails(prev => ({ ...prev, promoCode: '', promoDiscount: 0 })); }}
+                  onKeyDown={e => e.key === 'Enter' && applyPromo()}
+                  placeholder="ENTER CODE"
+                  autoComplete="off"
+                />
+                <button className="po-promo-apply" onClick={applyPromo}>apply</button>
+              </div>
+              {promoStatus === 'valid'   && <p className="po-promo-feedback valid">✓ {Math.round((details.promoDiscount||0)*100)}% off applied</p>}
+              {promoStatus === 'invalid' && <p className="po-promo-feedback invalid">invalid promo code</p>}
+            </div>
+
             <div className="po-ucsc-section">
               <label className="po-ucsc-label">
                 <input
@@ -954,10 +999,11 @@
         if (!smsConsent) { setSmsError(true); return; }
         onSubmit();
       }
-      const lines      = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-      const subtotal   = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const discount   = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-      const finalTotal = subtotal - discount;
+      const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const subtotal      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+      const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
+      const finalTotal    = subtotal - ucscDiscount - promoDiscount;
       return (
         <div className="po-step-content">
           <div className="po-review-block">
@@ -972,11 +1018,18 @@
                 </div>
               );
             })}
-            {discount > 0 && (
+            {ucscDiscount > 0 && (
               <div className="po-review-row po-review-discount">
                 <span className="po-review-row-name">ucsc student discount (10%)</span>
                 <span className="po-review-row-qty"></span>
-                <span className="po-review-row-price">−${discount.toFixed(2)}</span>
+                <span className="po-review-row-price">−${ucscDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            {promoDiscount > 0 && (
+              <div className="po-review-row po-review-discount">
+                <span className="po-review-row-name">promo code — {details.promoCode.toUpperCase()} ({Math.round(details.promoDiscount*100)}% off)</span>
+                <span className="po-review-row-qty"></span>
+                <span className="po-review-row-price">−${promoDiscount.toFixed(2)}</span>
               </div>
             )}
             <div className="po-review-total-row"><span>total</span><span>${finalTotal.toFixed(2)}</span></div>
@@ -1035,10 +1088,11 @@
 
     /* ── Confirmation ── */
     function ConfirmView({ qtys, details, choices, onReset }) {
-      const lines    = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-      const subtotal = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const discount = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-      const total    = subtotal - discount;
+      const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
+      const subtotal      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+      const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+      const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
+      const total         = subtotal - ucscDiscount - promoDiscount;
       return (
         <div className="po-confirm po-step-content">
           <div className="po-confirm-check">✓</div>
@@ -1088,14 +1142,19 @@
 
       async function handleSubmit() {
         const orderedItems = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-        const subtotal = orderedItems.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-        const discount = details.ucscStudent ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-        const total    = subtotal - discount;
+        const subtotal      = orderedItems.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
+        const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+        const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
+        const total         = subtotal - ucscDiscount - promoDiscount;
 
         const itemLines = orderedItems.map(it => {
           const ct = choiceText(it, choices);
           return `${it.name}${ct ? ` (${ct})` : ''} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`;
         }).join('\n');
+
+        const discountParts = [];
+        if (ucscDiscount  > 0) discountParts.push(`UCSC student -$${ucscDiscount.toFixed(2)}`);
+        if (promoDiscount > 0) discountParts.push(`${(details.promoCode||'').toUpperCase()} promo -$${promoDiscount.toFixed(2)}`);
 
         const payload = {
           _subject:         `New inoa Pre-Order — ${details.firstName} ${details.lastName}`,
@@ -1103,6 +1162,7 @@
           customer_phone:   details.phone,
           customer_email:   details.email,
           ucsc_student:     details.ucscStudent ? 'Yes (10% discount applied)' : 'No',
+          promo_code:       details.promoCode ? details.promoCode.toUpperCase() : 'none',
           fulfillment_type: 'Pickup',
           fulfillment_date: details.date,
           fulfillment_time: details.time,
@@ -1110,7 +1170,7 @@
           voucher_number:   details.voucher || 'none',
           order_items:      itemLines,
           order_subtotal:   `$${subtotal.toFixed(2)}`,
-          order_discount:   discount > 0 ? `-$${discount.toFixed(2)}` : 'none',
+          order_discount:   discountParts.length > 0 ? discountParts.join(', ') : 'none',
           order_total:      `$${total.toFixed(2)}`,
           notes:            details.notes || '—',
         };
