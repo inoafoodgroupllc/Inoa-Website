@@ -470,7 +470,7 @@
     const GROUP_META = {
       'poke':         'choose ahi or salmon · ½ lb of fresh fish, no rice · pick your flavor below',
       'poke + rice':  '⅓ lb over seasoned sushi rice with furikake, pickled daikon & fresno chili · pick your flavor below',
-      'handroll box': 'choice of 2 poke flavors · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',
+      'handroll box': 'pick 2 poke (mix ahi + salmon freely, or double up on the same) · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',
       'combos':       'fresh sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili',
       'poke nachos':  '',
       'spam musubi':  'seared spam in house soy glaze · seasoned sushi rice · homemade furikake · wrapped in nori',
@@ -522,7 +522,11 @@
     function choiceText(it, choices) {
       const c = choices[it.id];
       if (!c) return '';
-      if (Array.isArray(c) && c.length > 0) return c.join(' + ');
+      if (Array.isArray(c) && c.length > 0) {
+        const counts = {};
+        c.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
+        return Object.entries(counts).map(([name, cnt]) => cnt > 1 ? `${name} ×${cnt}` : name).join(' + ');
+      }
       if (typeof c === 'string') return c;
       return '';
     }
@@ -748,6 +752,74 @@
       );
     }
 
+    /* ── Handroll poke picker (fish × flavor, pick 2, duplicates allowed) ── */
+    function HandrollPokeChoicePicker({ itemId, choices, setChoices }) {
+      const cur   = Array.isArray(choices[itemId]) ? choices[itemId] : [];
+      const total = cur.length;
+      const ahi    = POKE_CHOICES.filter(c => c.fish === 'ahi');
+      const salmon = POKE_CHOICES.filter(c => c.fish === 'salmon');
+
+      function toggle(name) {
+        setChoices(prev => {
+          const c     = Array.isArray(prev[itemId]) ? prev[itemId] : [];
+          const count = c.filter(n => n === name).length;
+          if (count > 0 && c.length >= 2) {
+            const next = [...c]; next.splice(c.indexOf(name), 1);
+            return { ...prev, [itemId]: next };
+          }
+          if (c.length < 2) return { ...prev, [itemId]: [...c, name] };
+          return prev;
+        });
+      }
+
+      return (
+        <div className="po-flavor-picker">
+          <div className="po-flavor-hdr">
+            {total >= 2 ? 'poke selections ✓' : `choose 2 poke · ${total}/2`}
+          </div>
+          {[{ label: 'ahi', items: ahi }, { label: 'salmon', items: salmon }].map(grp => (
+            <div key={grp.label} className="po-poke-fish-row">
+              <div className="po-poke-fish-lbl">{grp.label}</div>
+              <div className="po-flavor-chips">
+                {grp.items.map(c => {
+                  const count    = cur.filter(n => n === c.name).length;
+                  const on       = count > 0;
+                  const disabled = count === 0 && total >= 2;
+                  const flavor   = c.name.replace(' Ahi','').replace(' Salmon','');
+                  return (
+                    <button
+                      key={c.name}
+                      className="po-flavor-chip"
+                      onClick={() => !disabled && toggle(c.name)}
+                      style={{
+                        borderColor: on ? c.color : 'rgba(26,26,26,0.12)',
+                        color:       on ? c.color : 'rgba(26,26,26,0.45)',
+                        background:  on ? c.color + '1a' : 'transparent',
+                        opacity:     disabled ? 0.22 : 1,
+                        position:    'relative',
+                      }}
+                    >
+                      {flavor}
+                      {count === 2 && (
+                        <span style={{
+                          position:'absolute', top:'-7px', right:'-7px',
+                          width:'16px', height:'16px', borderRadius:'50%',
+                          background: c.color, color:'#fff',
+                          fontSize:'9px', fontWeight:600,
+                          display:'flex', alignItems:'center', justifyContent:'center',
+                          lineHeight:1,
+                        }}>×2</span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     /* ── Running total panel ── */
     function TotalPanel({ qtys, onProceed, choices }) {
       const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
@@ -836,7 +908,7 @@
                         <FlavorPicker itemId={it.id} choices={choices} setChoices={setChoices} multi={false} />
                       )}
                       {(qtys[it.id]||0) > 0 && it.requiresHandrollChoice && (
-                        <FlavorPicker itemId={it.id} choices={choices} setChoices={setChoices} multi={true} />
+                        <HandrollPokeChoicePicker itemId={it.id} choices={choices} setChoices={setChoices} />
                       )}
                       {(qtys[it.id]||0) > 0 && it.requiresPokeChoice && (
                         <PokeChoicePicker itemId={it.id} choices={choices} setChoices={setChoices} />
