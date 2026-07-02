@@ -510,25 +510,48 @@
       return it.requiresFlavorChoice || it.requiresPokeChoice || it.requiresHandrollChoice;
     }
 
-    function hasChoice(it, choices) {
+    function hasChoice(it, choices, qty) {
       if (!needsChoice(it)) return true;
+      qty = qty || 1;
       if (it.requiresHandrollChoice) {
-        const c = choices[it.id];
-        return Array.isArray(c) && c.length >= 2;
+        for (let i = 0; i < qty; i++) {
+          const c = choices[`${it.id}_${i}`];
+          if (!Array.isArray(c) || c.length < 2) return false;
+        }
+        return true;
       }
-      return !!choices[it.id];
+      for (let i = 0; i < qty; i++) {
+        if (!choices[`${it.id}_${i}`]) return false;
+      }
+      return true;
     }
 
-    function choiceText(it, choices) {
-      const c = choices[it.id];
-      if (!c) return '';
-      if (Array.isArray(c) && c.length > 0) {
-        const counts = {};
-        c.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
-        return Object.entries(counts).map(([name, cnt]) => cnt > 1 ? `${name} ×${cnt}` : name).join(' + ');
+    function choiceText(it, choices, qty) {
+      if (!needsChoice(it)) return '';
+      qty = qty || 1;
+      if (it.requiresHandrollChoice) {
+        const parts = [];
+        for (let i = 0; i < qty; i++) {
+          const c = choices[`${it.id}_${i}`];
+          if (Array.isArray(c) && c.length > 0) {
+            const counts = {};
+            c.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
+            parts.push(Object.entries(counts).map(([name, cnt]) => cnt > 1 ? `${name} ×${cnt}` : name).join(' + '));
+          }
+        }
+        if (!parts.length) return '';
+        return qty > 1 ? parts.map((p, i) => `#${i+1}: ${p}`).join(' / ') : parts[0];
       }
-      if (typeof c === 'string') return c;
-      return '';
+      const unitChoices = [];
+      for (let i = 0; i < qty; i++) {
+        const c = choices[`${it.id}_${i}`];
+        if (c) unitChoices.push(c);
+      }
+      if (!unitChoices.length) return '';
+      if (qty === 1 || unitChoices.every(c => c === unitChoices[0])) {
+        return unitChoices[0] + (qty > 1 ? ` ×${qty}` : '');
+      }
+      return unitChoices.join(' / ');
     }
 
     /* ── Visibility helpers ── */
@@ -654,53 +677,23 @@
       );
     }
 
-    /* ── Flavor picker (single or multi-select) ── */
-    function FlavorPicker({ itemId, choices, setChoices, multi }) {
-      const selected = choices[itemId];
-
-      function toggle(name) {
-        if (!multi) {
-          setChoices(prev => ({ ...prev, [itemId]: name }));
-        } else {
-          setChoices(prev => {
-            const cur = Array.isArray(prev[itemId]) ? prev[itemId] : [];
-            if (cur.includes(name)) return { ...prev, [itemId]: cur.filter(f => f !== name) };
-            if (cur.length >= 2) return prev;
-            return { ...prev, [itemId]: [...cur, name] };
-          });
-        }
-      }
-
-      function isSelected(name) {
-        if (!multi) return selected === name;
-        return Array.isArray(selected) && selected.includes(name);
-      }
-
-      const count = multi ? (Array.isArray(selected) ? selected.length : 0) : null;
-
+    /* ── Flavor picker (per unit) ── */
+    function FlavorPicker({ itemId, unitIndex, unitTotal, choices, setChoices }) {
+      const key      = `${itemId}_${unitIndex}`;
+      const selected = choices[key];
+      function pick(name) { setChoices(prev => ({ ...prev, [key]: name })); }
       return (
         <div className="po-flavor-picker">
           <div className="po-flavor-hdr">
-            {multi
-              ? count >= 2 ? 'flavors selected ✓' : `choose 2 flavors · ${count}/2`
-              : 'pick a flavor'}
+            {unitTotal > 1 && <span style={{opacity:0.45,marginRight:'6px'}}>item {unitIndex+1}</span>}
+            {selected ? 'flavor selected ✓' : 'pick a flavor'}
           </div>
           <div className="po-flavor-chips">
             {FLAVOR_CHOICES.map(f => {
-              const on = isSelected(f.name);
-              const disabled = multi && !on && count >= 2;
+              const on = selected === f.name;
               return (
-                <button
-                  key={f.name}
-                  className="po-flavor-chip"
-                  onClick={() => !disabled && toggle(f.name)}
-                  style={{
-                    borderColor: on ? f.color : 'rgba(26,26,26,0.12)',
-                    color: on ? f.color : 'rgba(26,26,26,0.45)',
-                    background: on ? f.color + '1a' : 'transparent',
-                    opacity: disabled ? 0.22 : 1,
-                  }}
-                >
+                <button key={f.name} className="po-flavor-chip" onClick={() => pick(f.name)}
+                  style={{ borderColor: on?f.color:'rgba(26,26,26,0.12)', color: on?f.color:'rgba(26,26,26,0.45)', background: on?f.color+'1a':'transparent' }}>
                   {f.name}
                 </button>
               );
@@ -710,20 +703,20 @@
       );
     }
 
-    /* ── Poke choice picker (fish × flavor for combos / nachos) ── */
-    function PokeChoicePicker({ itemId, choices, setChoices }) {
-      const selected = choices[itemId];
+    /* ── Poke choice picker (fish × flavor, per unit) ── */
+    function PokeChoicePicker({ itemId, unitIndex, unitTotal, choices, setChoices }) {
+      const key      = `${itemId}_${unitIndex}`;
+      const selected = choices[key];
       const ahi    = POKE_CHOICES.filter(c => c.fish === 'ahi');
       const salmon = POKE_CHOICES.filter(c => c.fish === 'salmon');
-
-      function pick(name) {
-        setChoices(prev => ({ ...prev, [itemId]: name }));
-      }
-
+      function pick(name) { setChoices(prev => ({ ...prev, [key]: name })); }
       return (
         <div className="po-flavor-picker">
-          <div className="po-flavor-hdr">choice of poke</div>
-          {[{ label: 'ahi', items: ahi }, { label: 'salmon', items: salmon }].map(grp => (
+          <div className="po-flavor-hdr">
+            {unitTotal > 1 && <span style={{opacity:0.45,marginRight:'6px'}}>item {unitIndex+1}</span>}
+            {selected ? 'choice selected ✓' : 'choice of poke'}
+          </div>
+          {[{ label:'ahi', items:ahi },{ label:'salmon', items:salmon }].map(grp => (
             <div key={grp.label} className="po-poke-fish-row">
               <div className="po-poke-fish-lbl">{grp.label}</div>
               <div className="po-flavor-chips">
@@ -731,16 +724,8 @@
                   const on = selected === c.name;
                   const flavor = c.name.replace(' Ahi','').replace(' Salmon','');
                   return (
-                    <button
-                      key={c.name}
-                      className="po-flavor-chip"
-                      onClick={() => pick(c.name)}
-                      style={{
-                        borderColor: on ? c.color : 'rgba(26,26,26,0.12)',
-                        color: on ? c.color : 'rgba(26,26,26,0.45)',
-                        background: on ? c.color + '1a' : 'transparent',
-                      }}
-                    >
+                    <button key={c.name} className="po-flavor-chip" onClick={() => pick(c.name)}
+                      style={{ borderColor: on?c.color:'rgba(26,26,26,0.12)', color: on?c.color:'rgba(26,26,26,0.45)', background: on?c.color+'1a':'transparent' }}>
                       {flavor}
                     </button>
                   );
@@ -752,32 +737,29 @@
       );
     }
 
-    /* ── Handroll poke picker (fish × flavor, pick 2, duplicates allowed) ── */
-    function HandrollPokeChoicePicker({ itemId, choices, setChoices }) {
-      const cur   = Array.isArray(choices[itemId]) ? choices[itemId] : [];
+    /* ── Handroll poke picker (fish × flavor, pick 2, duplicates ok, per unit) ── */
+    function HandrollPokeChoicePicker({ itemId, unitIndex, unitTotal, choices, setChoices }) {
+      const key   = `${itemId}_${unitIndex}`;
+      const cur   = Array.isArray(choices[key]) ? choices[key] : [];
       const total = cur.length;
       const ahi    = POKE_CHOICES.filter(c => c.fish === 'ahi');
       const salmon = POKE_CHOICES.filter(c => c.fish === 'salmon');
-
       function toggle(name) {
         setChoices(prev => {
-          const c     = Array.isArray(prev[itemId]) ? prev[itemId] : [];
+          const c     = Array.isArray(prev[key]) ? prev[key] : [];
           const count = c.filter(n => n === name).length;
-          if (count > 0 && c.length >= 2) {
-            const next = [...c]; next.splice(c.indexOf(name), 1);
-            return { ...prev, [itemId]: next };
-          }
-          if (c.length < 2) return { ...prev, [itemId]: [...c, name] };
+          if (count > 0 && c.length >= 2) { const next=[...c]; next.splice(c.indexOf(name),1); return { ...prev, [key]: next }; }
+          if (c.length < 2) return { ...prev, [key]: [...c, name] };
           return prev;
         });
       }
-
       return (
         <div className="po-flavor-picker">
           <div className="po-flavor-hdr">
+            {unitTotal > 1 && <span style={{opacity:0.45,marginRight:'6px'}}>item {unitIndex+1}</span>}
             {total >= 2 ? 'poke selections ✓' : `choose 2 poke · ${total}/2`}
           </div>
-          {[{ label: 'ahi', items: ahi }, { label: 'salmon', items: salmon }].map(grp => (
+          {[{ label:'ahi', items:ahi },{ label:'salmon', items:salmon }].map(grp => (
             <div key={grp.label} className="po-poke-fish-row">
               <div className="po-poke-fish-lbl">{grp.label}</div>
               <div className="po-flavor-chips">
@@ -787,28 +769,11 @@
                   const disabled = count === 0 && total >= 2;
                   const flavor   = c.name.replace(' Ahi','').replace(' Salmon','');
                   return (
-                    <button
-                      key={c.name}
-                      className="po-flavor-chip"
-                      onClick={() => !disabled && toggle(c.name)}
-                      style={{
-                        borderColor: on ? c.color : 'rgba(26,26,26,0.12)',
-                        color:       on ? c.color : 'rgba(26,26,26,0.45)',
-                        background:  on ? c.color + '1a' : 'transparent',
-                        opacity:     disabled ? 0.22 : 1,
-                        position:    'relative',
-                      }}
-                    >
+                    <button key={c.name} className="po-flavor-chip" onClick={() => !disabled && toggle(c.name)}
+                      style={{ borderColor: on?c.color:'rgba(26,26,26,0.12)', color: on?c.color:'rgba(26,26,26,0.45)', background: on?c.color+'1a':'transparent', opacity: disabled?0.22:1, position:'relative' }}>
                       {flavor}
                       {count === 2 && (
-                        <span style={{
-                          position:'absolute', top:'-7px', right:'-7px',
-                          width:'16px', height:'16px', borderRadius:'50%',
-                          background: c.color, color:'#fff',
-                          fontSize:'9px', fontWeight:600,
-                          display:'flex', alignItems:'center', justifyContent:'center',
-                          lineHeight:1,
-                        }}>×2</span>
+                        <span style={{ position:'absolute', top:'-7px', right:'-7px', width:'16px', height:'16px', borderRadius:'50%', background:c.color, color:'#fff', fontSize:'9px', fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>×2</span>
                       )}
                     </button>
                   );
@@ -824,7 +789,7 @@
     function TotalPanel({ qtys, onProceed, choices }) {
       const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
       const subtotal      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const missingChoice = lines.some(it => !hasChoice(it, choices));
+      const missingChoice = lines.some(it => !hasChoice(it, choices, qtys[it.id]||0));
       const disabled      = lines.length === 0 || missingChoice;
 
       return (
@@ -834,7 +799,7 @@
             ? <div className="po-total-empty">no items yet</div>
             : <div className="po-total-rows">
                 {lines.map(it => {
-                  const ct = choiceText(it, choices);
+                  const ct = choiceText(it, choices, qtys[it.id]||0);
                   return (
                     <div key={it.id} className="po-total-row">
                       <span className="po-total-row-name">{it.name}{ct ? ` — ${ct}` : ''}</span>
@@ -866,7 +831,14 @@
     /* ── Step 1 ── */
     function Step1({ qtys, setQtys, onNext, choices, setChoices }) {
       function change(id, delta) {
-        setQtys(prev => ({ ...prev, [id]: Math.max(0, (prev[id]||0) + delta) }));
+        setQtys(prev => {
+          const oldQty = prev[id]||0;
+          const newQty = Math.max(0, oldQty + delta);
+          if (delta < 0 && newQty < oldQty) {
+            setChoices(c => { const nc={...c}; for(let i=newQty;i<oldQty;i++) delete nc[`${id}_${i}`]; return nc; });
+          }
+          return { ...prev, [id]: newQty };
+        });
       }
 
       return (
@@ -904,15 +876,21 @@
                             </div>
                         }
                       </div>
-                      {(qtys[it.id]||0) > 0 && it.requiresFlavorChoice && (
-                        <FlavorPicker itemId={it.id} choices={choices} setChoices={setChoices} multi={false} />
-                      )}
-                      {(qtys[it.id]||0) > 0 && it.requiresHandrollChoice && (
-                        <HandrollPokeChoicePicker itemId={it.id} choices={choices} setChoices={setChoices} />
-                      )}
-                      {(qtys[it.id]||0) > 0 && it.requiresPokeChoice && (
-                        <PokeChoicePicker itemId={it.id} choices={choices} setChoices={setChoices} />
-                      )}
+                      {(qtys[it.id]||0) > 0 && it.requiresFlavorChoice &&
+                        Array.from({ length: qtys[it.id]||0 }, (_,i) => (
+                          <FlavorPicker key={`${it.id}_${i}`} itemId={it.id} unitIndex={i} unitTotal={qtys[it.id]||0} choices={choices} setChoices={setChoices} />
+                        ))
+                      }
+                      {(qtys[it.id]||0) > 0 && it.requiresHandrollChoice &&
+                        Array.from({ length: qtys[it.id]||0 }, (_,i) => (
+                          <HandrollPokeChoicePicker key={`${it.id}_${i}`} itemId={it.id} unitIndex={i} unitTotal={qtys[it.id]||0} choices={choices} setChoices={setChoices} />
+                        ))
+                      }
+                      {(qtys[it.id]||0) > 0 && it.requiresPokeChoice &&
+                        Array.from({ length: qtys[it.id]||0 }, (_,i) => (
+                          <PokeChoicePicker key={`${it.id}_${i}`} itemId={it.id} unitIndex={i} unitTotal={qtys[it.id]||0} choices={choices} setChoices={setChoices} />
+                        ))
+                      }
                     </div>
                   ))}
                 </div>
@@ -1081,7 +1059,7 @@
           <div className="po-review-block">
             <div className="po-review-ttl">your order</div>
             {lines.map(it => {
-              const ct = choiceText(it, choices);
+              const ct = choiceText(it, choices, qtys[it.id]||0);
               return (
                 <div key={it.id} className="po-review-row">
                   <span className="po-review-row-name">{it.name}{ct ? ` — ${ct}` : ''}</span>
@@ -1175,7 +1153,7 @@
           <div className="po-confirm-summary">
             <div className="po-review-ttl">order summary</div>
             {lines.map(it => {
-              const ct = choiceText(it, choices);
+              const ct = choiceText(it, choices, qtys[it.id]||0);
               return (
                 <div key={it.id} className="po-confirm-row">
                   <span>{it.name}{ct ? ` — ${ct}` : ''} ×{qtys[it.id]}</span>
@@ -1220,7 +1198,7 @@
         const total         = subtotal - ucscDiscount - promoDiscount;
 
         const itemLines = orderedItems.map(it => {
-          const ct = choiceText(it, choices);
+          const ct = choiceText(it, choices, qtys[it.id]||0);
           return `${it.name}${ct ? ` (${ct})` : ''} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`;
         }).join('\n');
 
