@@ -1183,7 +1183,7 @@
       const WINDOW       = getWindowDates();
       const PICKUP_DATES = WINDOW;
       const last         = WINDOW[WINDOW.length - 1];
-      const headerSpan   = `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const headerSpan   = WINDOW.length === 1 ? `${WINDOW[0].month}/${WINDOW[0].num}` : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
