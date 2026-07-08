@@ -435,7 +435,7 @@
       { id:7,  group:'poke + rice',  name:'Salmon Poke + Rice',   detail:'⅓ lb · seasoned sushi rice, furikake, pickled daikon & fresno chili',                               price:15, requiresFlavorChoice:true },
 
       /* handroll box */
-      { id:30, group:'handroll box', name:'Inoa Handroll Box',    detail:'sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',                   price:25, requiresHandrollChoice:true },
+      { id:30, group:'handroll box', name:'Inoa Handroll Box',    detail:'great for two people · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',                   price:25, requiresHandrollChoice:true },
 
       /* combos */
       { id:28, group:'combos',       name:'Salmon Belly Combo',   detail:'fresh salmon belly sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili', price:18, requiresPokeChoice:true },
@@ -470,7 +470,7 @@
     const GROUP_META = {
       'poke':         'choose ahi or salmon · ½ lb of fresh fish, no rice · pick your flavor below',
       'poke + rice':  '⅓ lb over seasoned sushi rice with furikake, pickled daikon & fresno chili · pick your flavor below',
-      'handroll box': 'pick 2 poke (mix ahi + salmon freely, or double up on the same) · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',
+      'handroll box': 'great for two people · pick 2 poke (mix ahi + salmon freely, or double up on the same) · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',
       'combos':       'fresh sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili',
       'poke nachos':  '',
       'spam musubi':  'seared spam in house soy glaze · seasoned sushi rice · homemade furikake · wrapped in nori',
@@ -503,6 +503,7 @@
     /* ── Promo codes ── */
     const PROMO_CODES = {
       nextdoor: { label: 'Nextdoor', discount: 0.10 },
+      tanika:   { label: 'TANIKA',   freeMusubi: true },
     };
 
     /* ── Choice helpers ── */
@@ -556,6 +557,7 @@
 
     /* ── Visibility helpers ── */
     function isFormOpen() {
+      return true; // Temp: unlocked for review
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       if (key === '2026-07-02') return true; // Temp: July 3 pre-orders open July 2 only
@@ -631,10 +633,10 @@
       const anchor = new Date(now);
       anchor.setDate(now.getDate() - daysBack);
       const openDay = anchor.getDay();
-      const numDays = openDay === 0 ? 2 : 3;
-      return Array.from({ length: numDays }, (_, i) => {
+      const offsets = openDay === 0 ? [1, 2] : [1, 3]; // Sun → Mon+Tue; Wed → Thu+Sat (skip Fri)
+      return offsets.map(off => {
         const d = new Date(anchor);
-        d.setDate(anchor.getDate() + i + 1);
+        d.setDate(anchor.getDate() + off);
         return {
           key:       `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,
           day:       DAYS[d.getDay()],
@@ -923,11 +925,11 @@
         const code  = promoInput.trim().toLowerCase();
         const promo = PROMO_CODES[code];
         if (promo) {
-          setDetails(prev => ({ ...prev, promoCode: code, promoDiscount: promo.discount }));
+          setDetails(prev => ({ ...prev, promoCode: code, promoDiscount: promo.discount || 0, promoFreeMusubi: !!promo.freeMusubi }));
           setPromoStatus('valid');
         } else {
-          setDetails(prev => ({ ...prev, promoCode: '', promoDiscount: 0 }));
-          setPromoStatus('invalid');
+          setDetails(prev => ({ ...prev, promoCode: '', promoDiscount: 0, promoFreeMusubi: false }));
+          setPromoStatus(null);
         }
       }
       function validate() {
@@ -1019,8 +1021,8 @@
                 />
                 <button className="po-promo-apply" onClick={applyPromo}>apply</button>
               </div>
-              {promoStatus === 'valid'   && <p className="po-promo-feedback valid">✓ {Math.round((details.promoDiscount||0)*100)}% off applied</p>}
-              {promoStatus === 'invalid' && <p className="po-promo-feedback invalid">invalid promo code</p>}
+              {promoStatus === 'valid' && details.promoFreeMusubi && <p className="po-promo-feedback valid">✓ Free spam musubi added to your order</p>}
+              {promoStatus === 'valid' && !details.promoFreeMusubi && <p className="po-promo-feedback valid">✓ {Math.round((details.promoDiscount||0)*100)}% off applied</p>}
             </div>
 
             <div className="po-ucsc-section">
@@ -1077,6 +1079,13 @@
                 <span className="po-review-row-name">ucsc student discount (10%)</span>
                 <span className="po-review-row-qty"></span>
                 <span className="po-review-row-price">−${ucscDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            {details.promoFreeMusubi && (
+              <div className="po-review-row">
+                <span className="po-review-row-name">Spam Musubi — TANIKA promo</span>
+                <span className="po-review-row-qty">×1</span>
+                <span className="po-review-row-price">free</span>
               </div>
             )}
             {promoDiscount > 0 && (
@@ -1183,7 +1192,12 @@
       const WINDOW       = getWindowDates();
       const PICKUP_DATES = WINDOW;
       const last         = WINDOW[WINDOW.length - 1];
-      const headerSpan   = WINDOW.length === 1 ? `${WINDOW[0].month}/${WINDOW[0].num}` : `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`;
+      const consecutive  = WINDOW.length > 1 && (last.num - WINDOW[0].num === WINDOW.length - 1);
+      const headerSpan   = WINDOW.length === 1
+        ? `${WINDOW[0].month}/${WINDOW[0].num}`
+        : consecutive
+          ? `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`
+          : `${WINDOW[0].month}/${WINDOW[0].num} & ${last.month}/${last.num}`;
 
       const [open,      setOpen]      = useState(isFormOpen);
       const [step,      setStep]      = useState(1);
@@ -1201,10 +1215,12 @@
         const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
         const total         = subtotal - ucscDiscount - promoDiscount;
 
-        const itemLines = orderedItems.map(it => {
+        const itemLineArr = orderedItems.map(it => {
           const ct = choiceText(it, choices, qtys[it.id]||0);
           return `${it.name}${ct ? ` (${ct})` : ''} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`;
-        }).join('\n');
+        });
+        if (details.promoFreeMusubi) itemLineArr.push('Spam Musubi (TANIKA promo — free) x1 — $0.00');
+        const itemLines = itemLineArr.join('\n');
 
         const discountParts = [];
         if (ucscDiscount  > 0) discountParts.push(`UCSC student -$${ucscDiscount.toFixed(2)}`);
@@ -1216,7 +1232,7 @@
           customer_phone:   details.phone,
           customer_email:   details.email,
           ucsc_student:     details.ucscStudent ? 'Yes (10% discount applied)' : 'No',
-          promo_code:       details.promoCode ? details.promoCode.toUpperCase() : 'none',
+          promo_code:       details.promoFreeMusubi ? 'TANIKA (free musubi)' : details.promoCode ? details.promoCode.toUpperCase() : 'none',
           fulfillment_type: 'Pickup',
           fulfillment_date: details.date,
           fulfillment_time: details.time,
