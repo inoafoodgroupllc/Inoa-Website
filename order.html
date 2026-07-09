@@ -557,7 +557,6 @@
 
     /* ── Visibility helpers ── */
     function isFormOpen() {
-      return true; // Temp: unlocked for review
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       if (key === '2026-07-02') return true; // Temp: July 3 pre-orders open July 2 only
