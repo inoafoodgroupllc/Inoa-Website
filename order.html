@@ -287,10 +287,17 @@
     .po-date-num { font-size: 15px; }
 
     /* Time slots */
-    .po-time-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-    .po-time-btn { padding: 8px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; }
-    .po-time-btn:hover { border-color: rgba(26,26,26,0.28); }
-    .po-time-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .po-slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
+    .po-slot-col { display: flex; flex-direction: column; gap: 3px; }
+    .po-slot-hour { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.45; margin-bottom: 4px; text-align: center; }
+    .po-slot-btn { background: rgba(26,26,26,0.04); border: 1px solid rgba(26,26,26,0.10); border-radius: 2px; padding: 5px 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); cursor: pointer; transition: background 0.12s, border-color 0.12s; text-align: center; }
+    .po-slot-btn:hover:not(.booked) { background: rgba(26,26,26,0.09); border-color: rgba(26,26,26,0.25); }
+    .po-slot-btn.on { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .po-slot-btn.booked { opacity: 0.22; cursor: not-allowed; pointer-events: none; text-decoration: line-through; }
+    .po-slot-full { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #b87a5a; padding: 16px 0 24px; }
+    .po-slot-hint { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.45; padding: 12px 0 24px; }
+    .po-slot-conflict { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #b87a5a; margin-bottom: 16px; }
+    @media (max-width: 480px) { .po-slot-grid { grid-template-columns: repeat(2, 1fr); } }
     .po-mode-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
 
     /* Promo code */
@@ -417,12 +424,47 @@
     <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
   </div>
 
+  <!-- Firebase (slot availability) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
   <!-- React + Babel -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7.26.10/babel.min.js"></script>
   <script type="text/babel">
     const { useState, useEffect } = React;
+
+    // ── Firebase — real-time slot availability ────────────────────────────
+    // Setup (one-time):
+    //   1. console.firebase.google.com → New project → Build → Firestore Database → Start in production mode
+    //   2. Project Settings → Your Apps → Add Web App → copy firebaseConfig values below
+    //   3. Firestore → Rules → paste:
+    //        rules_version = '2';
+    //        service cloud.firestore {
+    //          match /databases/{database}/documents {
+    //            match /slots/{slotId} {
+    //              allow read: true;
+    //              allow create: if !exists(/databases/$(database)/documents/slots/$(slotId));
+    //              allow update, delete: false;
+    //            }
+    //          }
+    //        }
+    //   4. Set SLOTS_LIVE = true below
+    const SLOTS_LIVE = false;
+    const FIREBASE_CONFIG = {
+      apiKey:            'REPLACE_ME',
+      authDomain:        'REPLACE_ME.firebaseapp.com',
+      projectId:         'REPLACE_ME',
+      storageBucket:     'REPLACE_ME.appspot.com',
+      messagingSenderId: 'REPLACE_ME',
+      appId:             'REPLACE_ME',
+    };
+    let db = null;
+    if (SLOTS_LIVE) {
+      try { firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore(); }
+      catch(e) { console.error('[inoa] Firebase init failed:', e); }
+    }
 
     /* ── Menu items ── */
     const ITEMS = [
@@ -646,8 +688,32 @@
       });
     }
 
-    function getTimeSlots() {
-      return ['12:00 PM – 1:00 PM', '1:00 PM – 2:00 PM', '2:00 PM – 3:00 PM', '3:00 PM – 4:00 PM'];
+    // 48 five-minute pickup slots: 12:00 PM → 4:00 PM
+    const TIME_SLOTS = (() => {
+      const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
+      const out = [];
+      for (let min = 0; min < 240; min += 5) {
+        const h = 12 + Math.floor(min / 60), m = min % 60;
+        const eh = 12 + Math.floor((min + 5) / 60), em = (min + 5) % 60;
+        out.push({ label: `${fmt(h,m)} – ${fmt(eh,em)}`, key: `${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}` });
+      }
+      return out;
+    })();
+
+    function useBookedSlots(date) {
+      const [booked,  setBooked]  = useState(new Set());
+      const [loading, setLoading] = useState(false);
+      useEffect(() => {
+        if (!date || !db) { setBooked(new Set()); return; }
+        setLoading(true);
+        const unsub = db.collection('slots').where('date','==',date)
+          .onSnapshot(
+            snap => { setBooked(new Set(snap.docs.map(d => d.data().slotKey))); setLoading(false); },
+            err  => { console.error('[inoa] slots error:', err); setLoading(false); }
+          );
+        return () => unsub();
+      }, [date]);
+      return { booked, loading };
     }
 
     function fmtPhone(v) {
@@ -911,10 +977,12 @@
     }
 
     /* ── Step 2 ── */
-    function Step2({ details, setDetails, onNext, onBack, pickupDates }) {
+    function Step2({ details, setDetails, onNext, onBack, pickupDates, slotConflict, onClearSlotConflict }) {
       const [errors,      setErrors]      = useState({});
       const [promoInput,  setPromoInput]  = useState(details.promoCode || '');
       const [promoStatus, setPromoStatus] = useState(details.promoCode ? 'valid' : null);
+      const { booked: bookedSlots, loading: slotsLoading } = useBookedSlots(details.date);
+      const allBooked = !!details.date && !slotsLoading && TIME_SLOTS.every(s => bookedSlots.has(s.key));
 
       function set(field, val) {
         setDetails(prev => ({ ...prev, [field]: val }));
@@ -990,11 +1058,41 @@
               pickup time
               {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
             </div>
-            <div className="po-time-grid">
-              {getTimeSlots().map(t => (
-                <button key={t} className={`po-time-btn${details.time===t?' on':''}`} onClick={()=>set('time',t)}>{t}</button>
-              ))}
-            </div>
+            {slotConflict && <p className="po-slot-conflict">That slot was just booked — please pick another time.</p>}
+            {!details.date ? (
+              <p className="po-slot-hint">select a date above to see available times</p>
+            ) : slotsLoading ? (
+              <p className="po-slot-hint">loading available times…</p>
+            ) : allBooked ? (
+              <p className="po-slot-full">fully booked for this day</p>
+            ) : (
+              <div className="po-slot-grid">
+                {[0,1,2,3].map(hour => {
+                  const hourSlots = TIME_SLOTS.slice(hour * 12, (hour + 1) * 12);
+                  const hourLabel = hour === 0 ? '12 pm' : `${hour} pm`;
+                  return (
+                    <div key={hour} className="po-slot-col">
+                      <div className="po-slot-hour">{hourLabel}</div>
+                      {hourSlots.map(s => {
+                        const isBooked   = bookedSlots.has(s.key);
+                        const isSelected = details.time === s.label;
+                        const h = parseInt(s.key.slice(0,2));
+                        const display = `${h > 12 ? h - 12 : h}:${s.key.slice(2)}`;
+                        return (
+                          <button
+                            key={s.key}
+                            className={`po-slot-btn${isBooked ? ' booked' : ''}${isSelected ? ' on' : ''}`}
+                            onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
+                          >
+                            {display}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             <div className="po-form-group">
               <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
@@ -1047,7 +1145,7 @@
     }
 
     /* ── Step 3 ── */
-    function Step3({ qtys, details, choices, onSubmit, onBack }) {
+    function Step3({ qtys, details, choices, onSubmit, onBack, slotConflict }) {
       const [smsConsent, setSmsConsent] = useState(false);
       const [smsError,   setSmsError]   = useState(false);
       function handleSubmit() {
@@ -1140,6 +1238,11 @@
             {smsError && <p className="po-sms-consent-err">You must agree to receive SMS updates to place an order.</p>}
           </div>
 
+          {slotConflict && (
+            <p className="po-slot-conflict" style={{marginBottom:'12px'}}>
+              That pickup time was just booked by someone else — go back and pick a different slot.
+            </p>
+          )}
           <div className="po-step-actions">
             <button className="po-btn-back" onClick={onBack}>← back</button>
             <button className="po-submit-btn" onClick={handleSubmit}>place order</button>
@@ -1198,14 +1301,15 @@
           ? `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`
           : `${WINDOW[0].month}/${WINDOW[0].num} & ${last.month}/${last.num}`;
 
-      const [open,      setOpen]      = useState(isFormOpen);
-      const [step,      setStep]      = useState(1);
-      const [confirmed, setConfirmed] = useState(false);
-      const [qtys,      setQtys]      = useState({});
-      const [choices,   setChoices]   = useState({});
-      const [details,   setDetails]   = useState({ mode:'pickup' });
+      const [open,         setOpen]         = useState(isFormOpen);
+      const [step,         setStep]         = useState(1);
+      const [confirmed,    setConfirmed]    = useState(false);
+      const [qtys,         setQtys]         = useState({});
+      const [choices,      setChoices]      = useState({});
+      const [details,      setDetails]      = useState({ mode:'pickup' });
+      const [slotConflict, setSlotConflict] = useState(false);
 
-      function goTo(n) { setStep(n); setTimeout(scrollTop, 60); }
+      function goTo(n) { if (n === 2) setSlotConflict(false); setStep(n); setTimeout(scrollTop, 60); }
 
       async function handleSubmit() {
         const orderedItems = ITEMS.filter(it => (qtys[it.id]||0) > 0);
@@ -1220,6 +1324,32 @@
         });
         if (details.promoFreeMusubi) itemLineArr.push('Spam Musubi (TANIKA promo — free) x1 — $0.00');
         const itemLines = itemLineArr.join('\n');
+
+        // Atomically reserve the time slot in Firestore (prevents double-booking)
+        if (db) {
+          const selectedSlot = TIME_SLOTS.find(s => s.label === details.time);
+          if (selectedSlot) {
+            const slotDocId = `${details.date}_${selectedSlot.key}`;
+            const slotRef   = db.collection('slots').doc(slotDocId);
+            try {
+              await db.runTransaction(async t => {
+                const doc = await t.get(slotRef);
+                if (doc.exists) throw new Error('SLOT_TAKEN');
+                t.set(slotRef, {
+                  date:         details.date,
+                  slotKey:      selectedSlot.key,
+                  slotLabel:    details.time,
+                  booked:       true,
+                  customerName: `${details.firstName} ${details.lastName}`,
+                  submittedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+                });
+              });
+            } catch(err) {
+              if (err.message === 'SLOT_TAKEN') { setSlotConflict(true); return; }
+              console.error('[inoa] slot reservation error:', err);
+            }
+          }
+        }
 
         const discountParts = [];
         if (ucscDiscount  > 0) discountParts.push(`UCSC student -$${ucscDiscount.toFixed(2)}`);
@@ -1283,8 +1413,8 @@
           <StepIndicator step={step} />
           {step===1 && <Step1 qtys={qtys} setQtys={setQtys} choices={choices} setChoices={setChoices} onNext={()=>goTo(2)} />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
-            pickupDates={PICKUP_DATES} />}
-          {step===3 && <Step3 qtys={qtys} details={details} choices={choices} onSubmit={handleSubmit} onBack={()=>goTo(2)} />}
+            pickupDates={PICKUP_DATES} slotConflict={slotConflict} onClearSlotConflict={()=>setSlotConflict(false)} />}
+          {step===3 && <Step3 qtys={qtys} details={details} choices={choices} onSubmit={handleSubmit} onBack={()=>goTo(2)} slotConflict={slotConflict} />}
         </div>
       );
     }
