@@ -617,6 +617,50 @@
     .addons-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 80px; }
 
     /* ────────────────────────────────────────
+       FEATURED IN / PRESS
+    ──────────────────────────────────────── */
+    .press-section {
+      background: var(--cream);
+      padding: 96px 80px;
+      border-top: 1px solid var(--sand);
+      text-align: center;
+    }
+    .press-eyebrow {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--ink);
+      opacity: 0.38;
+      margin-bottom: 52px;
+    }
+    .press-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px 72px;
+      flex-wrap: wrap;
+    }
+    .press-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .press-logo {
+      max-height: 52px;
+      max-width: 200px;
+      width: auto;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+      opacity: 0.62;
+      transition: opacity 0.25s ease;
+    }
+    .press-item:hover .press-logo { opacity: 1; }
+    .press-item:hover { transform: translateY(-2px); }
+
+    /* ────────────────────────────────────────
        PROUD TO SOURCE FROM
     ──────────────────────────────────────── */
     .sources-section {
@@ -1211,6 +1255,10 @@
       .story-img-fade { display: none; }
       .story-text-col { padding: 64px 24px; }
 
+      .press-section { padding: 72px 24px; }
+      .press-grid { gap: 36px 48px; }
+      .press-logo { max-height: 42px; max-width: 160px; }
+
       .sources-section { padding: 80px 24px; }
       .sources-grid { justify-content: center; gap: 40px 32px; }
 
@@ -1408,95 +1456,21 @@
     </div>
   </section>
 
-  <section class="menu-section" aria-label="menu items">
-    <div class="items-grid">
-
-      <div>
-        <div class="item-group fu">
-          <div style="display:flex;align-items:baseline;gap:0;margin-bottom:6px;">
-            <h2 class="item-group-label">poke</h2>
-            <span class="item-group-size">½ lb</span>
-          </div>
-          <div class="item-group-rule"></div>
-          <p class="item-group-sub">pick any flavor</p>
-          <div class="item-row"><span class="item-name">ahi</span><span class="item-price">17</span></div>
-          <div class="item-row"><span class="item-name">salmon</span><span class="item-price">16</span></div>
-        </div>
-
-        <div class="item-group fu fu-d1">
-          <h2 class="item-group-label">poke + rice</h2>
-          <div class="item-group-rule"></div>
-          <p class="item-group-note">⅓ lb choice of poke over seasoned sushi rice with homemade furikake, pickled daikon &amp; fresno chili</p>
-          <p class="item-group-sub">pick any flavor</p>
-          <div class="item-row"><span class="item-name">ahi</span><span class="item-price">16</span></div>
-          <div class="item-row"><span class="item-name">salmon</span><span class="item-price">15</span></div>
-        </div>
-
-        <div class="item-group fu fu-d2">
-          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
-            <h2 class="item-group-label">inoa handroll box</h2>
-            <span class="item-price-block">22</span>
-          </div>
-          <div class="item-group-rule"></div>
-          <p class="item-group-note">choice of two poke flavors over seasoned sushi rice with sliced avocado, pickled daikon, fresno chili, homemade furikake &amp; nori sheets</p>
-        </div>
-      </div>
-
-      <div>
-        <div class="item-group fu">
-          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
-            <h2 class="item-group-label">combos</h2>
-            <span class="item-price-block">18</span>
-          </div>
-          <div class="item-group-rule"></div>
-          <p class="item-group-note">served on seasoned sushi rice with homemade furikake, pickled daikon &amp; fresno chili</p>
-          <p class="item-combo-name">salmon belly combo</p>
-          <p class="item-combo-desc">fresh salmon belly sashimi &amp; choice of poke</p>
-          <p class="item-combo-name">ahi combo</p>
-          <p class="item-combo-desc">fresh ahi sashimi &amp; choice of poke</p>
-        </div>
-
-        <div class="item-group fu fu-d1">
-          <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px;">
-            <h2 class="item-group-label">poke nachos</h2>
-            <span class="item-price-block">16.50</span>
-          </div>
-          <div class="item-group-rule"></div>
-          <p class="item-group-note">choice of poke, homemade wonton chips, avocado, serrano, cilantro, green onions, homemade sweet soy &amp; spicy mayo</p>
-        </div>
-
-        <div class="item-group fu fu-d2">
-          <h2 class="item-group-label">spam musubi</h2>
-          <div class="item-group-rule"></div>
-          <p class="item-group-note">seared spam brushed in house soy glaze over seasoned sushi rice &amp; homemade furikake, wrapped in nori</p>
-          <div class="item-row"><span class="item-name">single</span><span class="item-price">4</span></div>
-          <div class="item-row"><span class="item-name">triple</span><span class="item-price">10</span></div>
-        </div>
-      </div>
-
+  <!-- ─── FEATURED IN ─── -->
+  <section class="press-section" id="press" aria-label="press and media features">
+    <p class="press-eyebrow fu">as seen in</p>
+    <div class="press-grid">
+      <a class="press-item fu" href="https://ediblemontereybay.com/blog/new-one-man-start-up-inoa-poke-impresses/" target="_blank" rel="noopener noreferrer" aria-label="Read Edible Monterey Bay's feature on Inoa Poke">
+        <img src="brand_assets/press-edible.png" alt="Edible Monterey Bay — New One-Man Start-Up Inoa Poke Impresses" class="press-logo">
+      </a>
+      <a class="press-item fu fu-d1" href="https://www.goodtimes.sc/the-hotel-bar-santa-cruz-food-menu/" target="_blank" rel="noopener noreferrer" aria-label="Read Good Times SC's feature on Inoa">
+        <img src="brand_assets/press-goodtimes.png" alt="Good Times SC — Inoa featured in Santa Cruz food guide" class="press-logo">
+      </a>
+      <a class="press-item fu fu-d2" href="https://www.santacruzsentinel.com/2026/07/14/quick-bites-poon-sup-thai-cuisine-is-now-open-for-business/" target="_blank" rel="noopener noreferrer" aria-label="Read Santa Cruz Sentinel's Quick Bites feature on Inoa">
+        <img src="brand_assets/press-sentinel.png" alt="Santa Cruz Sentinel — Quick Bites featuring Inoa" class="press-logo">
+      </a>
     </div>
   </section>
-
-  <section class="menu-section" aria-label="add-ons">
-    <h2 class="menu-section-label fu">add-ons</h2>
-    <div class="menu-section-rule"></div>
-    <div class="addons-grid">
-      <div class="fu">
-        <div class="item-row"><span class="item-name">seasoned sushi rice</span><span class="item-price">4</span></div>
-        <div class="item-row">
-          <span style="font-family:'DM Sans',sans-serif;font-size:14px;color:var(--chili);">sliced avocado <span style="font-size:11px;opacity:0.5;color:var(--ink);">from Brokaw Farms</span></span>
-          <span class="item-price">2</span>
-        </div>
-        <div class="item-row"><span class="item-name">homemade pickled daikon</span><span class="item-price">3</span></div>
-      </div>
-      <div class="fu fu-d1">
-        <div class="item-row"><span class="item-name">side of spicy mayo</span><span class="item-price">2</span></div>
-        <div class="item-row"><span class="item-name">side of sweet soy</span><span class="item-price">2</span></div>
-        <div class="item-row"><span class="item-name">homemade pickled fresno chilis</span><span class="item-price">3</span></div>
-      </div>
-    </div>
-  </section>
-
 
   <!-- ─── PROUD TO SOURCE FROM ─── -->
   <section class="sources-section" id="sources" aria-label="our sourcing partners">
