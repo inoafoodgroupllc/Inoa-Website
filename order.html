@@ -674,7 +674,7 @@
       const anchor = new Date(now);
       anchor.setDate(now.getDate() - daysBack);
       const openDay = anchor.getDay();
-      const offsets = openDay === 0 ? [1, 2] : [1, 3]; // Sun → Mon+Tue; Wed → Thu+Sat (skip Fri)
+      const offsets = openDay === 0 ? [1, 2] : [1, 2, 3]; // Sun → Mon+Tue; Wed → Thu+Fri+Sat
       return offsets.map(off => {
         const d = new Date(anchor);
         d.setDate(anchor.getDate() + off);
