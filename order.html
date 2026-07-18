@@ -602,6 +602,7 @@
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       if (key === '2026-07-02') return true; // Temp: July 3 pre-orders open July 2 only
+      if (key === '2026-07-18') return true; // Temp: Sat Jul 18 open for Sun Jul 19 orders
       if (key < '2026-06-14') return false;
       const d = now.getDay();
       return d === 0 || d === 3;
@@ -665,6 +666,8 @@
       const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       // Temp: July 2 override — only Friday July 3 available
       if (todayKey === '2026-07-02') return [{ key:'2026-07-03', day:'fri', num:3, month:7, dayOfWeek:5 }];
+      // Temp: Sat Jul 18 — only Sunday Jul 19 available
+      if (todayKey === '2026-07-18') return [{ key:'2026-07-19', day:'sun', num:19, month:7, dayOfWeek:0 }];
       const today = now.getDay();
       let daysBack = 0;
       for (let i = 0; i <= 6; i++) {
