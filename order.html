@@ -677,8 +677,8 @@
       const anchor = new Date(now);
       anchor.setDate(now.getDate() - daysBack);
       const anchorKey = `${anchor.getFullYear()}-${String(anchor.getMonth()+1).padStart(2,'0')}-${String(anchor.getDate()).padStart(2,'0')}`;
-      // Temp: week of Jul 23 — no Saturday (Jul 26), Thu+Fri only
-      if (anchorKey === '2026-07-23') return [1, 2].map(off => { const d = new Date(anchor); d.setDate(anchor.getDate() + off); return { key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, day:['sun','mon','tue','wed','thu','fri','sat'][d.getDay()], num:d.getDate(), month:d.getMonth()+1, dayOfWeek:d.getDay() }; });
+      // Temp: week of Jul 22 — no Saturday (Jul 25), Thu+Fri only
+      if (anchorKey === '2026-07-22') return [1, 2].map(off => { const d = new Date(anchor); d.setDate(anchor.getDate() + off); return { key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, day:['sun','mon','tue','wed','thu','fri','sat'][d.getDay()], num:d.getDate(), month:d.getMonth()+1, dayOfWeek:d.getDay() }; });
       const openDay = anchor.getDay();
       const offsets = openDay === 0 ? [1, 2] : [1, 2, 3]; // Sun → Mon+Tue; Wed → Thu+Fri+Sat
       return offsets.map(off => {
