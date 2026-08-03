@@ -444,9 +444,10 @@
     //        service cloud.firestore {
     //          match /databases/{database}/documents {
     //            match /slots/{slotId} {
-    //              allow read: true;
+    //              allow read: if true;
     //              allow create: if !exists(/databases/$(database)/documents/slots/$(slotId));
-    //              allow update, delete: false;
+    //              allow update: if resource.data.status == 'reserved' && request.resource.data.status in ['reserved', 'paid'];
+    //              allow delete: if false;
     //            }
     //          }
     //        }
@@ -706,6 +707,8 @@
       return out;
     })();
 
+    const SLOT_HOLD_MS = 10 * 60 * 1000; // 10 minutes
+
     function useBookedSlots(date) {
       const [booked,  setBooked]  = useState(new Set());
       const [loading, setLoading] = useState(false);
@@ -714,7 +717,24 @@
         setLoading(true);
         const unsub = db.collection('slots').where('date','==',date)
           .onSnapshot(
-            snap => { setBooked(new Set(snap.docs.map(d => d.data().slotKey))); setLoading(false); },
+            snap => {
+              const now = Date.now();
+              const bookedKeys = new Set();
+              snap.docs.forEach(d => {
+                const data = d.data();
+                if (data.status === 'paid') {
+                  bookedKeys.add(data.slotKey);
+                } else if (data.status === 'reserved') {
+                  const reservedAt = data.reservedAt?.toDate?.()?.getTime?.() || 0;
+                  if (now - reservedAt < SLOT_HOLD_MS) bookedKeys.add(data.slotKey);
+                } else {
+                  // Legacy doc (no status field) — treat as permanently booked
+                  bookedKeys.add(data.slotKey);
+                }
+              });
+              setBooked(bookedKeys);
+              setLoading(false);
+            },
             err  => { console.error('[inoa] slots error:', err); setLoading(false); }
           );
         return () => unsub();
@@ -1151,7 +1171,7 @@
     }
 
     /* ── Step 3 ── */
-    function Step3({ qtys, details, choices, onSubmit, onBack, slotConflict }) {
+    function Step3({ qtys, details, choices, onSubmit, onBack, slotConflict, submitting }) {
       const [smsConsent, setSmsConsent] = useState(false);
       const [smsError,   setSmsError]   = useState(false);
       function handleSubmit() {
@@ -1199,7 +1219,7 @@
               </div>
             )}
             <div className="po-review-total-row"><span>total</span><span>${finalTotal.toFixed(2)}</span></div>
-            <p className="po-payment-note">payment collected at pickup</p>
+            <p className="po-payment-note">secure payment via Square</p>
           </div>
 
           <div className="po-review-block">
@@ -1250,8 +1270,10 @@
             </p>
           )}
           <div className="po-step-actions">
-            <button className="po-btn-back" onClick={onBack}>← back</button>
-            <button className="po-submit-btn" onClick={handleSubmit}>place order</button>
+            <button className="po-btn-back" onClick={onBack} disabled={submitting}>← back</button>
+            <button className="po-submit-btn" onClick={handleSubmit} disabled={submitting}>
+              {submitting ? 'redirecting to payment…' : 'pay now →'}
+            </button>
           </div>
         </div>
       );
@@ -1309,7 +1331,7 @@
 
       const [open,         setOpen]         = useState(isFormOpen);
       const [step,         setStep]         = useState(1);
-      const [confirmed,    setConfirmed]    = useState(false);
+      const [submitting,   setSubmitting]   = useState(false);
       const [qtys,         setQtys]         = useState({});
       const [choices,      setChoices]      = useState({});
       const [details,      setDetails]      = useState({ mode:'pickup' });
@@ -1318,20 +1340,9 @@
       function goTo(n) { if (n === 2) setSlotConflict(false); setStep(n); setTimeout(scrollTop, 60); }
 
       async function handleSubmit() {
-        const orderedItems = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-        const subtotal      = orderedItems.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-        const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-        const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
-        const total         = subtotal - ucscDiscount - promoDiscount;
+        setSubmitting(true);
 
-        const itemLineArr = orderedItems.map(it => {
-          const ct = choiceText(it, choices, qtys[it.id]||0);
-          return `${it.name}${ct ? ` (${ct})` : ''} x${qtys[it.id]} — $${(it.price*qtys[it.id]).toFixed(2)}`;
-        });
-        if (details.promoFreeMusubi) itemLineArr.push('Spam Musubi (TANIKA promo — free) x1 — $0.00');
-        const itemLines = itemLineArr.join('\n');
-
-        // Atomically reserve the time slot in Firestore (prevents double-booking)
+        // 1. Atomically reserve the time slot in Firestore (prevents double-booking)
         if (db) {
           const selectedSlot = TIME_SLOTS.find(s => s.label === details.time);
           if (selectedSlot) {
@@ -1340,76 +1351,69 @@
             try {
               await db.runTransaction(async t => {
                 const doc = await t.get(slotRef);
-                if (doc.exists) throw new Error('SLOT_TAKEN');
+                if (doc.exists) {
+                  const data = doc.data();
+                  // Allow overwriting if it's an expired hold (reserved > 10 min ago)
+                  const isExpired = data.status === 'reserved' &&
+                    (Date.now() - (data.reservedAt?.toDate?.()?.getTime?.() || 0)) >= SLOT_HOLD_MS;
+                  if (!isExpired) throw new Error('SLOT_TAKEN');
+                }
                 t.set(slotRef, {
-                  date:         details.date,
-                  slotKey:      selectedSlot.key,
-                  slotLabel:    details.time,
-                  booked:       true,
-                  customerName: `${details.firstName} ${details.lastName}`,
-                  submittedAt:  firebase.firestore.FieldValue.serverTimestamp(),
+                  date:          details.date,
+                  slotKey:       selectedSlot.key,
+                  slotLabel:     details.time,
+                  status:        'reserved',
+                  reservedAt:    firebase.firestore.FieldValue.serverTimestamp(),
+                  customerName:  `${details.firstName} ${details.lastName}`,
+                  squareOrderId: null,
                 });
               });
             } catch(err) {
-              if (err.message === 'SLOT_TAKEN') { setSlotConflict(true); return; }
+              if (err.message === 'SLOT_TAKEN') { setSlotConflict(true); setSubmitting(false); return; }
               console.error('[inoa] slot reservation error:', err);
+              setSubmitting(false);
+              return;
             }
           }
         }
 
-        const discountParts = [];
-        if (ucscDiscount  > 0) discountParts.push(`UCSC student -$${ucscDiscount.toFixed(2)}`);
-        if (promoDiscount > 0) discountParts.push(`${(details.promoCode||'').toUpperCase()} promo -$${promoDiscount.toFixed(2)}`);
-
-        const payload = {
-          _subject:         `New inoa Pre-Order — ${details.firstName} ${details.lastName}`,
-          customer_name:    `${details.firstName} ${details.lastName}`,
-          customer_phone:   details.phone,
-          customer_email:   details.email,
-          ucsc_student:     details.ucscStudent ? 'Yes (10% discount applied)' : 'No',
-          promo_code:       details.promoFreeMusubi ? 'TANIKA (free musubi)' : details.promoCode ? details.promoCode.toUpperCase() : 'none',
-          fulfillment_type: 'Pickup',
-          fulfillment_date: details.date,
-          fulfillment_time: details.time,
-          pickup_address:   '100 Enterprise Way, Scotts Valley, CA 95066',
-          voucher_number:   details.voucher || 'none',
-          order_items:      itemLines,
-          order_subtotal:   `$${subtotal.toFixed(2)}`,
-          order_discount:   discountParts.length > 0 ? discountParts.join(', ') : 'none',
-          order_total:      `$${total.toFixed(2)}`,
-          notes:            details.notes || '—',
-        };
-
+        // 2. Create Square hosted payment link
         try {
-          const res = await fetch('https://formspree.io/f/mkoqdyzy', {
+          const res = await fetch('/api/create-payment-link', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              qtys,
+              choices,
+              details: {
+                date:            details.date,
+                time:            details.time,
+                firstName:       details.firstName,
+                lastName:        details.lastName,
+                phone:           details.phone,
+                email:           details.email,
+                notes:           details.notes || '',
+                voucher:         details.voucher || '',
+                ucscStudent:     !!details.ucscStudent,
+                promoCode:       details.promoCode || '',
+                promoDiscount:   details.promoDiscount || 0,
+                promoFreeMusubi: !!details.promoFreeMusubi,
+              },
+            }),
           });
-          if (!res.ok) throw new Error('formspree error');
+          const data = await res.json();
+          if (!res.ok || !data.url) throw new Error(data.error || 'no payment url');
+          window.location.href = data.url;
         } catch (err) {
-          console.error('[inoa] order submission failed:', err);
+          console.error('[inoa] payment link error:', err);
+          setSubmitting(false);
+          // Slot hold will auto-expire in 10 min if user doesn't complete payment
         }
-
-        setConfirmed(true);
-        scrollTop();
-      }
-
-      function handleReset() {
-        setQtys({}); setChoices({}); setDetails({ mode:'pickup' }); setStep(1); setConfirmed(false);
-        scrollTop();
       }
 
       if (!open) return (
         <div className="preorder-inner">
           <ClosedView onOpen={() => setOpen(true)} />
-        </div>
-      );
-
-      if (confirmed) return (
-        <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
-          <ConfirmView qtys={qtys} details={details} choices={choices} onReset={handleReset} />
         </div>
       );
 
@@ -1420,7 +1424,7 @@
           {step===1 && <Step1 qtys={qtys} setQtys={setQtys} choices={choices} setChoices={setChoices} onNext={()=>goTo(2)} />}
           {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
             pickupDates={PICKUP_DATES} slotConflict={slotConflict} onClearSlotConflict={()=>setSlotConflict(false)} />}
-          {step===3 && <Step3 qtys={qtys} details={details} choices={choices} onSubmit={handleSubmit} onBack={()=>goTo(2)} slotConflict={slotConflict} />}
+          {step===3 && <Step3 qtys={qtys} details={details} choices={choices} onSubmit={handleSubmit} onBack={()=>goTo(2)} slotConflict={slotConflict} submitting={submitting} />}
         </div>
       );
     }

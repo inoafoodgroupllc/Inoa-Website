@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>order confirmed — inoa</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:   #1a1a1a;
+      --cream: #f5f0e8;
+      --sand:  #e8e0d0;
+      --ogo:   #5b7c5f;
+    }
+    html, body { height: 100%; background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 40px;
+      background: transparent;
+    }
+    .nav-logo { height: 28px; }
+    .nav-back { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.5; text-decoration: none; transition: opacity 0.2s; }
+    .nav-back:hover { opacity: 1; }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 120px 24px 80px;
+    }
+
+    .card {
+      max-width: 520px;
+      width: 100%;
+      text-align: center;
+    }
+
+    .checkmark {
+      width: 56px; height: 56px;
+      border-radius: 50%;
+      background: var(--ogo);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 32px;
+    }
+    .checkmark svg { width: 26px; height: 26px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    .heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 6vw, 52px);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .sub {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--ink);
+      opacity: 0.6;
+      max-width: 380px;
+      margin: 0 auto 40px;
+    }
+
+    .divider {
+      width: 40px; height: 1px;
+      background: rgba(26,26,26,0.18);
+      margin: 0 auto 40px;
+    }
+
+    .detail-block {
+      background: rgba(26,26,26,0.04);
+      border: 1px solid rgba(26,26,26,0.08);
+      border-radius: 4px;
+      padding: 24px 28px;
+      margin-bottom: 32px;
+      text-align: left;
+    }
+    .detail-label {
+      font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.38; margin-bottom: 6px;
+    }
+    .detail-value { font-size: 14px; color: var(--ink); opacity: 0.85; line-height: 1.55; }
+
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-home {
+      display: inline-block;
+      padding: 12px 28px;
+      background: var(--ink); color: var(--cream);
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; border-radius: 2px;
+      transition: opacity 0.2s;
+    }
+    .btn-home:hover { opacity: 0.8; }
+    .btn-order {
+      display: inline-block;
+      padding: 12px 28px;
+      background: transparent; color: var(--ink);
+      border: 1px solid rgba(26,26,26,0.22);
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; border-radius: 2px;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .btn-order:hover { background: var(--sand); border-color: var(--sand); }
+
+    .notice {
+      margin-top: 32px;
+      font-size: 11px; color: var(--ink); opacity: 0.38; line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/home"><img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="nav-logo"></a>
+    <a href="/home" class="nav-back">← back to home</a>
+  </nav>
+
+  <main class="page">
+    <div class="card">
+
+      <div class="checkmark">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+
+      <h1 class="heading">you're all set.</h1>
+      <p class="sub">Payment received. Your pickup slot is reserved and we'll send a confirmation text shortly.</p>
+
+      <div class="divider"></div>
+
+      <div class="detail-block" id="pickup-detail" style="display:none">
+        <div class="detail-label">pickup</div>
+        <div class="detail-value" id="pickup-text"></div>
+      </div>
+
+      <div class="detail-block">
+        <div class="detail-label">location</div>
+        <div class="detail-value">100 Enterprise Way<br>Scotts Valley, CA 95066</div>
+      </div>
+
+      <div class="actions">
+        <a href="/home" class="btn-home">back to home</a>
+        <a href="/order" class="btn-order">place another order</a>
+      </div>
+
+      <p class="notice">Questions? Text us at (831) 295-5855</p>
+    </div>
+  </main>
+
+  <script>
+    // Square appends ?checkoutId=...&orderId=...&referenceId=... to the redirect URL.
+    // referenceId = slotDocId = "YYYY-MM-DD_HHMM"
+    const params = new URLSearchParams(window.location.search);
+    const referenceId = params.get('referenceId');
+    if (referenceId) {
+      const [date, slotKey] = referenceId.split('_');
+      if (date && slotKey) {
+        const h24 = parseInt(slotKey.slice(0, 2));
+        const min = slotKey.slice(2);
+        const h12 = h24 > 12 ? h24 - 12 : h24;
+        const period = h24 >= 12 ? 'PM' : 'AM';
+        const timeStr = `${h12}:${min} ${period}`;
+        const dateObj = new Date(date + 'T12:00:00');
+        const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        document.getElementById('pickup-text').textContent = `${dateStr} at ${timeStr}`;
+        document.getElementById('pickup-detail').style.display = 'block';
+      }
+    }
+  </script>
+
+</body>
+</html>
