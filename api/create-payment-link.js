@@ -90,84 +90,85 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'missing required fields' });
   }
 
-  const square = new Client({
-    accessToken: process.env.SQUARE_ACCESS_TOKEN,
-    environment: process.env.SQUARE_ENV === 'production'
-      ? Environment.Production
-      : Environment.Sandbox,
-  });
-
-  // ── Build line items ─────────────────────────────────────────────
-  const lineItems = [];
-  const discountUids = [];
-  const orderDiscounts = [];
-
-  for (const ci of cartItems) {
-    const catalogItem = CATALOG[ci.itemId];
-    if (!catalogItem) continue;
-
-    let totalCents = catalogItem.cents;
-
-    // Validate and add add-on modifier prices
-    for (const addon of (ci.modifiers?.addOns || [])) {
-      const addonCents = ADDON_PRICES[addon.name];
-      if (addonCents !== undefined) totalCents += addonCents;
-    }
-
-    // Build display name: "Regular Size Poke Box (Shoyu Ahi + Spicy Salmon · Seaweed Salad)"
-    const modParts = [];
-    if (ci.modifiers?.flavors?.length)  modParts.push(ci.modifiers.flavors.join(' + '));
-    if (ci.modifiers?.sides?.length)    modParts.push(ci.modifiers.sides.join(', '));
-    if (ci.modifiers?.fish)             modParts.push(ci.modifiers.fish);
-    if (ci.modifiers?.addOns?.length)   modParts.push(ci.modifiers.addOns.map(a => `+${a.name}`).join(', '));
-    const displayName = modParts.length > 0
-      ? `${catalogItem.name} (${modParts.join(' · ')})`
-      : catalogItem.name;
-
-    lineItems.push({
-      name:           displayName,
-      quantity:       String(ci.quantity),
-      basePriceMoney: { amount: BigInt(totalCents), currency: 'USD' },
-    });
+  if (!process.env.SQUARE_ACCESS_TOKEN || !process.env.SQUARE_LOCATION_ID) {
+    console.error('[inoa] Missing Square env vars');
+    return res.status(500).json({ error: 'server configuration error' });
   }
 
-  // Free musubi (TANIKA promo)
-  if (details.promoFreeMusubi) {
-    lineItems.push({
-      name:           'Spam Musubi (TANIKA — complimentary)',
-      quantity:       '1',
-      basePriceMoney: { amount: BigInt(0), currency: 'USD' },
-    });
-  }
-
-  if (!lineItems.length) return res.status(400).json({ error: 'empty cart' });
-
-  // ── Discounts ────────────────────────────────────────────────────
-  if (details.ucscStudent) {
-    orderDiscounts.push({ uid: 'ucsc', name: 'UCSC Student Discount (10%)', percentage: '10', scope: 'ORDER' });
-    discountUids.push('ucsc');
-  }
-  if (details.promoDiscount && details.promoCode) {
-    const pct = String(Math.round(details.promoDiscount * 100));
-    orderDiscounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
-    discountUids.push('promo');
-  }
-  if (discountUids.length > 0) {
-    for (const li of lineItems) {
-      li.appliedDiscounts = discountUids.map(uid => ({ discountUid: uid }));
-    }
-  }
-
-  // ── Firestore slot doc ID ─────────────────────────────────────────
-  const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
-
-  // ── Create payment link ──────────────────────────────────────────
   try {
+    const square = new Client({
+      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+      environment: process.env.SQUARE_ENV === 'production'
+        ? Environment.Production
+        : Environment.Sandbox,
+    });
+
+    // ── Build line items ───────────────────────────────────────────
+    const lineItems = [];
+    const discountUids = [];
+    const orderDiscounts = [];
+
+    for (const ci of cartItems) {
+      const catalogItem = CATALOG[ci.itemId];
+      if (!catalogItem) continue;
+
+      let totalCents = catalogItem.cents;
+
+      for (const addon of (ci.modifiers?.addOns || [])) {
+        const addonCents = ADDON_PRICES[addon.name];
+        if (addonCents !== undefined) totalCents += addonCents;
+      }
+
+      const modParts = [];
+      if (ci.modifiers?.flavors?.length)  modParts.push(ci.modifiers.flavors.join(' + '));
+      if (ci.modifiers?.sides?.length)    modParts.push(ci.modifiers.sides.join(', '));
+      if (ci.modifiers?.fish)             modParts.push(ci.modifiers.fish);
+      if (ci.modifiers?.addOns?.length)   modParts.push(ci.modifiers.addOns.map(a => `+${a.name}`).join(', '));
+      const displayName = modParts.length > 0
+        ? `${catalogItem.name} (${modParts.join(' · ')})`
+        : catalogItem.name;
+
+      lineItems.push({
+        name:           displayName,
+        quantity:       String(ci.quantity),
+        basePriceMoney: { amount: BigInt(totalCents), currency: 'USD' },
+      });
+    }
+
+    if (details.promoFreeMusubi) {
+      lineItems.push({
+        name:           'Spam Musubi (TANIKA — complimentary)',
+        quantity:       '1',
+        basePriceMoney: { amount: BigInt(0), currency: 'USD' },
+      });
+    }
+
+    if (!lineItems.length) return res.status(400).json({ error: 'empty cart' });
+
+    // ── Discounts ──────────────────────────────────────────────────
+    if (details.ucscStudent) {
+      orderDiscounts.push({ uid: 'ucsc', name: 'UCSC Student Discount (10%)', percentage: '10', scope: 'ORDER' });
+      discountUids.push('ucsc');
+    }
+    if (details.promoDiscount && details.promoCode) {
+      const pct = String(Math.round(details.promoDiscount * 100));
+      orderDiscounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
+      discountUids.push('promo');
+    }
+    if (discountUids.length > 0) {
+      for (const li of lineItems) {
+        li.appliedDiscounts = discountUids.map(uid => ({ discountUid: uid }));
+      }
+    }
+
+    const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
+
+    // ── Create payment link ────────────────────────────────────────
     const { result } = await square.checkoutApi.createPaymentLink({
       idempotencyKey: crypto.randomUUID(),
       order: {
         referenceId: slotDocId,
-        locationId: process.env.SQUARE_LOCATION_ID,
+        locationId:  process.env.SQUARE_LOCATION_ID,
         lineItems,
         ...(orderDiscounts.length > 0 ? { discounts: orderDiscounts } : {}),
         fulfillments: [{
@@ -189,9 +190,9 @@ export default async function handler(req, res) {
         },
       },
       checkoutOptions: {
-        redirectUrl:          `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
+        redirectUrl:           `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
         askForShippingAddress: false,
-        merchantSupportEmail: 'clyde.ccollado@gmail.com',
+        merchantSupportEmail:  'clyde.ccollado@gmail.com',
       },
       prePopulatedData: {
         buyerEmail:       details.email,
@@ -205,8 +206,12 @@ export default async function handler(req, res) {
       checkoutId: result.paymentLink.id,
       slotDocId,
     });
+
   } catch (err) {
     console.error('[inoa] Square createPaymentLink error:', err?.errors || err);
-    return res.status(500).json({ error: 'failed to create payment link', detail: err?.errors?.[0]?.detail });
+    return res.status(500).json({
+      error:  'failed to create payment link',
+      detail: err?.errors?.[0]?.detail || err?.message || String(err),
+    });
   }
 }
