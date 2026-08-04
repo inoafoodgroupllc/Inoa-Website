@@ -492,6 +492,11 @@
     .pv-grand-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 500; color: var(--ink); padding-top: 12px; border-top: 1px solid rgba(26,26,26,0.1); }
     .sq-card-container { min-height: 90px; margin-top: 4px; }
     .pv-error { font-size: 12px; color: var(--err); margin-top: 10px; line-height: 1.5; }
+    .express-row { display: flex; gap: 10px; margin-bottom: 4px; }
+    .express-row > div { flex: 1; min-height: 48px; }
+    .express-divider { display: flex; align-items: center; gap: 12px; margin: 16px 0; }
+    .express-divider::before, .express-divider::after { content: ''; flex: 1; height: 1px; background: rgba(26,26,26,0.1); }
+    .express-divider span { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.35; white-space: nowrap; }
 
     /* ── Mobile ── */
     @media (max-width: 640px) {
@@ -1407,11 +1412,16 @@
 
     // ── PaymentView ───────────────────────────────────────────────────────────
     function PaymentView({ cartItems, details, onBack }) {
-      const [card,       setCard]       = useState(null);
-      const [tipPct,     setTipPct]     = useState(null);   // null | 0 | 15 | 20 | 25
-      const [tipCustom,  setTipCustom]  = useState('');
-      const [paying,     setPaying]     = useState(false);
-      const [error,      setError]      = useState('');
+      const [card,         setCard]         = useState(null);
+      const [hasGooglePay, setHasGooglePay] = useState(false);
+      const [hasApplePay,  setHasApplePay]  = useState(false);
+      const [tipPct,       setTipPct]       = useState(null);
+      const [tipCustom,    setTipCustom]    = useState('');
+      const [paying,       setPaying]       = useState(false);
+      const [error,        setError]        = useState('');
+      const paymentReqRef  = useRef(null);
+      const googlePayRef   = useRef(null);
+      const applePayRef    = useRef(null);
 
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
@@ -1420,11 +1430,18 @@
       const taxAmount     = Math.round(taxableTotal * 0.0975 * 100) / 100;
       const orderTotal    = taxableTotal + taxAmount;
 
-      const tipAmount   = tipPct === 0   ? 0
-                        : tipPct != null ? Math.round(orderTotal * tipPct / 100 * 100) / 100
-                        : parseFloat(tipCustom) || 0;
-      const grandTotal  = orderTotal + tipAmount;
-      const tipCents    = Math.round(tipAmount * 100);
+      const tipAmount  = tipPct === 0   ? 0
+                       : tipPct != null ? Math.round(orderTotal * tipPct / 100 * 100) / 100
+                       : parseFloat(tipCustom) || 0;
+      const grandTotal = orderTotal + tipAmount;
+      const tipCents   = Math.round(tipAmount * 100);
+
+      // Sync payment request total whenever grandTotal changes
+      useEffect(() => {
+        if (paymentReqRef.current) {
+          paymentReqRef.current.update({ total: { amount: grandTotal.toFixed(2), label: 'inoa' } });
+        }
+      }, [grandTotal]);
 
       useEffect(() => {
         let mounted = true;
@@ -1437,13 +1454,46 @@
               const src = cfg.env === 'production'
                 ? 'https://web.squarecdn.com/v1/square.js'
                 : 'https://sandbox.web.squarecdn.com/v1/square.js';
-              const s = document.createElement('script');
-              s.src = src; s.onload = resolve; s.onerror = reject;
+              const s = document.createElement('script'); s.src = src;
+              s.onload = resolve; s.onerror = reject;
               document.head.appendChild(s);
             });
           }
           if (!mounted) return;
+
           const payments = window.Square.payments(cfg.applicationId, cfg.locationId);
+
+          // Payment request (shared by Google Pay + Apple Pay)
+          const pr = payments.paymentRequest({
+            countryCode:  'US',
+            currencyCode: 'USD',
+            total: { amount: grandTotal.toFixed(2), label: 'inoa' },
+          });
+          paymentReqRef.current = pr;
+
+          // Google Pay
+          try {
+            const gp = await payments.googlePay(pr);
+            await gp.attach('#gp-button');
+            googlePayRef.current = gp;
+            gp.addEventListener('ontokenization', ({ detail: { tokenResult } }) => {
+              if (tokenResult?.status === 'OK') submitPayment(tokenResult.token);
+            });
+            if (mounted) setHasGooglePay(true);
+          } catch (_) { /* not available in this browser */ }
+
+          // Apple Pay
+          try {
+            const ap = await payments.applePay(pr);
+            await ap.attach('#ap-button');
+            applePayRef.current = ap;
+            ap.addEventListener('ontokenization', ({ detail: { tokenResult } }) => {
+              if (tokenResult?.status === 'OK') submitPayment(tokenResult.token);
+            });
+            if (mounted) setHasApplePay(true);
+          } catch (_) { /* not available / domain not registered */ }
+
+          // Card widget
           cardInstance = await payments.card({
             style: {
               '.input-container':          { borderColor: 'rgba(26,26,26,0.15)', borderRadius: '2px' },
@@ -1462,17 +1512,10 @@
         return () => { mounted = false; if (cardInstance) cardInstance.destroy().catch(() => {}); };
       }, []);
 
-      async function handlePay() {
-        if (!card) return;
+      async function submitPayment(token) {
         setPaying(true);
         setError('');
         try {
-          const result = await card.tokenize();
-          if (result.status !== 'OK') {
-            setError(result.errors?.map(e => e.message).join(' · ') || 'Card validation failed.');
-            setPaying(false);
-            return;
-          }
           const res = await fetch('/api/pay', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1487,7 +1530,7 @@
                 promoCode: details.promoCode || '', promoDiscount: details.promoDiscount || 0,
                 promoFreeMusubi: !!details.promoFreeMusubi,
               },
-              sourceId: result.token,
+              sourceId: token,
               tipCents,
             }),
           });
@@ -1507,7 +1550,21 @@
         }
       }
 
+      async function handleCardPay() {
+        if (!card) return;
+        setPaying(true);
+        setError('');
+        const result = await card.tokenize().catch(() => null);
+        if (!result || result.status !== 'OK') {
+          setError(result?.errors?.map(e => e.message).join(' · ') || 'Card validation failed.');
+          setPaying(false);
+          return;
+        }
+        submitPayment(result.token);
+      }
+
       const TIP_OPTIONS = [{ label: 'none', pct: 0 }, { label: '15%', pct: 15 }, { label: '20%', pct: 20 }, { label: '25%', pct: 25 }];
+      const showExpress = hasGooglePay || hasApplePay;
 
       return (
         <div className="checkout-page">
@@ -1515,6 +1572,7 @@
             <h2 className="checkout-heading">payment</h2>
             <p className="checkout-sub">pickup only · inoa · scotts valley</p>
 
+            {/* Order summary */}
             <div className="co-section">
               <div className="co-section-title">your order</div>
               <div className="totals-block">
@@ -1549,6 +1607,7 @@
               </div>
             </div>
 
+            {/* Tip */}
             <div className="co-section">
               <div className="co-section-title">add a tip</div>
               <div className="tip-grid">
@@ -1565,8 +1624,7 @@
                 <div className="tip-other-input-wrap">
                   <span className="tip-other-dollar">$</span>
                   <input className="tip-custom-input" type="number" min="0" step="0.01" placeholder="0.00"
-                    value={tipCustom}
-                    onFocus={() => setTipPct(null)}
+                    value={tipCustom} onFocus={() => setTipPct(null)}
                     onChange={e => { setTipCustom(e.target.value); setTipPct(null); }} />
                 </div>
               </div>
@@ -1576,8 +1634,23 @@
               </div>
             </div>
 
+            {/* Express checkout (Google Pay / Apple Pay) — hidden until available */}
+            <div className="co-section" style={{display: showExpress ? 'block' : 'none'}}>
+              <div className="co-section-title">express checkout</div>
+              <div className="express-row">
+                <div id="gp-button" style={{display: hasGooglePay ? 'block' : 'none'}}></div>
+                <div id="ap-button" style={{display: hasApplePay  ? 'block' : 'none'}}></div>
+              </div>
+            </div>
+
+            {/* Divider shown only when express is available */}
+            {showExpress && (
+              <div className="express-divider"><span>or pay by card</span></div>
+            )}
+
+            {/* Card widget */}
             <div className="co-section">
-              <div className="co-section-title">card details</div>
+              <div className="co-section-title" style={{display: showExpress ? 'none' : 'block'}}>card details</div>
               <div id="sq-card" className="sq-card-container"></div>
               {!card && !error && <p style={{fontSize:'12px',color:'var(--ink)',opacity:0.4,marginTop:'10px'}}>loading secure card form…</p>}
               {error && <p className="pv-error">{error}</p>}
@@ -1585,7 +1658,7 @@
 
             <div className="co-actions">
               <button className="co-back" onClick={onBack} disabled={paying}>← back</button>
-              <button className="co-pay" onClick={handlePay} disabled={paying || !card}>
+              <button className="co-pay" onClick={handleCardPay} disabled={paying || !card}>
                 {paying ? 'processing…' : `pay ${fmtMoney(grandTotal)} →`}
               </button>
             </div>
