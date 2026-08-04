@@ -2,7 +2,7 @@
 // Creates a Square hosted payment link for an inoa pre-order.
 // Prices are authoritative on the server — never trust the client.
 
-import { Client, Environment } from 'square';
+import { SquareClient, SquareEnvironment } from 'square';
 import crypto from 'crypto';
 
 // ── Authoritative price catalogue (cents) ────────────────────────────
@@ -96,11 +96,11 @@ export default async function handler(req, res) {
   }
 
   try {
-    const square = new Client({
-      accessToken: process.env.SQUARE_ACCESS_TOKEN,
+    const square = new SquareClient({
+      token: process.env.SQUARE_ACCESS_TOKEN,
       environment: process.env.SQUARE_ENV === 'production'
-        ? Environment.Production
-        : Environment.Sandbox,
+        ? SquareEnvironment.Production
+        : SquareEnvironment.Sandbox,
     });
 
     // ── Build line items ───────────────────────────────────────────
@@ -131,7 +131,7 @@ export default async function handler(req, res) {
       lineItems.push({
         name:           displayName,
         quantity:       String(ci.quantity),
-        basePriceMoney: { amount: BigInt(totalCents), currency: 'USD' },
+        basePriceMoney: { amount: totalCents, currency: 'USD' },
       });
     }
 
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
       lineItems.push({
         name:           'Spam Musubi (TANIKA — complimentary)',
         quantity:       '1',
-        basePriceMoney: { amount: BigInt(0), currency: 'USD' },
+        basePriceMoney: { amount: 0, currency: 'USD' },
       });
     }
 
@@ -164,7 +164,7 @@ export default async function handler(req, res) {
     const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
 
     // ── Create payment link ────────────────────────────────────────
-    const { result } = await square.checkoutApi.createPaymentLink({
+    const response = await square.checkout.paymentLinks.create({
       idempotencyKey: crypto.randomUUID(),
       order: {
         referenceId: slotDocId,
@@ -201,9 +201,9 @@ export default async function handler(req, res) {
     });
 
     return res.status(200).json({
-      url:        result.paymentLink.url,
-      orderId:    result.paymentLink.orderId,
-      checkoutId: result.paymentLink.id,
+      url:        response.paymentLink.url,
+      orderId:    response.paymentLink.orderId,
+      checkoutId: response.paymentLink.id,
       slotDocId,
     });
 
