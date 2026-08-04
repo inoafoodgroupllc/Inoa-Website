@@ -153,27 +153,38 @@
         <a href="/order" class="btn-order">place another order</a>
       </div>
 
-      <p class="notice">Questions? Text us at (831) 295-5855</p>
+      <p class="notice">Questions? Text us at (925) 391-6589</p>
     </div>
   </main>
 
   <script>
-    // Square appends ?checkoutId=...&orderId=...&referenceId=... to the redirect URL.
-    // referenceId = slotDocId = "YYYY-MM-DD_HHMM"
-    const params = new URLSearchParams(window.location.search);
-    const referenceId = params.get('referenceId');
-    if (referenceId) {
-      const [date, slotKey] = referenceId.split('_');
-      if (date && slotKey) {
-        const h24 = parseInt(slotKey.slice(0, 2));
-        const min = slotKey.slice(2);
-        const h12 = h24 > 12 ? h24 - 12 : h24;
-        const period = h24 >= 12 ? 'PM' : 'AM';
-        const timeStr = `${h12}:${min} ${period}`;
-        const dateObj = new Date(date + 'T12:00:00');
-        const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-        document.getElementById('pickup-text').textContent = `${dateStr} at ${timeStr}`;
-        document.getElementById('pickup-detail').style.display = 'block';
+    function showPickup(date, timeLabel) {
+      const dateObj = new Date(date + 'T12:00:00');
+      const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      document.getElementById('pickup-text').textContent = `${dateStr} · ${timeLabel}`;
+      document.getElementById('pickup-detail').style.display = 'block';
+    }
+
+    // Primary: sessionStorage saved right before Square redirect
+    const storedDate = sessionStorage.getItem('inoa_pickup_date');
+    const storedTime = sessionStorage.getItem('inoa_pickup_time');
+    if (storedDate && storedTime) {
+      showPickup(storedDate, storedTime);
+      sessionStorage.removeItem('inoa_pickup_date');
+      sessionStorage.removeItem('inoa_pickup_time');
+    } else {
+      // Fallback: Square appends ?referenceId=YYYY-MM-DD_HHMM to the redirect URL
+      const params = new URLSearchParams(window.location.search);
+      const referenceId = params.get('referenceId');
+      if (referenceId) {
+        const [date, slotKey] = referenceId.split('_');
+        if (date && slotKey) {
+          const h24 = parseInt(slotKey.slice(0, 2));
+          const min = slotKey.slice(2);
+          const h12 = h24 > 12 ? h24 - 12 : (h24 === 0 ? 12 : h24);
+          const period = h24 >= 12 ? 'PM' : 'AM';
+          showPickup(date, `${h12}:${min} ${period}`);
+        }
       }
     }
   </script>
