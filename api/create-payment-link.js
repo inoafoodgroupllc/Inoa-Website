@@ -182,13 +182,9 @@ export default async function handler(req, res) {
         },
       },
       checkout_options: {
-        redirect_url:              `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
-        ask_for_shipping_address:  false,
-        merchant_support_email:    'clyde.ccollado@gmail.com',
-      },
-      pre_populated_data: {
-        buyer_email:        details.email,
-        buyer_phone_number: details.phone,
+        redirect_url:             `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
+        ask_for_shipping_address: false,
+        merchant_support_email:   'clyde.ccollado@gmail.com',
       },
     };
 
