@@ -144,6 +144,10 @@ export default async function handler(req, res) {
       discounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
       discount_uids.push('promo');
     }
+    // Apply tax reference to every line item (required even with scope: ORDER)
+    for (const li of line_items) {
+      li.applied_taxes = [{ tax_uid: 'sales_tax' }];
+    }
     if (discount_uids.length > 0) {
       for (const li of line_items) {
         li.applied_discounts = discount_uids.map(uid => ({ discount_uid: uid }));
@@ -216,7 +220,7 @@ export default async function handler(req, res) {
       console.error('[inoa] Square error:', JSON.stringify(data.errors));
       return res.status(500).json({
         error:  'failed to create payment link',
-        detail: data.errors?.[0]?.detail || data.errors?.[0]?.code || JSON.stringify(data),
+        detail: data.errors?.map(e => `[${e.code}] ${e.field}: ${e.detail}`).join(' | ') || JSON.stringify(data),
       });
     }
 
