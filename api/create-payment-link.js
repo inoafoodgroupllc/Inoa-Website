@@ -95,7 +95,6 @@ export default async function handler(req, res) {
   try {
     // ── Build line items ───────────────────────────────────────────
     const line_items = [];
-    const discount_uids = [];
     const discounts = [];
 
     for (const ci of cartItems) {
@@ -134,20 +133,13 @@ export default async function handler(req, res) {
 
     if (!line_items.length) return res.status(400).json({ error: 'empty cart' });
 
-    // ── Discounts ──────────────────────────────────────────────────
+    // ── Discounts (scope ORDER auto-applies to all line items) ────────
     if (details.ucscStudent) {
-      discounts.push({ uid: 'ucsc', name: 'UCSC Student Discount (10%)', percentage: '10', scope: 'ORDER' });
-      discount_uids.push('ucsc');
+      discounts.push({ uid: 'ucsc', name: 'UCSC Student Discount (10%)', type: 'FIXED_PERCENTAGE', percentage: '10', scope: 'ORDER' });
     }
     if (details.promoDiscount && details.promoCode) {
       const pct = String(Math.round(details.promoDiscount * 100));
-      discounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
-      discount_uids.push('promo');
-    }
-    if (discount_uids.length > 0) {
-      for (const li of line_items) {
-        li.applied_discounts = discount_uids.map(uid => ({ discount_uid: uid }));
-      }
+      discounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, type: 'FIXED_PERCENTAGE', percentage: pct, scope: 'ORDER' });
     }
 
     const baseUrl = process.env.SQUARE_ENV === 'production'
