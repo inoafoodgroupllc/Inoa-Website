@@ -2,7 +2,6 @@
 // Creates a Square hosted payment link for an inoa pre-order.
 // Prices are authoritative on the server — never trust the client.
 
-import { SquareClient, SquareEnvironment } from 'square';
 import crypto from 'crypto';
 
 // ── Authoritative price catalogue (cents) ────────────────────────────
@@ -47,7 +46,6 @@ const CATALOG = {
   801: { name: 'Hawaiian Sun',            cents:  300 },
 };
 
-// Server-side prices for modal add-ons (validate against these)
 const ADDON_PRICES = {
   'Sliced Avocado':     200,
   'Roasted Nori Pack':  250,
@@ -56,7 +54,7 @@ const ADDON_PRICES = {
   'Wasabi':              75,
 };
 
-// Parse "12:05 PM – 12:10 PM" → "2026-08-06T12:05:00-07:00"
+// "12:05 PM – 12:10 PM" → "2026-08-06T12:05:00-07:00"
 function pickupAtISO(date, timeLabel) {
   const start = timeLabel.split('–')[0].trim();
   const m = start.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
@@ -69,7 +67,6 @@ function pickupAtISO(date, timeLabel) {
   return `${date}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00-07:00`;
 }
 
-// Parse time label → slot key (e.g. "1205")
 function deriveSlotKey(timeLabel) {
   const start = timeLabel.split('–')[0].trim();
   const m = start.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
@@ -96,24 +93,16 @@ export default async function handler(req, res) {
   }
 
   try {
-    const square = new SquareClient({
-      token: process.env.SQUARE_ACCESS_TOKEN,
-      environment: process.env.SQUARE_ENV === 'production'
-        ? SquareEnvironment.Production
-        : SquareEnvironment.Sandbox,
-    });
-
     // ── Build line items ───────────────────────────────────────────
-    const lineItems = [];
-    const discountUids = [];
-    const orderDiscounts = [];
+    const line_items = [];
+    const discount_uids = [];
+    const discounts = [];
 
     for (const ci of cartItems) {
       const catalogItem = CATALOG[ci.itemId];
       if (!catalogItem) continue;
 
       let totalCents = catalogItem.cents;
-
       for (const addon of (ci.modifiers?.addOns || [])) {
         const addonCents = ADDON_PRICES[addon.name];
         if (addonCents !== undefined) totalCents += addonCents;
@@ -124,94 +113,118 @@ export default async function handler(req, res) {
       if (ci.modifiers?.sides?.length)    modParts.push(ci.modifiers.sides.join(', '));
       if (ci.modifiers?.fish)             modParts.push(ci.modifiers.fish);
       if (ci.modifiers?.addOns?.length)   modParts.push(ci.modifiers.addOns.map(a => `+${a.name}`).join(', '));
-      const displayName = modParts.length > 0
+      const name = modParts.length > 0
         ? `${catalogItem.name} (${modParts.join(' · ')})`
         : catalogItem.name;
 
-      lineItems.push({
-        name:           displayName,
-        quantity:       String(ci.quantity),
-        basePriceMoney: { amount: BigInt(totalCents), currency: 'USD' },
+      line_items.push({
+        name,
+        quantity:         String(ci.quantity),
+        base_price_money: { amount: totalCents, currency: 'USD' },
       });
     }
 
     if (details.promoFreeMusubi) {
-      lineItems.push({
-        name:           'Spam Musubi (TANIKA — complimentary)',
-        quantity:       '1',
-        basePriceMoney: { amount: BigInt(0), currency: 'USD' },
+      line_items.push({
+        name:             'Spam Musubi (TANIKA — complimentary)',
+        quantity:         '1',
+        base_price_money: { amount: 0, currency: 'USD' },
       });
     }
 
-    if (!lineItems.length) return res.status(400).json({ error: 'empty cart' });
+    if (!line_items.length) return res.status(400).json({ error: 'empty cart' });
 
     // ── Discounts ──────────────────────────────────────────────────
     if (details.ucscStudent) {
-      orderDiscounts.push({ uid: 'ucsc', name: 'UCSC Student Discount (10%)', percentage: '10', scope: 'ORDER' });
-      discountUids.push('ucsc');
+      discounts.push({ uid: 'ucsc', name: 'UCSC Student Discount (10%)', percentage: '10', scope: 'ORDER' });
+      discount_uids.push('ucsc');
     }
     if (details.promoDiscount && details.promoCode) {
       const pct = String(Math.round(details.promoDiscount * 100));
-      orderDiscounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
-      discountUids.push('promo');
+      discounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
+      discount_uids.push('promo');
     }
-    if (discountUids.length > 0) {
-      for (const li of lineItems) {
-        li.appliedDiscounts = discountUids.map(uid => ({ discountUid: uid }));
+    if (discount_uids.length > 0) {
+      for (const li of line_items) {
+        li.applied_discounts = discount_uids.map(uid => ({ discount_uid: uid }));
       }
     }
 
     const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
+    const baseUrl = process.env.SQUARE_ENV === 'production'
+      ? 'https://connect.squareup.com'
+      : 'https://connect.squareupsandbox.com';
 
-    // ── Create payment link ────────────────────────────────────────
-    const response = await square.checkout.paymentLinks.create({
-      idempotencyKey: crypto.randomUUID(),
+    // ── POST directly to Square REST API ──────────────────────────
+    const body = {
+      idempotency_key: crypto.randomUUID(),
       order: {
-        referenceId: slotDocId,
-        locationId:  process.env.SQUARE_LOCATION_ID,
-        lineItems,
-        ...(orderDiscounts.length > 0 ? { discounts: orderDiscounts } : {}),
+        reference_id: slotDocId,
+        location_id:  process.env.SQUARE_LOCATION_ID,
+        line_items,
+        ...(discounts.length > 0 ? { discounts } : {}),
         fulfillments: [{
           type: 'PICKUP',
-          pickupDetails: {
+          pickup_details: {
             recipient: {
-              displayName:  `${details.firstName} ${details.lastName}`,
-              phoneNumber:  details.phone,
-              emailAddress: details.email,
+              display_name:  `${details.firstName} ${details.lastName}`,
+              phone_number:  details.phone,
+              email_address: details.email,
             },
-            pickupAt: pickupAtISO(details.date, details.time),
+            pickup_at: pickupAtISO(details.date, details.time),
             ...(details.notes ? { note: details.notes } : {}),
           },
         }],
         metadata: {
-          slotDocId,
-          voucher:       details.voucher || '',
-          customerPhone: details.phone,
+          slot_doc_id:    slotDocId,
+          voucher:        details.voucher || '',
+          customer_phone: details.phone,
         },
       },
-      checkoutOptions: {
-        redirectUrl:           `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
-        askForShippingAddress: false,
-        merchantSupportEmail:  'clyde.ccollado@gmail.com',
+      checkout_options: {
+        redirect_url:              `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
+        ask_for_shipping_address:  false,
+        merchant_support_email:    'clyde.ccollado@gmail.com',
       },
-      prePopulatedData: {
-        buyerEmail:       details.email,
-        buyerPhoneNumber: details.phone,
+      pre_populated_data: {
+        buyer_email:        details.email,
+        buyer_phone_number: details.phone,
       },
+    };
+
+    const squareRes = await fetch(`${baseUrl}/v2/online-checkout/payment-links`, {
+      method:  'POST',
+      headers: {
+        'Authorization':  `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
+        'Content-Type':   'application/json',
+        'Square-Version': '2025-01-23',
+      },
+      body: JSON.stringify(body),
     });
 
+    const data = await squareRes.json();
+    console.log('[inoa] Square response status:', squareRes.status);
+
+    if (!squareRes.ok) {
+      console.error('[inoa] Square error:', JSON.stringify(data.errors));
+      return res.status(500).json({
+        error:  'failed to create payment link',
+        detail: data.errors?.[0]?.detail || data.errors?.[0]?.code || JSON.stringify(data),
+      });
+    }
+
     return res.status(200).json({
-      url:        response.paymentLink.url,
-      orderId:    response.paymentLink.orderId,
-      checkoutId: response.paymentLink.id,
+      url:        data.payment_link.url,
+      orderId:    data.payment_link.order_id,
+      checkoutId: data.payment_link.id,
       slotDocId,
     });
 
   } catch (err) {
-    console.error('[inoa] Square createPaymentLink error:', err?.errors || err);
+    console.error('[inoa] Unexpected error:', err);
     return res.status(500).json({
       error:  'failed to create payment link',
-      detail: err?.errors?.[0]?.detail || err?.message || String(err),
+      detail: err?.message || String(err),
     });
   }
 }
