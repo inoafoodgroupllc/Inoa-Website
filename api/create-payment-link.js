@@ -144,10 +144,6 @@ export default async function handler(req, res) {
       discounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
       discount_uids.push('promo');
     }
-    // Apply tax reference to every line item (required even with scope: ORDER)
-    for (const li of line_items) {
-      li.applied_taxes = [{ tax_uid: 'sales_tax' }];
-    }
     if (discount_uids.length > 0) {
       for (const li of line_items) {
         li.applied_discounts = discount_uids.map(uid => ({ discount_uid: uid }));
@@ -167,13 +163,6 @@ export default async function handler(req, res) {
         reference_id: slotDocId,
         location_id: process.env.SQUARE_LOCATION_ID,
         line_items,
-        taxes: [{
-          uid:        'sales_tax',
-          name:       'Santa Cruz County Sales Tax (9.75%)',
-          type:       'ADDITIVE',
-          percentage: '9.75',
-          scope:      'ORDER',
-        }],
         ...(discounts.length > 0 ? { discounts } : {}),
         fulfillments: [{
           type: 'PICKUP',
