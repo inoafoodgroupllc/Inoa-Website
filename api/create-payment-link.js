@@ -166,12 +166,13 @@ export default async function handler(req, res) {
         fulfillments: [{
           type: 'PICKUP',
           pickup_details: {
+            schedule_type: 'SCHEDULED',
+            pickup_at:     pickupAtISO(details.date, details.time),
             recipient: {
               display_name:  `${details.firstName} ${details.lastName}`,
               phone_number:  details.phone,
               email_address: details.email,
             },
-            pickup_at: pickupAtISO(details.date, details.time),
             ...(details.notes ? { note: details.notes } : {}),
           },
         }],
@@ -188,6 +189,7 @@ export default async function handler(req, res) {
       },
     };
 
+    console.log('[inoa] Square request body:', JSON.stringify(body));
     const squareRes = await fetch(`${baseUrl}/v2/online-checkout/payment-links`, {
       method:  'POST',
       headers: {
