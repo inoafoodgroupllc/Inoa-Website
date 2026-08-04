@@ -131,7 +131,7 @@ export default async function handler(req, res) {
       lineItems.push({
         name:           displayName,
         quantity:       String(ci.quantity),
-        basePriceMoney: { amount: totalCents, currency: 'USD' },
+        basePriceMoney: { amount: BigInt(totalCents), currency: 'USD' },
       });
     }
 
@@ -139,7 +139,7 @@ export default async function handler(req, res) {
       lineItems.push({
         name:           'Spam Musubi (TANIKA — complimentary)',
         quantity:       '1',
-        basePriceMoney: { amount: 0, currency: 'USD' },
+        basePriceMoney: { amount: BigInt(0), currency: 'USD' },
       });
     }
 
