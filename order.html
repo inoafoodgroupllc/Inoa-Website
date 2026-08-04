@@ -469,6 +469,30 @@
     .po-cd-lbl { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); opacity: 0.3; }
     .po-closed-next { font-size: 11px; color: var(--ink); opacity: 0.36; letter-spacing: 0.06em; }
 
+    /* ── Payment view ── */
+    .tip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
+    .tip-btn {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 11px 6px; border: 1px solid rgba(26,26,26,0.15); background: transparent;
+      border-radius: 3px; cursor: pointer; gap: 3px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .tip-btn:hover { border-color: rgba(26,26,26,0.35); }
+    .tip-btn.active { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .tip-btn-pct { font-size: 13px; font-weight: 500; letter-spacing: 0.02em; }
+    .tip-btn-amt { font-size: 10px; opacity: 0.62; }
+    .tip-btn.active .tip-btn-amt { opacity: 0.7; }
+    .tip-other-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .tip-other-label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.4; white-space: nowrap; }
+    .tip-other-input-wrap { position: relative; flex: 1; }
+    .tip-other-dollar { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; color: var(--ink); opacity: 0.5; pointer-events: none; }
+    .tip-custom-input { width: 100%; padding: 9px 10px 9px 22px; border: 1px solid rgba(26,26,26,0.15); border-radius: 3px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); background: transparent; outline: none; }
+    .tip-custom-input:focus { border-color: var(--ogo); }
+    .pv-grand-total { display: flex; justify-content: space-between; font-size: 16px; font-weight: 500; color: var(--ink); padding-top: 12px; border-top: 1px solid rgba(26,26,26,0.1); }
+    .sq-card-container { min-height: 90px; margin-top: 4px; }
+    .pv-error { font-size: 12px; color: var(--err); margin-top: 10px; line-height: 1.5; }
+
     /* ── Mobile ── */
     @media (max-width: 640px) {
       .order-nav { padding: 18px 20px; }
@@ -1381,6 +1405,196 @@
       );
     }
 
+    // ── PaymentView ───────────────────────────────────────────────────────────
+    function PaymentView({ cartItems, details, onBack }) {
+      const [card,       setCard]       = useState(null);
+      const [tipPct,     setTipPct]     = useState(null);   // null | 0 | 15 | 20 | 25
+      const [tipCustom,  setTipCustom]  = useState('');
+      const [paying,     setPaying]     = useState(false);
+      const [error,      setError]      = useState('');
+
+      const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
+      const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+      const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
+      const taxableTotal  = subtotal - ucscDiscount - promoDiscount;
+      const taxAmount     = Math.round(taxableTotal * 0.0975 * 100) / 100;
+      const orderTotal    = taxableTotal + taxAmount;
+
+      const tipAmount   = tipPct === 0   ? 0
+                        : tipPct != null ? Math.round(orderTotal * tipPct / 100 * 100) / 100
+                        : parseFloat(tipCustom) || 0;
+      const grandTotal  = orderTotal + tipAmount;
+      const tipCents    = Math.round(tipAmount * 100);
+
+      useEffect(() => {
+        let mounted = true;
+        let cardInstance = null;
+        async function initSquare() {
+          const cfg = await fetch('/api/config').then(r => r.json());
+          if (!cfg.applicationId) { setError('Square not configured. Contact inoa.'); return; }
+          if (!window.Square) {
+            await new Promise((resolve, reject) => {
+              const src = cfg.env === 'production'
+                ? 'https://web.squarecdn.com/v1/square.js'
+                : 'https://sandbox.web.squarecdn.com/v1/square.js';
+              const s = document.createElement('script');
+              s.src = src; s.onload = resolve; s.onerror = reject;
+              document.head.appendChild(s);
+            });
+          }
+          if (!mounted) return;
+          const payments = window.Square.payments(cfg.applicationId, cfg.locationId);
+          cardInstance = await payments.card({
+            style: {
+              '.input-container':          { borderColor: 'rgba(26,26,26,0.15)', borderRadius: '2px' },
+              '.input-container.is-focus': { borderColor: '#5b7c5f' },
+              'input':                     { color: '#1a1a1a', fontFamily: "'DM Sans', sans-serif", fontSize: '14px' },
+              '.input-container.is-error': { borderColor: '#b87a5a' },
+            },
+          });
+          await cardInstance.attach('#sq-card');
+          if (mounted) setCard(cardInstance);
+        }
+        initSquare().catch(err => {
+          console.error('[inoa] Square init:', err);
+          if (mounted) setError('Failed to load payment form. Please refresh and try again.');
+        });
+        return () => { mounted = false; if (cardInstance) cardInstance.destroy().catch(() => {}); };
+      }, []);
+
+      async function handlePay() {
+        if (!card) return;
+        setPaying(true);
+        setError('');
+        try {
+          const result = await card.tokenize();
+          if (result.status !== 'OK') {
+            setError(result.errors?.map(e => e.message).join(' · ') || 'Card validation failed.');
+            setPaying(false);
+            return;
+          }
+          const res = await fetch('/api/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cartItems: cartItems.map(ci => ({ itemId: ci.itemId, name: ci.name, modifiers: ci.modifiers, quantity: ci.quantity })),
+              details: {
+                date: details.date, time: details.time,
+                firstName: details.firstName, lastName: details.lastName,
+                phone: details.phone, email: details.email,
+                notes: details.notes || '', voucher: details.voucher || '',
+                ucscStudent: !!details.ucscStudent,
+                promoCode: details.promoCode || '', promoDiscount: details.promoDiscount || 0,
+                promoFreeMusubi: !!details.promoFreeMusubi,
+              },
+              sourceId: result.token,
+              tipCents,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            setError(data.detail || data.error || 'Payment failed. Please try again.');
+            setPaying(false);
+            return;
+          }
+          sessionStorage.setItem('inoa_pickup_date', details.date);
+          sessionStorage.setItem('inoa_pickup_time', details.time);
+          window.location.href = '/confirmation';
+        } catch (err) {
+          console.error('[inoa] pay error:', err);
+          setError('An unexpected error occurred. Please try again.');
+          setPaying(false);
+        }
+      }
+
+      const TIP_OPTIONS = [{ label: 'none', pct: 0 }, { label: '15%', pct: 15 }, { label: '20%', pct: 20 }, { label: '25%', pct: 25 }];
+
+      return (
+        <div className="checkout-page">
+          <div className="checkout-inner">
+            <h2 className="checkout-heading">payment</h2>
+            <p className="checkout-sub">pickup only · inoa · scotts valley</p>
+
+            <div className="co-section">
+              <div className="co-section-title">your order</div>
+              <div className="totals-block">
+                {cartItems.map(ci => (
+                  <div key={ci.cartId} className="total-row">
+                    <span className="total-row-label" style={{maxWidth:'66%',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                      {ci.name}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
+                    </span>
+                    <span className="total-row-val">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
+                  </div>
+                ))}
+                {ucscDiscount > 0 && (
+                  <div className="total-row discount">
+                    <span className="total-row-label">ucsc discount (10%)</span>
+                    <span className="total-row-val">−{fmtMoney(ucscDiscount)}</span>
+                  </div>
+                )}
+                {promoDiscount > 0 && (
+                  <div className="total-row discount">
+                    <span className="total-row-label">{details.promoCode?.toUpperCase()} ({Math.round(details.promoDiscount*100)}% off)</span>
+                    <span className="total-row-val">−{fmtMoney(promoDiscount)}</span>
+                  </div>
+                )}
+                <div className="total-row">
+                  <span className="total-row-label">tax (9.75%)</span>
+                  <span className="total-row-val">{fmtMoney(taxAmount)}</span>
+                </div>
+                <div className="total-row final">
+                  <span className="total-row-label">order total</span>
+                  <span className="total-row-val">{fmtMoney(orderTotal)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="co-section">
+              <div className="co-section-title">add a tip</div>
+              <div className="tip-grid">
+                {TIP_OPTIONS.map(({ label, pct }) => (
+                  <button key={pct} className={`tip-btn${tipPct === pct ? ' active' : ''}`}
+                    onClick={() => { setTipPct(pct); setTipCustom(''); }}>
+                    <span className="tip-btn-pct">{label}</span>
+                    {pct > 0 && <span className="tip-btn-amt">{fmtMoney(Math.round(orderTotal * pct / 100 * 100) / 100)}</span>}
+                  </button>
+                ))}
+              </div>
+              <div className="tip-other-row">
+                <span className="tip-other-label">other</span>
+                <div className="tip-other-input-wrap">
+                  <span className="tip-other-dollar">$</span>
+                  <input className="tip-custom-input" type="number" min="0" step="0.01" placeholder="0.00"
+                    value={tipCustom}
+                    onFocus={() => setTipPct(null)}
+                    onChange={e => { setTipCustom(e.target.value); setTipPct(null); }} />
+                </div>
+              </div>
+              <div className="pv-grand-total">
+                <span>grand total</span>
+                <span>{fmtMoney(grandTotal)}</span>
+              </div>
+            </div>
+
+            <div className="co-section">
+              <div className="co-section-title">card details</div>
+              <div id="sq-card" className="sq-card-container"></div>
+              {!card && !error && <p style={{fontSize:'12px',color:'var(--ink)',opacity:0.4,marginTop:'10px'}}>loading secure card form…</p>}
+              {error && <p className="pv-error">{error}</p>}
+            </div>
+
+            <div className="co-actions">
+              <button className="co-back" onClick={onBack} disabled={paying}>← back</button>
+              <button className="co-pay" onClick={handlePay} disabled={paying || !card}>
+                {paying ? 'processing…' : `pay ${fmtMoney(grandTotal)} →`}
+              </button>
+            </div>
+            <p className="co-pay-note">secured by Square · your card info never touches our server</p>
+          </div>
+        </div>
+      );
+    }
+
     // ── PreorderForm (root) ───────────────────────────────────────────────────
     function PreorderForm() {
       const PICKUP_DATES = getWindowDates();
@@ -1391,8 +1605,9 @@
       const [modalItem,    setModalItem]    = useState(null);
       const [editLine,     setEditLine]     = useState(null);
       const [details,      setDetails]      = useState({ mode:'pickup' });
-      const [slotConflict, setSlotConflict] = useState(false);
-      const [submitting,   setSubmitting]   = useState(false);
+      const [slotConflict,     setSlotConflict]     = useState(false);
+      const [submitting,       setSubmitting]       = useState(false);
+      const [reservedSlotDocId, setReservedSlotDocId] = useState(null);
 
       // Add simple (no-modal) item to cart
       function addSimple(item) {
@@ -1464,77 +1679,46 @@
       async function handleSubmit() {
         setSubmitting(true);
 
-        // Reserve slot in Firestore
+        // Reserve slot in Firestore (skip if we already reserved this exact slot)
         if (db) {
           const selectedSlot = TIME_SLOTS.find(s => s.label === details.time);
           if (selectedSlot) {
             const slotDocId = `${details.date}_${selectedSlot.key}`;
-            const slotRef   = db.collection('slots').doc(slotDocId);
-            try {
-              await db.runTransaction(async t => {
-                const doc = await t.get(slotRef);
-                if (doc.exists) {
-                  const data = doc.data();
-                  const isExpired = data.status === 'reserved' &&
-                    (Date.now() - (data.reservedAt?.toDate?.()?.getTime?.() || 0)) >= SLOT_HOLD_MS;
-                  if (!isExpired) throw new Error('SLOT_TAKEN');
-                }
-                t.set(slotRef, {
-                  date:          details.date,
-                  slotKey:       selectedSlot.key,
-                  slotLabel:     details.time,
-                  status:        'reserved',
-                  reservedAt:    firebase.firestore.FieldValue.serverTimestamp(),
-                  customerName:  `${details.firstName} ${details.lastName}`,
-                  squareOrderId: null,
+            if (slotDocId !== reservedSlotDocId) {
+              const slotRef = db.collection('slots').doc(slotDocId);
+              try {
+                await db.runTransaction(async t => {
+                  const doc = await t.get(slotRef);
+                  if (doc.exists) {
+                    const data = doc.data();
+                    const isExpired = data.status === 'reserved' &&
+                      (Date.now() - (data.reservedAt?.toDate?.()?.getTime?.() || 0)) >= SLOT_HOLD_MS;
+                    if (!isExpired) throw new Error('SLOT_TAKEN');
+                  }
+                  t.set(slotRef, {
+                    date:          details.date,
+                    slotKey:       selectedSlot.key,
+                    slotLabel:     details.time,
+                    status:        'reserved',
+                    reservedAt:    firebase.firestore.FieldValue.serverTimestamp(),
+                    customerName:  `${details.firstName} ${details.lastName}`,
+                    squareOrderId: null,
+                  });
                 });
-              });
-            } catch(err) {
-              if (err.message === 'SLOT_TAKEN') { setSlotConflict(true); setSubmitting(false); return; }
-              console.error('[inoa] slot reservation error:', err);
-              setSubmitting(false);
-              return;
+                setReservedSlotDocId(slotDocId);
+              } catch(err) {
+                if (err.message === 'SLOT_TAKEN') { setSlotConflict(true); setSubmitting(false); return; }
+                console.error('[inoa] slot reservation error:', err);
+                setSubmitting(false);
+                return;
+              }
             }
           }
         }
 
-        // Create Square payment link
-        try {
-          const res = await fetch('/api/create-payment-link', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              cartItems: cartItems.map(ci => ({
-                itemId:    ci.itemId,
-                name:      ci.name,
-                modifiers: ci.modifiers,
-                quantity:  ci.quantity,
-              })),
-              details: {
-                date:            details.date,
-                time:            details.time,
-                firstName:       details.firstName,
-                lastName:        details.lastName,
-                phone:           details.phone,
-                email:           details.email,
-                notes:           details.notes || '',
-                voucher:         details.voucher || '',
-                ucscStudent:     !!details.ucscStudent,
-                promoCode:       details.promoCode || '',
-                promoDiscount:   details.promoDiscount || 0,
-                promoFreeMusubi: !!details.promoFreeMusubi,
-              },
-            }),
-          });
-          const data = await res.json();
-          if (!res.ok || !data.url) throw new Error(data.error || 'no payment url');
-          sessionStorage.setItem('inoa_pickup_date', details.date);
-          sessionStorage.setItem('inoa_pickup_time', details.time);
-          window.location.href = data.url;
-        } catch (err) {
-          console.error('[inoa] payment link error:', err);
-          setSubmitting(false);
-        }
+        setSubmitting(false);
+        setView('payment');
+        scrollTop();
       }
 
       if (!open) {
@@ -1566,6 +1750,14 @@
               onClearSlotConflict={() => setSlotConflict(false)}
               submitting={submitting}
               pickupDates={PICKUP_DATES}
+            />
+          )}
+
+          {view === 'payment' && (
+            <PaymentView
+              cartItems={cartItems}
+              details={details}
+              onBack={() => setView('checkout')}
             />
           )}
 
