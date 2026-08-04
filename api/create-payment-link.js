@@ -171,8 +171,8 @@ export default async function handler(req, res) {
         }],
         metadata: {
           slot_doc_id: slotDocId,
-          voucher: details.voucher || '',
-          customer_phone: details.phone || '',
+          ...(details.voucher    ? { voucher:        details.voucher } : {}),
+          ...(details.phone      ? { customer_phone: details.phone   } : {}),
         },
       },
       checkout_options: {
