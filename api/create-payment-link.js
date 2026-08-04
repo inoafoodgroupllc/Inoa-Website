@@ -7,26 +7,53 @@ import crypto from 'crypto';
 
 // ── Authoritative price catalogue (cents) ────────────────────────────
 const CATALOG = {
-  1:  { name: 'Ahi Poke',                       cents: 1700 },
-  3:  { name: 'Salmon Poke',                     cents: 1600 },
-  5:  { name: 'Ahi Poke + Rice',                 cents: 1600 },
-  7:  { name: 'Salmon Poke + Rice',              cents: 1500 },
-  30: { name: 'Inoa Handroll Box',               cents: 2500 },
-  28: { name: 'Salmon Belly Combo',              cents: 1800 },
-  31: { name: 'Ahi Combo',                       cents: 1950 },
-  29: { name: 'Poke Nachos',                     cents: 1650 },
-  26: { name: 'Spam Musubi',                     cents:  400 },
-  27: { name: '3 Spam Musubi',                   cents: 1000 },
-  32: { name: 'Seasoned Sushi Rice',             cents:  400 },
-  14: { name: 'Sliced Avocado',                  cents:  200 },
-  33: { name: 'Homemade Pickled Daikon',         cents:  300 },
-  34: { name: 'Side of Spicy Mayo',              cents:  200 },
-  35: { name: 'Side of Sweet Soy',               cents:  200 },
-  36: { name: 'Homemade Pickled Fresno Chilis',  cents:  300 },
-  15: { name: 'Hawaiian Sun — Lilikoi Passion',  cents:  300 },
-  16: { name: 'Hawaiian Sun — Pass-O-Guava',     cents:  300 },
-  19: { name: 'Hawaiian Sun — Strawberry Guava', cents:  300 },
-  37: { name: 'Water',                           cents:  200 },
+  // POKE BOX
+  101: { name: 'Poke + Rice',             cents: 1600 },
+  102: { name: 'Regular Size Poke Box',   cents: 1850 },
+  103: { name: 'Large Size Poke Box',     cents: 2350 },
+  104: { name: 'Handroll Box',            cents: 2500 },
+  // POKE ½LB
+  201: { name: 'Shoyu Ahi',               cents: 1700 },
+  202: { name: 'Spicy Ahi',               cents: 1700 },
+  203: { name: 'Hawaiian Ahi',            cents: 1700 },
+  204: { name: 'Spicy Salmon',            cents: 1600 },
+  205: { name: 'Sweet Unagi Salmon',      cents: 1600 },
+  206: { name: 'Chili Garlic Salmon',     cents: 1600 },
+  207: { name: 'Tobiko Scallop',          cents: 1600 },
+  208: { name: 'Kimchi Tako',             cents: 1600 },
+  209: { name: 'Garlic Shrimp',           cents: 1500 },
+  // COMBOS
+  301: { name: 'Salmon Belly Combo',      cents: 1850 },
+  302: { name: 'Ahi Combo',               cents: 2000 },
+  // SPECIALS
+  401: { name: 'Poke Nachos',             cents: 1650 },
+  402: { name: 'Poke Bombs',              cents: 1500 },
+  // SIDES
+  501: { name: 'Crab Mac Salad',          cents:  500 },
+  502: { name: 'Seaweed Salad',           cents:  400 },
+  503: { name: 'Kimchi Cucumber',         cents:  400 },
+  504: { name: 'Cold Roasted Sweet Potato', cents: 400 },
+  // MUSUBI
+  601: { name: 'Single Musubi',           cents:  400 },
+  602: { name: 'Triple Pack',             cents: 1000 },
+  // ADD-ONS (standalone orderable)
+  701: { name: 'Wasabi',                  cents:   75 },
+  702: { name: 'Side of Spicy Mayo',      cents:  150 },
+  703: { name: 'Side of Sweet Soy',       cents:  150 },
+  704: { name: 'Side of Pickled Fresno Chili', cents: 200 },
+  705: { name: 'Side of Takuan',          cents:  200 },
+  706: { name: 'Roasted Nori Pack',       cents:  250 },
+  // DRINKS
+  801: { name: 'Hawaiian Sun',            cents:  300 },
+};
+
+// Server-side prices for modal add-ons (validate against these)
+const ADDON_PRICES = {
+  'Sliced Avocado':     200,
+  'Roasted Nori Pack':  250,
+  'Spicy Mayo Drizzle':  50,
+  'Sweet Soy Drizzle':   50,
+  'Wasabi':              75,
 };
 
 // Parse "12:05 PM – 12:10 PM" → "2026-08-06T12:05:00-07:00"
@@ -42,7 +69,7 @@ function pickupAtISO(date, timeLabel) {
   return `${date}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00-07:00`;
 }
 
-// Parse time label → slot key used in Firestore doc ID (e.g. "1205")
+// Parse time label → slot key (e.g. "1205")
 function deriveSlotKey(timeLabel) {
   const start = timeLabel.split('–')[0].trim();
   const m = start.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
@@ -58,8 +85,8 @@ function deriveSlotKey(timeLabel) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
-  const { qtys, choices, details } = req.body || {};
-  if (!qtys || !details?.date || !details?.time || !details?.firstName) {
+  const { cartItems, details } = req.body || {};
+  if (!cartItems?.length || !details?.date || !details?.time || !details?.firstName) {
     return res.status(400).json({ error: 'missing required fields' });
   }
 
@@ -75,34 +102,40 @@ export default async function handler(req, res) {
   const discountUids = [];
   const orderDiscounts = [];
 
-  for (const [idStr, qty] of Object.entries(qtys)) {
-    if (!qty || qty < 1) continue;
-    const id = parseInt(idStr);
-    const item = CATALOG[id];
-    if (!item) continue;
+  for (const ci of cartItems) {
+    const catalogItem = CATALOG[ci.itemId];
+    if (!catalogItem) continue;
 
-    // Collect per-unit choice labels
-    const choiceNotes = [];
-    for (let i = 0; i < qty; i++) {
-      const c = choices?.[`${id}_${i}`];
-      if (!c) continue;
-      if (Array.isArray(c)) choiceNotes.push(c.join(' + '));
-      else choiceNotes.push(c);
+    let totalCents = catalogItem.cents;
+
+    // Validate and add add-on modifier prices
+    for (const addon of (ci.modifiers?.addOns || [])) {
+      const addonCents = ADDON_PRICES[addon.name];
+      if (addonCents !== undefined) totalCents += addonCents;
     }
-    const note = choiceNotes.length > 0 ? choiceNotes.join(' / ') : null;
+
+    // Build display name: "Regular Size Poke Box (Shoyu Ahi + Spicy Salmon · Seaweed Salad)"
+    const modParts = [];
+    if (ci.modifiers?.flavors?.length)  modParts.push(ci.modifiers.flavors.join(' + '));
+    if (ci.modifiers?.sides?.length)    modParts.push(ci.modifiers.sides.join(', '));
+    if (ci.modifiers?.fish)             modParts.push(ci.modifiers.fish);
+    if (ci.modifiers?.addOns?.length)   modParts.push(ci.modifiers.addOns.map(a => `+${a.name}`).join(', '));
+    const displayName = modParts.length > 0
+      ? `${catalogItem.name} (${modParts.join(' · ')})`
+      : catalogItem.name;
 
     lineItems.push({
-      name: note ? `${item.name} (${note})` : item.name,
-      quantity: String(qty),
-      basePriceMoney: { amount: BigInt(item.cents), currency: 'USD' },
+      name:           displayName,
+      quantity:       String(ci.quantity),
+      basePriceMoney: { amount: BigInt(totalCents), currency: 'USD' },
     });
   }
 
-  // Free musubi (TANIKA promo) — $0 line item
+  // Free musubi (TANIKA promo)
   if (details.promoFreeMusubi) {
     lineItems.push({
-      name: 'Spam Musubi (TANIKA — complimentary)',
-      quantity: '1',
+      name:           'Spam Musubi (TANIKA — complimentary)',
+      quantity:       '1',
       basePriceMoney: { amount: BigInt(0), currency: 'USD' },
     });
   }
@@ -119,14 +152,13 @@ export default async function handler(req, res) {
     orderDiscounts.push({ uid: 'promo', name: `${details.promoCode.toUpperCase()} Promo (${pct}% off)`, percentage: pct, scope: 'ORDER' });
     discountUids.push('promo');
   }
-  // Apply discount refs to every line item
   if (discountUids.length > 0) {
     for (const li of lineItems) {
       li.appliedDiscounts = discountUids.map(uid => ({ discountUid: uid }));
     }
   }
 
-  // ── Firestore slot doc ID (used as Square order referenceId) ─────
+  // ── Firestore slot doc ID ─────────────────────────────────────────
   const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
 
   // ── Create payment link ──────────────────────────────────────────
@@ -142,8 +174,8 @@ export default async function handler(req, res) {
           type: 'PICKUP',
           pickupDetails: {
             recipient: {
-              displayName: `${details.firstName} ${details.lastName}`,
-              phoneNumber: details.phone,
+              displayName:  `${details.firstName} ${details.lastName}`,
+              phoneNumber:  details.phone,
               emailAddress: details.email,
             },
             pickupAt: pickupAtISO(details.date, details.time),
@@ -152,17 +184,17 @@ export default async function handler(req, res) {
         }],
         metadata: {
           slotDocId,
-          voucher: details.voucher || '',
+          voucher:       details.voucher || '',
           customerPhone: details.phone,
         },
       },
       checkoutOptions: {
-        redirectUrl: `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
+        redirectUrl:          `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
         askForShippingAddress: false,
         merchantSupportEmail: 'clyde.ccollado@gmail.com',
       },
       prePopulatedData: {
-        buyerEmail: details.email,
+        buyerEmail:       details.email,
         buyerPhoneNumber: details.phone,
       },
     });

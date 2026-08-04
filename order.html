@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>pre-order — inoa</title>
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <!-- Open Graph -->
   <meta property="og:title" content="pre-order — inoa">
   <meta property="og:description" content="Place a pre-order for fresh poke and sushi from inoa in Scotts Valley, CA.">
   <meta property="og:image" content="https://inoa.kitchen/og-image.png">
@@ -22,20 +20,21 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 
   <style>
+    /* ── Reset & Variables ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     :root {
       --ink:       #1a1a1a;
       --cream:     #f5f0e8;
       --sand:      #e8e0d0;
       --driftwood: #8b7355;
       --ogo:       #4a7c6f;
+      --white:     #ffffff;
+      --err:       #b87a5a;
     }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-
     body {
       background: var(--cream);
       color: var(--ink);
@@ -44,13 +43,13 @@
       overflow-x: hidden;
     }
 
-    /* Grain */
+    /* ── Grain ── */
     .grain {
       position: fixed; inset: -50%; width: 200%; height: 200%;
       opacity: 0.025; pointer-events: none; z-index: 9999;
     }
 
-    /* Page intro */
+    /* ── Page intro ── */
     .page-intro {
       position: fixed; inset: 0; background: var(--ink);
       z-index: 500; pointer-events: none;
@@ -61,339 +60,436 @@
       100% { clip-path: inset(0 0 100% 0); }
     }
 
-    /* Nav */
+    /* ── Nav ── */
     .order-nav {
-      position: fixed; inset: 0 0 auto 0; z-index: 100;
+      position: fixed; inset: 0 0 auto 0; z-index: 300;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 64px;
+      padding: 20px 40px;
       background: rgba(245,240,232,0.92);
       backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       box-shadow: 0 1px 0 rgba(26,26,26,0.07);
-      animation: nav-in 0.6s ease 0.4s both;
     }
-    @keyframes nav-in {
-      from { opacity: 0; transform: translateY(-8px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .order-nav-logo {
-      height: 26px; width: auto; display: block;
-      text-decoration: none;
-    }
+    .order-nav-logo { height: 26px; width: auto; display: block; }
     .order-nav-back {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 10px; font-weight: 400;
-      letter-spacing: 0.16em; text-transform: uppercase;
-      color: var(--ink); opacity: 0.45;
-      text-decoration: none;
-      transition: opacity 0.2s ease;
+      font-size: 10px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.45; text-decoration: none;
+      transition: opacity 0.2s;
     }
     .order-nav-back:hover { opacity: 0.9; }
 
+    /* ── Legal footer ── */
     .legal-footer { background: var(--ink); border-top: 1px solid rgba(245,240,232,0.05); padding: 18px 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
     .legal-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
-    .legal-footer-links a { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream); text-decoration: none; opacity: 0.28; transition: opacity 0.2s ease; }
+    .legal-footer-links a { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream); text-decoration: none; opacity: 0.28; transition: opacity 0.2s; }
     .legal-footer-links a:hover { opacity: 0.6; }
-    .legal-footer-copy { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.08em; color: var(--cream); opacity: 0.16; white-space: nowrap; }
-    @media (max-width: 640px) { .legal-footer { padding: 18px 24px; justify-content: center; text-align: center; } .legal-footer-links { justify-content: center; gap: 18px; } }
+    .legal-footer-copy { font-size: 10px; letter-spacing: 0.08em; color: var(--cream); opacity: 0.16; white-space: nowrap; }
 
-    /* Page wrapper */
-    .order-page {
-      min-height: 100vh;
-      padding: 120px 80px 96px;
-    }
-    .preorder-inner { max-width: 1040px; margin: 0 auto; }
-
-    /* Heading */
-    .preorder-heading {
+    /* ── Menu page ── */
+    .menu-page { padding: 80px 0 140px; min-height: 100vh; }
+    .menu-inner { max-width: 920px; margin: 0 auto; padding: 40px 40px 0; }
+    .menu-heading {
       font-family: 'Cormorant Garamond', serif;
-      font-weight: 300;
-      font-size: clamp(42px, 5vw, 72px);
-      letter-spacing: -0.02em;
-      line-height: 1.05;
-      color: var(--ink);
-      margin-bottom: 8px;
+      font-size: clamp(38px, 5vw, 60px); font-weight: 300;
+      letter-spacing: -0.02em; line-height: 1.05;
+      color: var(--ink); margin-bottom: 6px;
     }
-    .preorder-sub {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 12px; color: var(--ink); opacity: 0.42;
-      letter-spacing: 0.06em; margin-bottom: 52px;
+    .menu-sub {
+      font-size: 11px; color: var(--ink); opacity: 0.4;
+      letter-spacing: 0.06em; margin-bottom: 44px;
     }
 
-    /* Step indicator */
-    .po-steps { display: flex; align-items: center; margin-bottom: 48px; max-width: 440px; }
-    .po-step-node { display: flex; flex-direction: column; align-items: center; gap: 7px; flex-shrink: 0; }
-    .po-step-circle {
-      width: 30px; height: 30px; border-radius: 50%;
-      border: 1.5px solid rgba(26,26,26,0.18);
+    /* ── Category ── */
+    .cat-section { margin-bottom: 44px; }
+    .cat-hdr { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .cat-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px; font-weight: 400; letter-spacing: 0.02em;
+      color: var(--ink); white-space: nowrap;
+    }
+    .cat-rule { flex: 1; height: 1px; background: rgba(26,26,26,0.1); }
+    .cat-desc { font-size: 11px; color: var(--ink); opacity: 0.36; margin-top: -8px; margin-bottom: 14px; font-style: italic; }
+
+    /* ── Item grid ── */
+    .item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
+    /* ── Item card ── */
+    .item-card {
+      background: var(--white); border: 1px solid rgba(26,26,26,0.07);
+      border-radius: 4px; padding: 16px;
+      display: flex; flex-direction: column;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      position: relative;
+    }
+    .item-card.modal-item { cursor: pointer; }
+    .item-card.modal-item:hover { border-color: rgba(26,26,26,0.18); box-shadow: 0 2px 10px rgba(26,26,26,0.07); }
+    .item-card.has-qty { border-color: var(--driftwood); background: rgba(139,115,85,0.025); }
+    .item-card-badge {
+      position: absolute; top: 12px; right: 12px;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--driftwood); color: var(--white);
+      font-size: 10px; font-weight: 500;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'DM Sans', sans-serif; font-size: 11px;
-      color: var(--ink); opacity: 0.32; transition: all 0.3s ease; background: transparent;
     }
-    .po-step-node.active .po-step-circle { background: var(--ink); border-color: var(--ink); color: var(--cream); opacity: 1; }
-    .po-step-node.done  .po-step-circle  { background: var(--driftwood); border-color: var(--driftwood); color: var(--cream); opacity: 1; }
-    .po-step-label {
-      font-family: 'DM Sans', sans-serif; font-size: 9px;
-      letter-spacing: 0.13em; text-transform: uppercase;
-      color: var(--ink); opacity: 0.32; white-space: nowrap;
+    .item-card-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; padding-right: 24px; }
+    .item-card-tag {
+      display: inline-block; font-size: 8px; letter-spacing: 0.06em;
+      background: rgba(74,124,111,0.1); color: var(--ogo);
+      border-radius: 2px; padding: 1px 5px; margin-left: 5px; vertical-align: middle;
     }
-    .po-step-node.active .po-step-label,
-    .po-step-node.done  .po-step-label { opacity: 0.7; }
-    .po-step-line { flex: 1; height: 1px; background: rgba(26,26,26,0.1); margin-bottom: 22px; margin-left: 4px; margin-right: 4px; }
-    .po-step-line.done { background: var(--driftwood); opacity: 0.4; }
+    .item-card-desc { font-size: 11px; color: var(--ink); opacity: 0.4; line-height: 1.55; flex: 1; margin-bottom: 14px; }
+    .item-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
+    .item-card-price { font-size: 13px; color: var(--ink); opacity: 0.68; }
 
-    /* Step animation */
-    @keyframes po-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-    .po-step-content { animation: po-in 0.42s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-
-    /* Step 1 — order layout */
-    .po-order-layout { display: grid; grid-template-columns: 1fr 272px; gap: 40px; align-items: start; }
-    .po-items-col { min-width: 0; }
-
-    /* Group section header */
-    .po-group-hdr {
-      margin-top: 36px;
-      margin-bottom: 14px;
-      padding-bottom: 11px;
-      border-bottom: 1px solid rgba(26,26,26,0.07);
-    }
-    .po-group-label {
-      font-family: 'DM Sans', sans-serif; font-size: 9px;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--driftwood); opacity: 0.75;
-      margin-bottom: 5px;
-    }
-    .po-group-desc {
-      font-family: 'DM Sans', sans-serif; font-size: 11px;
-      color: var(--ink); opacity: 0.36;
-      line-height: 1.65; font-style: italic;
+    /* Add button (for modal items — whole card is clickable) */
+    .item-card-icon {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--ink); color: var(--white);
+      border: none; font-size: 17px; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.15s; flex-shrink: 0;
+      pointer-events: none;
     }
 
-    /* Item cards */
-    .po-item-card {
-      display: flex; align-items: center;
-      padding: 13px 18px; background: #fff;
-      border: 1px solid rgba(26,26,26,0.07); border-radius: 3px;
-      margin-bottom: 7px; transition: border-color 0.2s ease, box-shadow 0.2s ease; gap: 16px;
-    }
-    .po-item-card:hover { border-color: rgba(26,26,26,0.16); }
-    .po-item-card.selected { border-color: var(--driftwood); background: rgba(139,115,85,0.025); }
-    .po-item-info { flex: 1; min-width: 0; }
-    .po-item-name { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 2px; }
-    .po-item-meta { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; line-height: 1.55; }
-    .po-item-price { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); opacity: 0.52; flex-shrink: 0; width: 48px; text-align: right; }
-    .po-qty { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-    .po-qty-btn {
-      width: 28px; height: 28px; border-radius: 50%;
+    /* Inline qty stepper (for no-modifier items) */
+    .item-qty-ctrl { display: flex; align-items: center; gap: 8px; }
+    .iqc-btn {
+      width: 26px; height: 26px; border-radius: 50%;
       border: 1px solid rgba(26,26,26,0.18); background: transparent;
-      cursor: pointer; font-size: 17px; line-height: 1; color: var(--ink);
+      font-size: 16px; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      transition: all 0.15s ease; font-family: 'DM Sans', sans-serif;
+      transition: all 0.12s; color: var(--ink);
     }
-    .po-qty-btn:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: var(--cream); }
-    .po-qty-btn:active:not(:disabled) { transform: scale(0.92); }
-    .po-qty-btn:disabled { opacity: 0.2; cursor: default; }
-    .po-qty-val { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); min-width: 14px; text-align: center; }
+    .iqc-btn:hover:not(:disabled) { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .iqc-btn:active:not(:disabled) { transform: scale(0.92); }
+    .iqc-btn:disabled { opacity: 0.2; cursor: default; }
+    .iqc-val { font-size: 13px; color: var(--ink); min-width: 14px; text-align: center; }
 
-    /* Flavor / poke choice pickers */
-    .po-flavor-picker {
-      margin-bottom: 14px;
-      padding: 12px 18px 14px;
-      background: rgba(26,26,26,0.018);
-      border: 1px solid rgba(26,26,26,0.08);
-      border-top: none;
-      border-radius: 0 0 3px 3px;
+    /* ── Item modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.48);
+      backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+      z-index: 400;
+      display: flex; align-items: flex-end; justify-content: center;
     }
-    .po-flavor-hdr {
-      font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500;
-      letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--ink); opacity: 0.42; margin-bottom: 10px;
+    .modal-panel {
+      background: var(--white); width: 100%; max-width: 560px;
+      max-height: 92vh; display: flex; flex-direction: column;
+      border-radius: 14px 14px 0 0;
+      animation: modal-up 0.3s cubic-bezier(0.32, 0.72, 0, 1) both;
     }
-    .po-flavor-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-    .po-flavor-chip {
-      padding: 5px 12px; border-radius: 2px;
-      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400;
-      cursor: pointer; border: 1.5px solid; line-height: 1.2;
-      transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease;
-      background: transparent; white-space: nowrap;
+    @keyframes modal-up {
+      from { transform: translateY(48px); opacity: 0; }
+      to   { transform: translateY(0);   opacity: 1; }
     }
-    .po-poke-fish-row { margin-bottom: 10px; }
-    .po-poke-fish-lbl {
-      font-family: 'DM Sans', sans-serif; font-size: 9px;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--ink); opacity: 0.32; margin-bottom: 7px;
+    .modal-handle { width: 36px; height: 4px; background: rgba(26,26,26,0.12); border-radius: 2px; margin: 14px auto 0; flex-shrink: 0; }
+    .modal-scroll { overflow-y: auto; flex: 1; padding: 20px 24px 8px; -webkit-overflow-scrolling: touch; }
+    .modal-close {
+      position: absolute; top: 14px; right: 16px;
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(26,26,26,0.07); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; color: var(--ink); opacity: 0.55;
+      transition: opacity 0.15s;
     }
+    .modal-close:hover { opacity: 1; }
+    .modal-item-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 26px; font-weight: 400; letter-spacing: -0.01em;
+      color: var(--ink); margin-bottom: 3px; padding-right: 36px; line-height: 1.15;
+    }
+    .modal-item-price { font-size: 14px; color: var(--ink); opacity: 0.62; margin-bottom: 6px; }
+    .modal-item-desc { font-size: 12px; color: var(--ink); opacity: 0.4; line-height: 1.6; margin-bottom: 20px; }
+    .modal-qty-row {
+      display: flex; align-items: center; justify-content: center; gap: 18px;
+      padding: 16px 0; margin-bottom: 20px;
+      border-top: 1px solid rgba(26,26,26,0.06);
+      border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .mqr-btn {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1.5px solid rgba(26,26,26,0.18); background: transparent;
+      font-size: 20px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.12s; color: var(--ink);
+    }
+    .mqr-btn:hover:not(:disabled) { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .mqr-btn:disabled { opacity: 0.22; cursor: default; }
+    .mqr-val { font-size: 18px; color: var(--ink); min-width: 30px; text-align: center; }
 
-    /* Total panel */
-    .po-total-col { position: sticky; top: 84px; }
-    .po-total-panel { background: #fff; border: 1px solid rgba(26,26,26,0.08); border-radius: 3px; padding: 24px; }
-    .po-total-ttl { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--driftwood); opacity: 0.6; margin-bottom: 14px; }
-    .po-total-rows { margin-bottom: 14px; }
-    .po-total-row { display: flex; justify-content: space-between; align-items: baseline; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); padding: 4px 0; border-bottom: 1px solid rgba(26,26,26,0.05); gap: 8px; }
-    .po-total-row:last-child { border-bottom: none; }
-    .po-total-row-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: 0.78; }
-    .po-total-row-qty { opacity: 0.42; flex-shrink: 0; }
-    .po-total-row-price { flex-shrink: 0; opacity: 0.78; }
-    .po-total-empty { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.28; text-align: center; padding: 16px 0 12px; }
-    .po-ucsc-email-hint { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--driftwood); opacity: 0.7; margin-top: 5px; display: block; }
-    .po-total-sub-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; padding: 3px 0; }
-    .po-total-fee-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.55; padding: 3px 0; }
-    .po-total-divider { height: 1px; background: rgba(26,26,26,0.08); margin: 14px 0; }
-    .po-total-amount { display: flex; justify-content: space-between; align-items: baseline; font-family: 'DM Sans', sans-serif; font-size: 17px; font-weight: 500; color: var(--ink); margin-bottom: 18px; }
-    .po-total-lbl { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.08em; opacity: 0.42; }
-
-    /* Buttons */
-    .po-btn-proceed {
-      width: 100%; background: var(--ink); color: var(--cream); border: none;
-      padding: 14px; font-family: 'DM Sans', sans-serif; font-size: 10px;
-      letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer;
-      border-radius: 2px; transition: opacity 0.2s ease, transform 0.15s ease;
+    /* Modifier groups */
+    .mod-group { margin-bottom: 22px; }
+    .mod-group-hdr {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
     }
-    .po-btn-proceed:hover:not(:disabled) { opacity: 0.82; }
-    .po-btn-proceed:active:not(:disabled) { transform: scale(0.98); }
-    .po-btn-proceed:disabled { opacity: 0.22; cursor: not-allowed; }
-    .po-btn-back {
-      background: transparent; border: none;
-      font-family: 'DM Sans', sans-serif; font-size: 10px;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--ink); opacity: 0.4; cursor: pointer; padding: 0;
-      transition: opacity 0.2s ease; margin-right: 24px; flex-shrink: 0;
+    .mod-group-label {
+      font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.5;
     }
-    .po-btn-back:hover { opacity: 0.8; }
-    .po-step-actions { display: flex; align-items: center; margin-top: 32px; }
+    .mod-badge {
+      font-size: 10px; padding: 2px 9px; border-radius: 10px;
+      letter-spacing: 0.04em;
+    }
+    .mod-badge.req  { background: rgba(26,26,26,0.07); color: var(--ink); opacity: 0.55; }
+    .mod-badge.done { background: rgba(74,124,111,0.14); color: var(--ogo); opacity: 1; }
+    .mod-badge.opt  { background: rgba(26,26,26,0.05); color: var(--ink); opacity: 0.38; }
+    .mod-rule { height: 1px; background: rgba(26,26,26,0.07); margin-bottom: 10px; }
 
-    /* Step 2 — form */
-    .po-form { max-width: 560px; }
-    .po-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .po-form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 18px; }
-    .po-label { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.5; }
-    .po-input, .po-textarea {
+    /* Option rows (flavors, sides, fish) */
+    .mod-opt-list { display: flex; flex-direction: column; gap: 2px; }
+    .mod-opt {
+      display: flex; align-items: center; gap: 12px;
+      padding: 9px 12px; border-radius: 3px; cursor: pointer;
+      transition: background 0.1s; border: 1px solid transparent;
+    }
+    .mod-opt:hover { background: rgba(26,26,26,0.03); }
+    .mod-opt.sel { background: rgba(139,115,85,0.07); border-color: rgba(139,115,85,0.2); }
+    .mod-indicator {
+      width: 16px; height: 16px; border-radius: 50%;
+      border: 1.5px solid rgba(26,26,26,0.2);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.12s;
+    }
+    .mod-indicator.sq { border-radius: 3px; }
+    .mod-opt.sel .mod-indicator { background: var(--driftwood); border-color: var(--driftwood); }
+    .mod-indicator-dot { width: 6px; height: 6px; background: var(--white); border-radius: 50%; opacity: 0; transition: opacity 0.12s; }
+    .mod-opt.sel .mod-indicator-dot { opacity: 1; }
+    .mod-opt-name { font-size: 13px; color: var(--ink); flex: 1; }
+    .mod-opt-price { font-size: 12px; color: var(--ink); opacity: 0.42; }
+
+    /* Add-ons grid */
+    .addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+    .addon-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 11px; border: 1px solid rgba(26,26,26,0.09);
+      border-radius: 3px; cursor: pointer; transition: all 0.12s;
+    }
+    .addon-card:hover { border-color: rgba(26,26,26,0.2); }
+    .addon-card.sel { border-color: var(--driftwood); background: rgba(139,115,85,0.05); }
+    .addon-cb {
+      width: 15px; height: 15px; border: 1.5px solid rgba(26,26,26,0.2);
+      border-radius: 3px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.12s;
+    }
+    .addon-card.sel .addon-cb { background: var(--driftwood); border-color: var(--driftwood); }
+    .addon-cb-check { font-size: 9px; color: var(--white); opacity: 0; transition: opacity 0.12s; line-height: 1; }
+    .addon-card.sel .addon-cb-check { opacity: 1; }
+    .addon-name { font-size: 12px; color: var(--ink); flex: 1; line-height: 1.3; }
+    .addon-price { font-size: 11px; color: var(--ink); opacity: 0.42; flex-shrink: 0; }
+
+    /* Modal sticky bottom */
+    .modal-bottom {
+      flex-shrink: 0;
+      border-top: 1px solid rgba(26,26,26,0.08);
+      padding: 14px 24px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      background: var(--white);
+    }
+    .modal-add-btn {
+      width: 100%; background: var(--ink); color: var(--cream);
+      border: none; padding: 14px 20px;
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      cursor: pointer; border-radius: 3px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: opacity 0.15s;
+    }
+    .modal-add-btn:not(:disabled):hover { opacity: 0.82; }
+    .modal-add-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+
+    /* ── Cart bar ── */
+    .cart-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      background: var(--white); border-top: 1px solid rgba(26,26,26,0.1);
+      padding: 12px 40px;
+      padding-bottom: calc(12px + env(safe-area-inset-bottom));
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      box-shadow: 0 -4px 28px rgba(26,26,26,0.09);
+      transform: translateY(100%);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .cart-bar.visible { transform: translateY(0); }
+    .cart-bar-info { display: flex; flex-direction: column; gap: 1px; }
+    .cart-bar-count { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.42; }
+    .cart-bar-total { font-size: 20px; color: var(--ink); letter-spacing: -0.01em; }
+    .cart-bar-btn {
+      background: var(--ink); color: var(--cream); border: none;
+      padding: 13px 32px;
+      font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      cursor: pointer; border-radius: 3px; transition: opacity 0.15s; white-space: nowrap;
+    }
+    .cart-bar-btn:hover { opacity: 0.82; }
+
+    /* ── Checkout view ── */
+    .checkout-page { padding: 80px 0 80px; min-height: 100vh; }
+    .checkout-inner { max-width: 620px; margin: 0 auto; padding: 40px 40px 0; }
+    .checkout-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 56px); font-weight: 300;
+      letter-spacing: -0.02em; color: var(--ink); margin-bottom: 6px;
+    }
+    .checkout-sub { font-size: 11px; color: var(--ink); opacity: 0.38; letter-spacing: 0.06em; margin-bottom: 40px; }
+    .co-section { margin-bottom: 36px; }
+    .co-section-title {
+      font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--driftwood); opacity: 0.65; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .co-section-title::after { content: ''; flex: 1; height: 1px; background: rgba(26,26,26,0.08); }
+
+    /* Cart review */
+    .cri {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 11px 0; border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .cri:last-child { border-bottom: none; }
+    .cri-qty { font-size: 12px; color: var(--ink); opacity: 0.35; flex-shrink: 0; min-width: 18px; padding-top: 1px; }
+    .cri-body { flex: 1; min-width: 0; }
+    .cri-name { font-size: 13px; color: var(--ink); }
+    .cri-mods { font-size: 11px; color: var(--ink); opacity: 0.4; margin-top: 2px; line-height: 1.5; }
+    .cri-acts { display: flex; gap: 10px; margin-top: 4px; }
+    .cri-edit { font-size: 10px; letter-spacing: 0.06em; color: var(--driftwood); background: none; border: none; cursor: pointer; padding: 0; opacity: 0.75; }
+    .cri-edit:hover { opacity: 1; }
+    .cri-del { font-size: 10px; letter-spacing: 0.06em; color: var(--ink); background: none; border: none; cursor: pointer; padding: 0; opacity: 0.28; }
+    .cri-del:hover { opacity: 0.55; }
+    .cri-price { font-size: 13px; color: var(--ink); opacity: 0.65; flex-shrink: 0; padding-top: 1px; }
+    /* Inline qty for simple items in review */
+    .cri-qty-ctrl { display: flex; align-items: center; gap: 7px; margin-top: 5px; }
+    .cqc-btn { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(26,26,26,0.16); background: transparent; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.12s; color: var(--ink); }
+    .cqc-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+    .cqc-val { font-size: 12px; color: var(--ink); min-width: 14px; text-align: center; }
+
+    /* Form fields */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+    .form-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.5; }
+    .form-input, .form-textarea {
       font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
-      background: #fff; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px;
-      padding: 12px 14px; outline: none; transition: border-color 0.2s ease;
+      background: var(--white); border: 1px solid rgba(26,26,26,0.12); border-radius: 2px;
+      padding: 11px 13px; outline: none; transition: border-color 0.2s;
       -webkit-appearance: none; width: 100%; box-sizing: border-box;
     }
-    .po-input:focus, .po-textarea:focus { border-color: var(--ink); }
-    .po-input.err { border-color: #b87a5a; }
-    .po-field-err { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #b87a5a; }
-    .po-field-hint { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; line-height: 1.6; margin-top: 5px; display: block; }
-    .po-textarea { resize: vertical; min-height: 88px; line-height: 1.6; }
-    /* Date grid */
-    .po-date-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .po-date-btn { padding: 9px 13px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); background: #fff; cursor: pointer; transition: all 0.15s ease; display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 50px; }
-    .po-date-btn:hover { border-color: rgba(26,26,26,0.28); }
-    .po-date-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
-    .po-date-day { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; }
-    .po-date-btn.on .po-date-day { opacity: 0.65; }
-    .po-date-num { font-size: 15px; }
+    .form-input:focus, .form-textarea:focus { border-color: var(--ink); }
+    .form-input.err { border-color: var(--err); }
+    .form-err { font-size: 11px; color: var(--err); }
+    .form-hint { font-size: 11px; color: var(--ink); opacity: 0.38; line-height: 1.6; }
+    .form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
 
-    /* Time slots */
-    .po-slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 24px; }
-    .po-slot-col { display: flex; flex-direction: column; gap: 3px; }
-    .po-slot-hour { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.45; margin-bottom: 4px; text-align: center; }
-    .po-slot-btn { background: rgba(26,26,26,0.04); border: 1px solid rgba(26,26,26,0.10); border-radius: 2px; padding: 5px 2px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); cursor: pointer; transition: background 0.12s, border-color 0.12s; text-align: center; }
-    .po-slot-btn:hover:not(.booked) { background: rgba(26,26,26,0.09); border-color: rgba(26,26,26,0.25); }
-    .po-slot-btn.on { background: var(--ink); color: var(--cream); border-color: var(--ink); }
-    .po-slot-btn.booked { opacity: 0.22; cursor: not-allowed; pointer-events: none; text-decoration: line-through; }
-    .po-slot-full { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #b87a5a; padding: 16px 0 24px; }
-    .po-slot-hint { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.45; padding: 12px 0 24px; }
-    .po-slot-conflict { font-family: 'DM Sans', sans-serif; font-size: 12px; color: #b87a5a; margin-bottom: 16px; }
-    @media (max-width: 480px) { .po-slot-grid { grid-template-columns: repeat(2, 1fr); } }
-    .po-mode-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.42; font-style: italic; margin-top: -8px; margin-bottom: 18px; }
-
-    /* Promo code */
-    .po-promo-row { display: flex; gap: 8px; margin-bottom: 5px; }
-    .po-promo-row .po-input { flex: 1; margin-bottom: 0; text-transform: uppercase; letter-spacing: 0.06em; }
-    .po-promo-apply { padding: 0 18px; border: 1px solid rgba(26,26,26,0.18); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; background: transparent; color: var(--ink); cursor: pointer; white-space: nowrap; transition: all 0.15s ease; }
-    .po-promo-apply:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
-    .po-promo-feedback { font-family: 'DM Sans', sans-serif; font-size: 11px; margin-top: 5px; }
-    .po-promo-feedback.valid { color: var(--ogo); }
-    .po-promo-feedback.invalid { color: #b87a5a; }
-
-    /* Step 3 — review */
-    .po-review-block { background: #fff; border: 1px solid rgba(26,26,26,0.07); border-radius: 3px; padding: 24px; margin-bottom: 14px; max-width: 600px; }
-    .po-review-ttl { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--driftwood); opacity: 0.6; margin-bottom: 14px; }
-    .po-review-row { display: flex; justify-content: space-between; align-items: baseline; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); padding: 5px 0; border-bottom: 1px solid rgba(26,26,26,0.05); gap: 12px; }
-    .po-review-row:last-child { border-bottom: none; }
-    .po-review-row-name { flex: 1; }
-    .po-review-row-qty { opacity: 0.42; }
-    .po-review-row-price { opacity: 0.7; }
-    .po-review-detail { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); line-height: 1.75; opacity: 0.72; }
-    .po-review-total-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 500; color: var(--ink); padding-top: 14px; margin-top: 6px; border-top: 1px solid rgba(26,26,26,0.1); }
-    .po-payment-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.38; font-style: italic; margin-top: 8px; }
-    .po-ucsc-section { margin-top: 24px; padding: 18px 20px; background: rgba(26,26,26,0.03); border-left: 2px solid var(--driftwood); }
-    .po-ucsc-label { display: flex; align-items: center; gap: 12px; cursor: pointer; }
-    .po-ucsc-check { width: 16px; height: 16px; flex-shrink: 0; accent-color: var(--driftwood); cursor: pointer; }
-    .po-ucsc-text { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); }
-    .po-ucsc-note { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--driftwood); margin-top: 8px; margin-left: 28px; opacity: 0.85; }
-    .po-review-discount { color: #5a8a5a; }
-    .po-office-block { padding: 14px 18px; background: rgba(196,168,130,0.08); border-left: 2px solid var(--driftwood); margin-bottom: 20px; }
-    .po-office-loc { font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
-    .po-review-notices {
-      max-width: 600px;
-      margin-bottom: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    /* Date / slot */
+    .date-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+    .date-btn {
+      padding: 8px 12px; border: 1px solid rgba(26,26,26,0.12); border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink);
+      background: var(--white); cursor: pointer; transition: all 0.14s;
+      display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 48px;
     }
-    .po-notice {
-      font-family: 'DM Sans', sans-serif;
-      font-size: 11px;
-      line-height: 1.75;
-      color: var(--ink);
-      opacity: 0.38;
-      padding: 14px 18px;
-      border-left: 2px solid rgba(26,26,26,0.1);
+    .date-btn:hover { border-color: rgba(26,26,26,0.28); }
+    .date-btn.on { background: var(--ink); border-color: var(--ink); color: var(--cream); }
+    .date-day { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; }
+    .date-btn.on .date-day { opacity: 0.65; }
+    .date-num { font-size: 15px; }
+    .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 20px; }
+    .slot-col { display: flex; flex-direction: column; gap: 3px; }
+    .slot-hour { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.42; margin-bottom: 4px; text-align: center; }
+    .slot-btn {
+      background: rgba(26,26,26,0.04); border: 1px solid rgba(26,26,26,0.09);
+      border-radius: 2px; padding: 5px 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink);
+      cursor: pointer; transition: background 0.1s, border-color 0.1s; text-align: center;
     }
-    .po-notice em { font-style: italic; }
-    .po-sms-consent { margin-top: 20px; padding: 16px 20px; background: rgba(26,26,26,0.03); border: 1px solid rgba(26,26,26,0.07); border-radius: 2px; }
-    .po-sms-consent.err { border-color: #b87a5a; background: rgba(184,122,90,0.05); }
-    .po-sms-consent-label { display: flex; align-items: flex-start; gap: 12px; cursor: pointer; }
-    .po-sms-consent-check { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; accent-color: var(--driftwood); cursor: pointer; }
-    .po-sms-consent-text { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); line-height: 1.65; opacity: 0.7; }
-    .po-sms-consent-err { font-family: 'DM Sans', sans-serif; font-size: 11px; color: #b87a5a; margin-top: 8px; margin-left: 28px; }
-    .po-submit-btn { background: var(--ink); color: var(--cream); border: none; padding: 16px 40px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity 0.2s ease, transform 0.15s ease; }
-    .po-submit-btn:hover { opacity: 0.82; }
-    .po-submit-btn:active { transform: scale(0.99); }
+    .slot-btn:hover:not(.booked) { background: rgba(26,26,26,0.09); border-color: rgba(26,26,26,0.22); }
+    .slot-btn.on { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .slot-btn.booked { opacity: 0.2; cursor: not-allowed; pointer-events: none; text-decoration: line-through; }
+    .slot-hint { font-size: 12px; color: var(--ink); opacity: 0.42; padding: 8px 0 16px; }
+    .slot-full { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--err); padding: 10px 0 16px; }
+    .slot-conflict { font-size: 12px; color: var(--err); margin-bottom: 10px; }
 
-    /* Confirmation */
-    .po-confirm { text-align: center; padding: 48px 0 24px; }
-    .po-confirm-check { width: 56px; height: 56px; border-radius: 50%; background: var(--ink); color: var(--cream); font-size: 22px; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; }
-    .po-confirm-heading { font-family: 'Cormorant Garamond', serif; font-size: 40px; font-weight: 300; color: var(--ink); margin-bottom: 12px; letter-spacing: -0.01em; }
-    .po-confirm-body { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink); opacity: 0.58; line-height: 1.75; max-width: 360px; margin: 0 auto 32px; }
-    .po-confirm-summary { background: #fff; border: 1px solid rgba(26,26,26,0.07); border-radius: 3px; padding: 24px; max-width: 400px; margin: 0 auto 32px; text-align: left; }
-    .po-confirm-row { display: flex; justify-content: space-between; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink); padding: 4px 0; opacity: 0.72; }
-    .po-confirm-actions { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .po-new-order-btn { background: transparent; border: 1px solid rgba(26,26,26,0.2); padding: 12px 32px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); cursor: pointer; border-radius: 2px; transition: all 0.2s ease; text-decoration: none; display: inline-block; }
-    .po-new-order-btn:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
-    .po-back-home-btn { background: var(--ink); color: var(--cream); border: none; padding: 12px 32px; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer; border-radius: 2px; transition: opacity 0.2s ease; text-decoration: none; display: inline-block; }
-    .po-back-home-btn:hover { opacity: 0.82; }
+    /* Promo */
+    .promo-row { display: flex; gap: 8px; margin-bottom: 4px; }
+    .promo-row .form-input { flex: 1; text-transform: uppercase; letter-spacing: 0.06em; }
+    .promo-apply {
+      padding: 0 15px; border: 1px solid rgba(26,26,26,0.18); border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase; background: transparent; color: var(--ink);
+      cursor: pointer; white-space: nowrap; transition: all 0.15s;
+    }
+    .promo-apply:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .promo-feedback { font-size: 11px; }
+    .promo-feedback.ok { color: var(--ogo); }
 
-    /* Closed / countdown state */
-    .po-closed { display: flex; flex-direction: column; align-items: flex-start; padding: 64px 0 48px; max-width: 560px; animation: po-in 0.5s cubic-bezier(0.25,0.46,0.45,0.94) both; }
-    .po-closed-label { font-family: 'DM Sans', sans-serif; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--driftwood); opacity: 0.7; margin-bottom: 28px; }
+    /* UCSC */
+    .ucsc-block { padding: 14px 17px; background: rgba(26,26,26,0.03); border-left: 2px solid var(--driftwood); margin-top: 4px; }
+    .ucsc-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .ucsc-check { width: 15px; height: 15px; accent-color: var(--driftwood); cursor: pointer; flex-shrink: 0; }
+    .ucsc-text { font-size: 13px; color: var(--ink); }
+    .ucsc-note { font-size: 11px; color: var(--driftwood); margin-top: 6px; margin-left: 25px; opacity: 0.8; }
+
+    /* Totals */
+    .totals-block { background: rgba(26,26,26,0.03); border-radius: 3px; padding: 16px 18px; }
+    .total-row {
+      display: flex; justify-content: space-between;
+      font-size: 13px; color: var(--ink); padding: 4px 0;
+    }
+    .total-row-label { opacity: 0.68; }
+    .total-row.discount .total-row-label,
+    .total-row.discount .total-row-val { color: var(--ogo); opacity: 1; }
+    .total-row.final { font-size: 17px; font-weight: 500; margin-top: 8px; padding-top: 12px; border-top: 1px solid rgba(26,26,26,0.1); }
+
+    /* Notices */
+    .notices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
+    .notice { font-size: 11px; line-height: 1.75; color: var(--ink); opacity: 0.37; padding: 11px 15px; border-left: 2px solid rgba(26,26,26,0.09); }
+    .notice em { font-style: italic; }
+
+    /* SMS consent */
+    .sms-block { padding: 14px 16px; background: rgba(26,26,26,0.03); border: 1px solid rgba(26,26,26,0.07); border-radius: 2px; margin-top: 18px; }
+    .sms-block.err { border-color: var(--err); background: rgba(184,122,90,0.04); }
+    .sms-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+    .sms-check { width: 15px; height: 15px; margin-top: 2px; accent-color: var(--driftwood); cursor: pointer; flex-shrink: 0; }
+    .sms-text { font-size: 12px; color: var(--ink); line-height: 1.65; opacity: 0.68; }
+    .sms-err { font-size: 11px; color: var(--err); margin-top: 6px; margin-left: 25px; }
+
+    /* Checkout actions */
+    .co-actions { display: flex; align-items: center; gap: 20px; margin-top: 26px; }
+    .co-back { background: transparent; border: none; font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); opacity: 0.38; cursor: pointer; padding: 0; transition: opacity 0.2s; }
+    .co-back:hover { opacity: 0.75; }
+    .co-pay { background: var(--ink); color: var(--cream); border: none; padding: 15px 38px; font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; cursor: pointer; border-radius: 3px; transition: opacity 0.2s; }
+    .co-pay:hover:not(:disabled) { opacity: 0.82; }
+    .co-pay:disabled { opacity: 0.28; cursor: not-allowed; }
+    .co-pay-note { font-size: 11px; color: var(--ink); opacity: 0.32; font-style: italic; margin-top: 7px; }
+
+    /* ── Closed / countdown ── */
+    .po-closed { display: flex; flex-direction: column; align-items: flex-start; padding: 64px 40px 48px; max-width: 560px; animation: po-in 0.5s cubic-bezier(0.25,0.46,0.45,0.94) both; }
+    @keyframes po-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .po-closed-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--driftwood); opacity: 0.7; margin-bottom: 28px; }
     .po-closed-heading { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px, 5vw, 62px); font-weight: 300; letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); margin-bottom: 20px; }
-    .po-closed-sub { font-family: 'DM Sans', sans-serif; font-size: 12px; color: var(--ink); opacity: 0.42; letter-spacing: 0.02em; margin-bottom: 52px; }
+    .po-closed-sub { font-size: 12px; color: var(--ink); opacity: 0.42; letter-spacing: 0.02em; margin-bottom: 52px; }
     .po-countdown { display: flex; gap: 4px; margin-bottom: 28px; }
-    .po-cd-block { display: flex; flex-direction: column; align-items: center; background: #fff; border: 1px solid rgba(26,26,26,0.08); padding: 18px 22px 14px; min-width: 70px; }
+    .po-cd-block { display: flex; flex-direction: column; align-items: center; background: var(--white); border: 1px solid rgba(26,26,26,0.08); padding: 18px 22px 14px; min-width: 70px; }
     .po-cd-num { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 300; line-height: 1; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 9px; font-variant-numeric: tabular-nums; }
-    .po-cd-lbl { font-family: 'DM Sans', sans-serif; font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); opacity: 0.3; }
-    .po-closed-next { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--ink); opacity: 0.36; letter-spacing: 0.06em; }
+    .po-cd-lbl { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); opacity: 0.3; }
+    .po-closed-next { font-size: 11px; color: var(--ink); opacity: 0.36; letter-spacing: 0.06em; }
 
-    /* Mobile */
-    @media (max-width: 900px) {
-      .order-nav { padding: 18px 24px; }
-      .order-page { padding: 100px 24px 80px; }
-      .po-order-layout { grid-template-columns: 1fr; }
-      .po-total-col { position: static; margin-top: 32px; }
-      .po-form-row { grid-template-columns: 1fr; }
-      .po-steps { max-width: 100%; }
-      .po-item-name { white-space: normal; }
+    /* ── Mobile ── */
+    @media (max-width: 640px) {
+      .order-nav { padding: 18px 20px; }
+      .menu-inner, .checkout-inner { padding-left: 18px; padding-right: 18px; }
+      .item-grid { grid-template-columns: 1fr; gap: 7px; }
+      .slot-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .cart-bar { padding-left: 20px; padding-right: 20px; }
+      .legal-footer { padding: 18px 20px; justify-content: center; text-align: center; }
+      .legal-footer-links { justify-content: center; gap: 16px; }
+    }
+    @media (min-width: 640px) {
+      .modal-overlay { align-items: center; padding: 24px; }
+      .modal-panel { border-radius: 10px; }
+      .modal-handle { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Grain texture -->
+  <!-- Grain -->
   <svg class="grain" aria-hidden="true">
     <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
     <rect width="100%" height="100%" filter="url(#noise)"/>
@@ -404,16 +500,12 @@
 
   <!-- Nav -->
   <nav class="order-nav" aria-label="site navigation">
-    <a href="/home">
-      <img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="order-nav-logo">
-    </a>
+    <a href="/home"><img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="order-nav-logo"></a>
     <a href="/home" class="order-nav-back">← back to home</a>
   </nav>
 
-  <!-- Form mount -->
-  <main class="order-page">
-    <div id="preorder-root"></div>
-  </main>
+  <!-- React mount -->
+  <div id="root"></div>
 
   <div class="legal-footer">
     <nav class="legal-footer-links">
@@ -424,7 +516,7 @@
     <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
   </div>
 
-  <!-- Firebase (slot availability) -->
+  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -432,26 +524,11 @@
   <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone@7.26.10/babel.min.js"></script>
-  <script type="text/babel">
-    const { useState, useEffect } = React;
 
-    // ── Firebase — real-time slot availability ────────────────────────────
-    // Setup (one-time):
-    //   1. console.firebase.google.com → New project → Build → Firestore Database → Start in production mode
-    //   2. Project Settings → Your Apps → Add Web App → copy firebaseConfig values below
-    //   3. Firestore → Rules → paste:
-    //        rules_version = '2';
-    //        service cloud.firestore {
-    //          match /databases/{database}/documents {
-    //            match /slots/{slotId} {
-    //              allow read: if true;
-    //              allow create: if !exists(/databases/$(database)/documents/slots/$(slotId));
-    //              allow update: if resource.data.status == 'reserved' && request.resource.data.status in ['reserved', 'paid'];
-    //              allow delete: if false;
-    //            }
-    //          }
-    //        }
-    //   4. Set SLOTS_LIVE = true below
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // ── Firebase ──────────────────────────────────────────────────────────────
     const SLOTS_LIVE = true;
     const FIREBASE_CONFIG = {
       apiKey:            'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths',
@@ -461,285 +538,140 @@
       messagingSenderId: '138256976412',
       appId:             '1:138256976412:web:274a99117dc4d822142add9',
     };
+    // Firestore rules needed:
+    //   allow read: if true;
+    //   allow create: if !exists(/databases/$(database)/documents/slots/$(slotId));
+    //   allow update: if resource.data.status == 'reserved' && request.resource.data.status in ['reserved','paid'];
+    //   allow delete: if false;
     let db = null;
     if (SLOTS_LIVE) {
       try { firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore(); }
       catch(e) { console.error('[inoa] Firebase init failed:', e); }
     }
 
-    /* ── Menu items ── */
+    const SLOT_HOLD_MS = 10 * 60 * 1000;
+
+    // ── Menu data ─────────────────────────────────────────────────────────────
     const ITEMS = [
-      /* poke — ½ lb */
-      { id:1,  group:'poke',         name:'Ahi Poke',             detail:'½ lb · fresh ahi',                                                                                  price:17, requiresFlavorChoice:true },
-      { id:3,  group:'poke',         name:'Salmon Poke',          detail:'½ lb · fresh salmon',                                                                               price:16, requiresFlavorChoice:true },
-
-      /* poke + rice — ⅓ lb */
-      { id:5,  group:'poke + rice',  name:'Ahi Poke + Rice',      detail:'⅓ lb · seasoned sushi rice, furikake, pickled daikon & fresno chili',                               price:16, requiresFlavorChoice:true },
-      { id:7,  group:'poke + rice',  name:'Salmon Poke + Rice',   detail:'⅓ lb · seasoned sushi rice, furikake, pickled daikon & fresno chili',                               price:15, requiresFlavorChoice:true },
-
-      /* handroll box */
-      { id:30, group:'handroll box', name:'Inoa Handroll Box',    detail:'great for two people · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',                   price:25, requiresHandrollChoice:true },
-
-      /* combos */
-      { id:28, group:'combos',       name:'Salmon Belly Combo',   detail:'fresh salmon belly sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili', price:18, requiresPokeChoice:true },
-      { id:31, group:'combos',       name:'Ahi Combo',            detail:'fresh ahi sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili',      price:19.50, requiresPokeChoice:true },
-
-      /* poke nachos */
-      { id:29, group:'poke nachos',  name:'Poke Nachos',          detail:'your choice of poke · homemade wonton chips, avocado, serrano, cilantro, green onions, homemade sweet soy & spicy mayo', price:16.50, requiresPokeChoice:true },
-
-      /* spam musubi */
-      { id:26, group:'spam musubi',  name:'Spam Musubi',          detail:'single',                                                                                             price:4  },
-      { id:27, group:'spam musubi',  name:'3 Spam Musubi',        detail:'triple pack',                                                                                        price:10 },
-
-      /* add-ons */
-      { id:32, group:'add-ons',      name:'Seasoned Sushi Rice',         detail:'',                      price:4 },
-      { id:14, group:'add-ons',      name:'Sliced Avocado',              detail:'',                      price:2 },
-      { id:33, group:'add-ons',      name:'Homemade Pickled Daikon',     detail:'',                      price:3 },
-      { id:34, group:'add-ons',      name:'Side of Spicy Mayo',          detail:'',                      price:2 },
-      { id:35, group:'add-ons',      name:'Side of Sweet Soy',           detail:'',                      price:2 },
-      { id:36, group:'add-ons',      name:'Homemade Pickled Fresno Chilis', detail:'',                   price:3 },
-
-      /* drinks */
-      { id:15, group:'drinks',       name:'Hawaiian Sun — Lilikoi Passion',    detail:'11.5 fl oz',                              price:3 },
-      { id:16, group:'drinks',       name:'Hawaiian Sun — Pass-O-Guava',       detail:'passionfruit, orange & guava · 11.5 fl oz', price:3 },
-      { id:17, group:'drinks',       name:'Hawaiian Sun — Guava Nectar',       detail:'11.5 fl oz',                              price:3, soldOut:true },
-      { id:18, group:'drinks',       name:'Hawaiian Sun — Lilikoi Lychee',     detail:'11.5 fl oz',                              price:3, soldOut:true },
-      { id:19, group:'drinks',       name:'Hawaiian Sun — Strawberry Guava',   detail:'11.5 fl oz',                              price:3 },
-      { id:37, group:'drinks',       name:'Water',                             detail:'',                                        price:2 },
+      // POKE BOX
+      { id:101, cat:'poke box',  name:'Poke + Rice',               desc:'choice of poke flavor served over seasoned sushi rice & housemade furikake',                                                                        price:16.00 },
+      { id:102, cat:'poke box',  name:'Regular Size Poke Box',     desc:'choice of 1–2 poke flavors & 1–2 sides served over seasoned sushi rice & housemade furikake',                                                       price:18.50 },
+      { id:103, cat:'poke box',  name:'Large Size Poke Box',       desc:'choice of 1–2 poke flavors & 1–2 sides served over seasoned sushi rice & housemade furikake',                                                       price:23.50 },
+      { id:104, cat:'poke box',  name:'Handroll Box',              desc:'choice of 1–2 poke flavors & sliced avocado served over seasoned sushi rice & homemade furikake w/ roasted nori pack',                              price:25.00 },
+      // POKE ½LB
+      { id:201, cat:'poke ½lb', name:'Shoyu Ahi',                 desc:'housemade shoyu blend, sesame oil, ogo, alaea salt, sweet onion, green onion',                                                                     price:17.00 },
+      { id:202, cat:'poke ½lb', name:'Spicy Ahi',                 desc:'housemade spicy mayo blend, sesame oil, masago, togarashi, sweet onion, green onion',                                                              price:17.00, tag:'GF' },
+      { id:203, cat:'poke ½lb', name:'Hawaiian Ahi',              desc:'sesame oil, ogo, alaea sea salt, sweet onion, green onion',                                                                                         price:17.00, tag:'GF' },
+      { id:204, cat:'poke ½lb', name:'Spicy Salmon',              desc:'housemade spicy mayo blend, sesame oil, masago, togarashi, sweet onion, green onion',                                                              price:16.00, tag:'GF' },
+      { id:205, cat:'poke ½lb', name:'Sweet Unagi Salmon',        desc:'housemade sweet unagi sauce, sesame oil, sweet onion, green onion',                                                                                price:16.00 },
+      { id:206, cat:'poke ½lb', name:'Chili Garlic Salmon',       desc:'housemade chili crunch, fried garlic, shoyu, sesame oil, tobiko, sweet onion, green onion',                                                       price:16.00 },
+      { id:207, cat:'poke ½lb', name:'Tobiko Scallop',            desc:'mayo, tobiko, sesame oil, togarashi, green onion',                                                                                                  price:16.00, tag:'GF' },
+      { id:208, cat:'poke ½lb', name:'Kimchi Tako',               desc:'cooked · kimchi base, sesame oil, sweet onion, green onion',                                                                                       price:16.00, tag:'GF' },
+      { id:209, cat:'poke ½lb', name:'Garlic Shrimp',             desc:'cooked · homemade fried garlic, minced garlic, sesame oil, alaea salt, sweet onion, green onion',                                                 price:15.00, tag:'GF' },
+      // COMBOS
+      { id:301, cat:'combos',   name:'Salmon Belly Combo',        desc:'choice of poke flavor & salmon belly sashimi served over seasoned sushi rice & homemade furikake',                                                 price:18.50 },
+      { id:302, cat:'combos',   name:'Ahi Combo',                 desc:'choice of poke flavor & ahi sashimi served over seasoned sushi rice & homemade furikake',                                                          price:20.00 },
+      // SPECIALS
+      { id:401, cat:'specials', name:'Poke Nachos',               desc:'housemade wonton chips, shoyu marinated ahi/salmon, avocado, cilantro, serrano, green onion, spicy mayo & sweet soy drizzle, furikake, masago',   price:16.50 },
+      { id:402, cat:'specials', name:'Poke Bombs',                desc:'three sweet tofu pouches filled with seasoned sushi rice & your choice of poke flavors',                                                           price:15.00 },
+      // SIDES
+      { id:501, cat:'sides',    name:'Crab Mac Salad',            desc:'macaroni, imitation crab, mayo',                                                                                                                    price:5.00 },
+      { id:502, cat:'sides',    name:'Seaweed Salad',             desc:'sesame oil',                                                                                                                                        price:4.00 },
+      { id:503, cat:'sides',    name:'Kimchi Cucumber',           desc:'english cucumber, korean chili powder, sesame oil, shoyu',                                                                                          price:4.00 },
+      { id:504, cat:'sides',    name:'Cold Roasted Sweet Potato', desc:'sesame oil, salt, sugar',                                                                                                                           price:4.00 },
+      // MUSUBI
+      { id:601, cat:'musubi',   name:'Single Musubi',             desc:'spam, housemade soy glaze, seasoned sushi rice, nori',                                                                                              price:4.00 },
+      { id:602, cat:'musubi',   name:'Triple Pack',               desc:'spam, housemade soy glaze, seasoned sushi rice, nori',                                                                                              price:10.00 },
+      // ADD-ONS
+      { id:701, cat:'add-ons',  name:'Wasabi',                    desc:'',                                                                                                                                                  price:0.75 },
+      { id:702, cat:'add-ons',  name:'Side of Spicy Mayo',        desc:'',                                                                                                                                                  price:1.50 },
+      { id:703, cat:'add-ons',  name:'Side of Sweet Soy',         desc:'',                                                                                                                                                  price:1.50 },
+      { id:704, cat:'add-ons',  name:'Side of Pickled Fresno Chili', desc:'',                                                                                                                                              price:2.00 },
+      { id:705, cat:'add-ons',  name:'Side of Takuan',            desc:'pickled daikon',                                                                                                                                    price:2.00 },
+      { id:706, cat:'add-ons',  name:'Roasted Nori Pack',         desc:'',                                                                                                                                                  price:2.50 },
+      // DRINKS
+      { id:801, cat:'drinks',   name:'Hawaiian Sun',              desc:'11.5 fl oz · lilikoi passion, pass-o-guava, or strawberry guava',                                                                                  price:3.00 },
     ];
 
-    const GROUPS = ['poke','poke + rice','poke nachos','combos','handroll box','spam musubi','add-ons','drinks'];
+    const CATEGORIES = ['poke box','poke ½lb','combos','specials','sides','musubi','add-ons','drinks'];
 
-    const GROUP_META = {
-      'poke':         'choose ahi or salmon · ½ lb of fresh fish, no rice · pick your flavor below',
-      'poke + rice':  '⅓ lb over seasoned sushi rice with furikake, pickled daikon & fresno chili · pick your flavor below',
-      'handroll box': 'great for two people · pick 2 poke (mix ahi + salmon freely, or double up on the same) · sushi rice, sliced avocado, pickled daikon, fresno chili, furikake & nori sheets',
-      'combos':       'fresh sashimi + your choice of poke · sushi rice, furikake, pickled daikon & fresno chili',
-      'poke nachos':  '',
-      'spam musubi':  'seared spam in house soy glaze · seasoned sushi rice · homemade furikake · wrapped in nori',
-      'add-ons':      '',
-      'drinks':       '',
+    const CAT_DESC = {
+      'poke box':  'served over seasoned sushi rice & housemade furikake',
+      'poke ½lb': '½ lb of fresh fish · no rice',
+      'combos':   'sashimi + poke · served over seasoned sushi rice & homemade furikake',
     };
 
-    /* ── Flavor & poke choice constants ── */
-    const FLAVOR_CHOICES = [
-      { name: 'Hawaiian',     color: '#5ba8a0' },
-      { name: 'Shoyu',        color: '#4a6080' },
-      { name: 'Wasabi Shoyu', color: '#6a9a5a' },
-      { name: 'Chili Garlic', color: '#c4523a' },
-      { name: 'Spicy',        color: '#c96b3a' },
-    ];
+    // Items that open a modifier modal when clicked
+    const MODIFIER_CONFIGS = {
+      101: { flavors:{ min:1, max:1 }, addOns:true },
+      102: { flavors:{ min:1, max:2 }, sides:{ min:1, max:2 }, addOns:true },
+      103: { flavors:{ min:1, max:2 }, sides:{ min:1, max:2 }, addOns:true },
+      104: { flavors:{ min:1, max:2 }, addOns:true },
+      301: { flavors:{ min:1, max:1 }, addOns:true },
+      302: { flavors:{ min:1, max:1 }, addOns:true },
+      401: { fish:{ min:1, max:1 } },
+      402: { flavors:{ min:1, max:3 }, addOns:true },
+    };
 
-    const POKE_CHOICES = [
-      { name: 'Hawaiian Ahi',        fish: 'ahi',    color: '#5ba8a0' },
-      { name: 'Shoyu Ahi',           fish: 'ahi',    color: '#4a6080' },
-      { name: 'Wasabi Shoyu Ahi',    fish: 'ahi',    color: '#6a9a5a' },
-      { name: 'Chili Garlic Ahi',    fish: 'ahi',    color: '#c4523a' },
-      { name: 'Spicy Ahi',           fish: 'ahi',    color: '#c96b3a' },
-      { name: 'Hawaiian Salmon',     fish: 'salmon', color: '#5ba8a0' },
-      { name: 'Shoyu Salmon',        fish: 'salmon', color: '#4a6080' },
-      { name: 'Wasabi Shoyu Salmon', fish: 'salmon', color: '#6a9a5a' },
-      { name: 'Chili Garlic Salmon', fish: 'salmon', color: '#c4523a' },
-      { name: 'Spicy Salmon',        fish: 'salmon', color: '#c96b3a' },
+    const FLAVOR_OPTS = [
+      'Shoyu Ahi','Spicy Ahi','Hawaiian Ahi',
+      'Spicy Salmon','Sweet Unagi Salmon','Chili Garlic Salmon',
+      'Kimchi Tako','Garlic Shrimp','Tobiko Scallop',
     ];
+    const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
+    const ADDON_OPTS = [
+      { name:'Sliced Avocado',     price:2.00 },
+      { name:'Roasted Nori Pack',  price:2.50 },
+      { name:'Spicy Mayo Drizzle', price:0.50 },
+      { name:'Sweet Soy Drizzle',  price:0.50 },
+      { name:'Wasabi',             price:0.75 },
+    ];
+    const FISH_OPTS = ['Ahi','Salmon'];
 
-    /* ── Promo codes ── */
     const PROMO_CODES = {
-      nextdoor: { label: 'Nextdoor', discount: 0.10 },
-      tanika:   { label: 'TANIKA',   freeMusubi: true },
+      nextdoor: { label:'Nextdoor', discount:0.10 },
+      tanika:   { label:'TANIKA',   freeMusubi:true },
     };
 
-    /* ── Choice helpers ── */
-    function needsChoice(it) {
-      return it.requiresFlavorChoice || it.requiresPokeChoice || it.requiresHandrollChoice;
-    }
-
-    function hasChoice(it, choices, qty) {
-      if (!needsChoice(it)) return true;
-      qty = qty || 1;
-      if (it.requiresHandrollChoice) {
-        for (let i = 0; i < qty; i++) {
-          const c = choices[`${it.id}_${i}`];
-          if (!Array.isArray(c) || c.length < 2) return false;
-        }
-        return true;
-      }
-      for (let i = 0; i < qty; i++) {
-        if (!choices[`${it.id}_${i}`]) return false;
-      }
-      return true;
-    }
-
-    function choiceText(it, choices, qty) {
-      if (!needsChoice(it)) return '';
-      qty = qty || 1;
-      if (it.requiresHandrollChoice) {
-        const parts = [];
-        for (let i = 0; i < qty; i++) {
-          const c = choices[`${it.id}_${i}`];
-          if (Array.isArray(c) && c.length > 0) {
-            const counts = {};
-            c.forEach(name => { counts[name] = (counts[name] || 0) + 1; });
-            parts.push(Object.entries(counts).map(([name, cnt]) => cnt > 1 ? `${name} ×${cnt}` : name).join(' + '));
-          }
-        }
-        if (!parts.length) return '';
-        return qty > 1 ? parts.map((p, i) => `#${i+1}: ${p}`).join(' / ') : parts[0];
-      }
-      const unitChoices = [];
-      for (let i = 0; i < qty; i++) {
-        const c = choices[`${it.id}_${i}`];
-        if (c) unitChoices.push(c);
-      }
-      if (!unitChoices.length) return '';
-      if (qty === 1 || unitChoices.every(c => c === unitChoices[0])) {
-        return unitChoices[0] + (qty > 1 ? ` ×${qty}` : '');
-      }
-      return unitChoices.join(' / ');
-    }
-
-    /* ── Visibility helpers ── */
-    function isFormOpen() {
-      const now = new Date();
-      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key === '2026-07-02') return true; // Temp: July 3 pre-orders open July 2 only
-      if (key === '2026-07-18') return true; // Temp: Sat Jul 18 open for Sun Jul 19 orders
-      if (key < '2026-08-05') return false; // Closed until Wed Aug 5
-      const d = now.getDay();
-      return d === 0 || d === 3;
-    }
-
-    function getNextOpening() {
-      const now = new Date();
-      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key < '2026-08-05') return new Date('2026-08-05T00:00:00');
-      const day   = now.getDay();
-      const toSun = (7 - day) % 7 || 7;
-      const toWed = (3 - day + 7) % 7 || 7;
-      const next  = new Date(now);
-      next.setDate(now.getDate() + Math.min(toSun, toWed));
-      next.setHours(0, 0, 0, 0);
-      return next;
-    }
-
-    /* ── Closed / countdown view ── */
-    function ClosedView({ onOpen }) {
-      const [, setTick] = useState(0);
-
-      useEffect(() => {
-        const id = setInterval(() => {
-          if (isFormOpen()) { onOpen(); return; }
-          setTick(t => t + 1);
-        }, 1000);
-        return () => clearInterval(id);
-      }, []);
-
-      const next  = getNextOpening();
-      const diff  = Math.max(0, next - new Date());
-      const days  = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const mins  = Math.floor((diff % 3600000)  / 60000);
-      const secs  = Math.floor((diff % 60000)    / 1000);
-      const units = [{ v: days, l: 'days' }, { v: hours, l: 'hrs' }, { v: mins, l: 'min' }, { v: secs, l: 'sec' }];
-      const nextLabel = next.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }).toLowerCase();
-
-      return (
-        <div className="po-closed">
-          <div className="po-closed-label">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</div>
-          <h2 className="po-closed-heading">pre-orders are<br/>currently closed</h2>
-          <p className="po-closed-sub">the order form opens every sunday and wednesday</p>
-          <div className="po-countdown">
-            {units.map(({ v, l }) => (
-              <div key={l} className="po-cd-block">
-                <span className="po-cd-num">{String(v).padStart(2, '0')}</span>
-                <span className="po-cd-lbl">{l}</span>
-              </div>
-            ))}
-          </div>
-          <p className="po-closed-next">next opening — {nextLabel}</p>
-        </div>
-      );
-    }
-
-    function getWindowDates() {
-      const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
-      const now  = new Date();
-      const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      // Temp: July 2 override — only Friday July 3 available
-      if (todayKey === '2026-07-02') return [{ key:'2026-07-03', day:'fri', num:3, month:7, dayOfWeek:5 }];
-      // Temp: Sat Jul 18 — only Sunday Jul 19 available
-      if (todayKey === '2026-07-18') return [{ key:'2026-07-19', day:'sun', num:19, month:7, dayOfWeek:0 }];
-      const today = now.getDay();
-      let daysBack = 0;
-      for (let i = 0; i <= 6; i++) {
-        const d = (today - i + 7) % 7;
-        if (d === 0 || d === 3) { daysBack = i; break; }
-      }
-      const anchor = new Date(now);
-      anchor.setDate(now.getDate() - daysBack);
-      const anchorKey = `${anchor.getFullYear()}-${String(anchor.getMonth()+1).padStart(2,'0')}-${String(anchor.getDate()).padStart(2,'0')}`;
-      // Temp: week of Jul 22 — no Saturday (Jul 25), Thu+Fri only
-      if (anchorKey === '2026-07-22') return [1, 2].map(off => { const d = new Date(anchor); d.setDate(anchor.getDate() + off); return { key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, day:['sun','mon','tue','wed','thu','fri','sat'][d.getDay()], num:d.getDate(), month:d.getMonth()+1, dayOfWeek:d.getDay() }; });
-      const openDay = anchor.getDay();
-      const offsets = openDay === 0 ? [1, 2] : [1, 2, 3]; // Sun → Mon+Tue; Wed → Thu+Fri+Sat
-      return offsets.map(off => {
-        const d = new Date(anchor);
-        d.setDate(anchor.getDate() + off);
-        return {
-          key:       `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,
-          day:       DAYS[d.getDay()],
-          num:       d.getDate(),
-          month:     d.getMonth() + 1,
-          dayOfWeek: d.getDay(),
-        };
-      });
-    }
-
-    // 48 five-minute pickup slots: 12:00 PM → 4:00 PM
+    // ── Time slots (48 × 5-min, 12:00–4:00 PM) ───────────────────────────────
     const TIME_SLOTS = (() => {
       const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
       const out = [];
       for (let min = 0; min < 240; min += 5) {
         const h = 12 + Math.floor(min / 60), m = min % 60;
         const eh = 12 + Math.floor((min + 5) / 60), em = (min + 5) % 60;
-        out.push({ label: `${fmt(h,m)} – ${fmt(eh,em)}`, key: `${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}` });
+        out.push({ label:`${fmt(h,m)} – ${fmt(eh,em)}`, key:`${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}` });
       }
       return out;
     })();
 
-    const SLOT_HOLD_MS = 10 * 60 * 1000; // 10 minutes
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    function uid() { return Math.random().toString(36).slice(2, 10); }
+    function hasModal(itemId) { return !!MODIFIER_CONFIGS[itemId]; }
 
-    function useBookedSlots(date) {
-      const [booked,  setBooked]  = useState(new Set());
-      const [loading, setLoading] = useState(false);
-      useEffect(() => {
-        if (!date || !db) { setBooked(new Set()); return; }
-        setLoading(true);
-        const unsub = db.collection('slots').where('date','==',date)
-          .onSnapshot(
-            snap => {
-              const now = Date.now();
-              const bookedKeys = new Set();
-              snap.docs.forEach(d => {
-                const data = d.data();
-                if (data.status === 'paid') {
-                  bookedKeys.add(data.slotKey);
-                } else if (data.status === 'reserved') {
-                  const reservedAt = data.reservedAt?.toDate?.()?.getTime?.() || 0;
-                  if (now - reservedAt < SLOT_HOLD_MS) bookedKeys.add(data.slotKey);
-                } else {
-                  // Legacy doc (no status field) — treat as permanently booked
-                  bookedKeys.add(data.slotKey);
-                }
-              });
-              setBooked(bookedKeys);
-              setLoading(false);
-            },
-            err  => { console.error('[inoa] slots error:', err); setLoading(false); }
-          );
-        return () => unsub();
-      }, [date]);
-      return { booked, loading };
+    function modValid(mods, cfg) {
+      if (!cfg) return true;
+      if (cfg.flavors && (mods.flavors||[]).length < cfg.flavors.min) return false;
+      if (cfg.sides   && (mods.sides||[]).length   < cfg.sides.min)   return false;
+      if (cfg.fish    && !mods.fish)                                   return false;
+      return true;
+    }
+
+    function modSummary(mods) {
+      const parts = [];
+      if (mods.flavors?.length) parts.push(mods.flavors.join(' + '));
+      if (mods.sides?.length)   parts.push(mods.sides.join(', '));
+      if (mods.fish)            parts.push(mods.fish);
+      if (mods.addOns?.length)  parts.push(mods.addOns.map(a => a.name).join(', '));
+      return parts.join(' · ');
+    }
+
+    function unitPrice(basePrice, mods) {
+      return basePrice + (mods.addOns||[]).reduce((s,a) => s + a.price, 0);
+    }
+
+    function fmtMoney(n) {
+      return n % 1 === 0 ? `$${n}` : `$${n.toFixed(2)}`;
     }
 
     function fmtPhone(v) {
@@ -750,49 +682,401 @@
     }
 
     function fmtDate(key) {
-      const d = new Date(key + 'T12:00:00');
-      return d.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+      return new Date(key + 'T12:00:00').toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
     }
 
-    function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+    function scrollTop() { window.scrollTo({ top:0, behavior:'smooth' }); }
 
-    /* ── Step indicator ── */
-    function StepIndicator({ step }) {
-      const labels = ['your order','your details','review'];
+    // ── Form open / window logic ──────────────────────────────────────────────
+    function isFormOpen() {
+      return true; // TEST OVERRIDE — remove before shipping
+      const now = new Date();
+      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (key === '2026-07-02') return true;
+      if (key === '2026-07-18') return true;
+      if (key < '2026-08-05') return false;
+      const d = now.getDay();
+      return d === 0 || d === 3;
+    }
+
+    function getNextOpening() {
+      const now = new Date();
+      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (key < '2026-08-05') return new Date('2026-08-05T00:00:00');
+      const day  = now.getDay();
+      const toSun = (7 - day) % 7 || 7;
+      const toWed = (3 - day + 7) % 7 || 7;
+      const next = new Date(now);
+      next.setDate(now.getDate() + Math.min(toSun, toWed));
+      next.setHours(0,0,0,0);
+      return next;
+    }
+
+    function getWindowDates() {
+      const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
+      const now  = new Date();
+      const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+      if (todayKey === '2026-07-02') return [{ key:'2026-07-03', day:'fri', num:3,  month:7, dayOfWeek:5 }];
+      if (todayKey === '2026-07-18') return [{ key:'2026-07-19', day:'sun', num:19, month:7, dayOfWeek:0 }];
+      const today = now.getDay();
+      let daysBack = 0;
+      for (let i = 0; i <= 6; i++) {
+        const d = (today - i + 7) % 7;
+        if (d === 0 || d === 3) { daysBack = i; break; }
+      }
+      const anchor = new Date(now);
+      anchor.setDate(now.getDate() - daysBack);
+      const anchorKey = `${anchor.getFullYear()}-${String(anchor.getMonth()+1).padStart(2,'0')}-${String(anchor.getDate()).padStart(2,'0')}`;
+      if (anchorKey === '2026-07-22') return [1,2].map(off => { const d=new Date(anchor); d.setDate(anchor.getDate()+off); return { key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, day:DAYS[d.getDay()], num:d.getDate(), month:d.getMonth()+1, dayOfWeek:d.getDay() }; });
+      const openDay = anchor.getDay();
+      const offsets = openDay === 0 ? [1,2] : [1,2,3];
+      return offsets.map(off => {
+        const d = new Date(anchor);
+        d.setDate(anchor.getDate() + off);
+        return { key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, day:DAYS[d.getDay()], num:d.getDate(), month:d.getMonth()+1, dayOfWeek:d.getDay() };
+      });
+    }
+
+    // ── Slot availability hook ────────────────────────────────────────────────
+    function useBookedSlots(date) {
+      const [booked,  setBooked]  = useState(new Set());
+      const [loading, setLoading] = useState(false);
+      useEffect(() => {
+        if (!date || !db) { setBooked(new Set()); return; }
+        setLoading(true);
+        const unsub = db.collection('slots').where('date','==',date).onSnapshot(
+          snap => {
+            const now = Date.now();
+            const keys = new Set();
+            snap.docs.forEach(d => {
+              const data = d.data();
+              if (data.status === 'paid') {
+                keys.add(data.slotKey);
+              } else if (data.status === 'reserved') {
+                const ts = data.reservedAt?.toDate?.()?.getTime?.() || 0;
+                if (now - ts < SLOT_HOLD_MS) keys.add(data.slotKey);
+              } else {
+                keys.add(data.slotKey); // legacy
+              }
+            });
+            setBooked(keys); setLoading(false);
+          },
+          err => { console.error('[inoa] slots error:', err); setLoading(false); }
+        );
+        return () => unsub();
+      }, [date]);
+      return { booked, loading };
+    }
+
+    // ── ClosedView ────────────────────────────────────────────────────────────
+    function ClosedView({ onOpen }) {
+      const [, setTick] = useState(0);
+      useEffect(() => {
+        const id = setInterval(() => {
+          if (isFormOpen()) { onOpen(); return; }
+          setTick(t => t + 1);
+        }, 1000);
+        return () => clearInterval(id);
+      }, []);
+      const next  = getNextOpening();
+      const diff  = Math.max(0, next - new Date());
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000)  / 60000);
+      const secs  = Math.floor((diff % 60000)    / 1000);
+      const units = [{ v:days, l:'days' },{ v:hours, l:'hrs' },{ v:mins, l:'min' },{ v:secs, l:'sec' }];
+      const nextLabel = next.toLocaleDateString('en-US',{ weekday:'long', month:'long', day:'numeric' }).toLowerCase();
       return (
-        <div className="po-steps">
-          {labels.map((lbl, i) => (
-            <React.Fragment key={i}>
-              <div className={`po-step-node ${step===i+1?'active':''} ${step>i+1?'done':''}`}>
-                <div className="po-step-circle">{step > i+1 ? '✓' : i+1}</div>
-                <div className="po-step-label">{lbl}</div>
+        <div className="po-closed">
+          <div className="po-closed-label">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</div>
+          <h2 className="po-closed-heading">pre-orders are<br/>currently closed</h2>
+          <p className="po-closed-sub">the order form opens every sunday and wednesday</p>
+          <div className="po-countdown">
+            {units.map(({ v, l }) => (
+              <div key={l} className="po-cd-block">
+                <span className="po-cd-num">{String(v).padStart(2,'0')}</span>
+                <span className="po-cd-lbl">{l}</span>
               </div>
-              {i < 2 && <div className={`po-step-line ${step>i+1?'done':''}`} />}
-            </React.Fragment>
-          ))}
+            ))}
+          </div>
+          <p className="po-closed-next">next opening — {nextLabel}</p>
         </div>
       );
     }
 
-    /* ── Flavor picker (per unit) ── */
-    function FlavorPicker({ itemId, unitIndex, unitTotal, choices, setChoices }) {
-      const key      = `${itemId}_${unitIndex}`;
-      const selected = choices[key];
-      function pick(name) { setChoices(prev => ({ ...prev, [key]: name })); }
+    // ── ItemModal ─────────────────────────────────────────────────────────────
+    function ItemModal({ item, editLine, onAdd, onClose }) {
+      const cfg = MODIFIER_CONFIGS[item.id] || {};
+      const [qty, setQty] = useState(editLine?.quantity || 1);
+      const [mods, setMods] = useState(editLine ? { ...editLine.modifiers } : { flavors:[], sides:[], fish:null, addOns:[] });
+
+      const up = unitPrice(item.price, mods);
+      const total = up * qty;
+      const valid = modValid(mods, cfg);
+      const isEdit = !!editLine;
+
+      function toggleFlavor(name) {
+        setMods(prev => {
+          const cur = prev.flavors || [];
+          const max = cfg.flavors?.max || 1;
+          if (cur.includes(name)) return { ...prev, flavors: cur.filter(f => f !== name) };
+          if (cur.length >= max) {
+            return max === 1 ? { ...prev, flavors:[name] } : prev;
+          }
+          return { ...prev, flavors:[...cur, name] };
+        });
+      }
+      function toggleSide(name) {
+        setMods(prev => {
+          const cur = prev.sides || [];
+          const max = cfg.sides?.max || 2;
+          if (cur.includes(name)) return { ...prev, sides: cur.filter(s => s !== name) };
+          if (cur.length >= max) return prev;
+          return { ...prev, sides:[...cur, name] };
+        });
+      }
+      function setFish(name) {
+        setMods(prev => ({ ...prev, fish: prev.fish === name ? null : name }));
+      }
+      function toggleAddon(addon) {
+        setMods(prev => {
+          const cur = prev.addOns || [];
+          const exists = cur.find(a => a.name === addon.name);
+          if (exists) return { ...prev, addOns: cur.filter(a => a.name !== addon.name) };
+          return { ...prev, addOns:[...cur, addon] };
+        });
+      }
+
+      function handleAdd() {
+        if (!valid) return;
+        onAdd({
+          cartId:    editLine?.cartId || uid(),
+          itemId:    item.id,
+          name:      item.name,
+          basePrice: item.price,
+          modifiers: mods,
+          quantity:  qty,
+          unitPrice: up,
+        }, isEdit);
+        onClose();
+      }
+
+      function FlavorCount() {
+        const n = (mods.flavors||[]).length, max = cfg.flavors?.max, min = cfg.flavors?.min;
+        const done = n >= min;
+        const label = max === 1 ? (done ? '✓ selected' : '1 required') : (done ? `✓ ${n}/${max}` : `choose ${min}–${max}`);
+        return <span className={`mod-badge ${done ? 'done' : 'req'}`}>{label}</span>;
+      }
+      function SideCount() {
+        const n = (mods.sides||[]).length, max = cfg.sides?.max, min = cfg.sides?.min;
+        const done = n >= min;
+        const label = done ? `✓ ${n}/${max}` : `choose ${min}–${max}`;
+        return <span className={`mod-badge ${done ? 'done' : 'req'}`}>{label}</span>;
+      }
+
       return (
-        <div className="po-flavor-picker">
-          <div className="po-flavor-hdr">
-            {unitTotal > 1 && <span style={{opacity:0.45,marginRight:'6px'}}>item {unitIndex+1}</span>}
-            {selected ? 'flavor selected ✓' : 'pick a flavor'}
+        <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose(); }}>
+          <div className="modal-panel" style={{position:'relative'}}>
+            <div className="modal-handle" />
+            <button className="modal-close" onClick={onClose} aria-label="close">✕</button>
+            <div className="modal-scroll">
+              <div className="modal-item-name">{item.name}</div>
+              <div className="modal-item-price">{fmtMoney(item.price)}</div>
+              {item.desc && <div className="modal-item-desc">{item.desc}</div>}
+
+              <div className="modal-qty-row">
+                <button className="mqr-btn" onClick={() => setQty(q => Math.max(1, q-1))} disabled={qty<=1}>−</button>
+                <span className="mqr-val">{qty}</span>
+                <button className="mqr-btn" onClick={() => setQty(q => q+1)}>+</button>
+              </div>
+
+              {/* Flavors */}
+              {cfg.flavors && (
+                <div className="mod-group">
+                  <div className="mod-group-hdr">
+                    <span className="mod-group-label">choose flavor</span>
+                    <FlavorCount />
+                  </div>
+                  <div className="mod-rule" />
+                  <div className="mod-opt-list">
+                    {FLAVOR_OPTS.map(name => {
+                      const sel = (mods.flavors||[]).includes(name);
+                      const isRadio = cfg.flavors.max === 1;
+                      return (
+                        <div key={name} className={`mod-opt${sel?' sel':''}`} onClick={() => toggleFlavor(name)}>
+                          <div className={`mod-indicator${isRadio?'':' sq'}`}>
+                            <div className="mod-indicator-dot" />
+                          </div>
+                          <span className="mod-opt-name">{name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Sides */}
+              {cfg.sides && (
+                <div className="mod-group">
+                  <div className="mod-group-hdr">
+                    <span className="mod-group-label">choose sides</span>
+                    <SideCount />
+                  </div>
+                  <div className="mod-rule" />
+                  <div className="mod-opt-list">
+                    {SIDE_OPTS.map(name => {
+                      const sel = (mods.sides||[]).includes(name);
+                      return (
+                        <div key={name} className={`mod-opt${sel?' sel':''}`} onClick={() => toggleSide(name)}>
+                          <div className="mod-indicator sq"><div className="mod-indicator-dot" /></div>
+                          <span className="mod-opt-name">{name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Fish */}
+              {cfg.fish && (
+                <div className="mod-group">
+                  <div className="mod-group-hdr">
+                    <span className="mod-group-label">choose fish</span>
+                    <span className={`mod-badge ${mods.fish ? 'done' : 'req'}`}>{mods.fish ? '✓ selected' : '1 required'}</span>
+                  </div>
+                  <div className="mod-rule" />
+                  <div className="mod-opt-list">
+                    {FISH_OPTS.map(name => {
+                      const sel = mods.fish === name;
+                      return (
+                        <div key={name} className={`mod-opt${sel?' sel':''}`} onClick={() => setFish(name)}>
+                          <div className="mod-indicator"><div className="mod-indicator-dot" /></div>
+                          <span className="mod-opt-name">{name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Add-ons */}
+              {cfg.addOns && (
+                <div className="mod-group">
+                  <div className="mod-group-hdr">
+                    <span className="mod-group-label">add-ons</span>
+                    <span className="mod-badge opt">optional</span>
+                  </div>
+                  <div className="mod-rule" />
+                  <div className="addon-grid">
+                    {ADDON_OPTS.map(addon => {
+                      const sel = !!(mods.addOns||[]).find(a => a.name === addon.name);
+                      return (
+                        <div key={addon.name} className={`addon-card${sel?' sel':''}`} onClick={() => toggleAddon(addon)}>
+                          <div className="addon-cb"><span className="addon-cb-check">✓</span></div>
+                          <div style={{flex:1,minWidth:0}}>
+                            <div className="addon-name">{addon.name}</div>
+                            <div className="addon-price">+{fmtMoney(addon.price)}</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="modal-bottom">
+              <button className="modal-add-btn" onClick={handleAdd} disabled={!valid}>
+                <span>{isEdit ? 'save changes' : 'add to cart'}</span>
+                <span>{fmtMoney(total)}</span>
+              </button>
+            </div>
           </div>
-          <div className="po-flavor-chips">
-            {FLAVOR_CHOICES.map(f => {
-              const on = selected === f.name;
+        </div>
+      );
+    }
+
+    // ── ItemCard ──────────────────────────────────────────────────────────────
+    function ItemCard({ item, cartQty, onAdd, onRemove, onModalOpen }) {
+      const needsModal = hasModal(item.id);
+
+      if (needsModal) {
+        return (
+          <div className={`item-card modal-item${cartQty > 0 ? ' has-qty' : ''}`} onClick={() => onModalOpen(item)}>
+            {cartQty > 0 && <span className="item-card-badge">{cartQty}</span>}
+            <div className="item-card-name">
+              {item.name}
+              {item.tag && <span className="item-card-tag">{item.tag}</span>}
+            </div>
+            {item.desc && <div className="item-card-desc">{item.desc}</div>}
+            <div className="item-card-footer">
+              <span className="item-card-price">{fmtMoney(item.price)}</span>
+              <span className="item-card-icon">+</span>
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div className={`item-card${cartQty > 0 ? ' has-qty' : ''}`}>
+          <div className="item-card-name">
+            {item.name}
+            {item.tag && <span className="item-card-tag">{item.tag}</span>}
+          </div>
+          {item.desc && <div className="item-card-desc">{item.desc}</div>}
+          <div className="item-card-footer">
+            <span className="item-card-price">{fmtMoney(item.price)}</span>
+            {cartQty === 0 ? (
+              <button className="item-card-icon" onClick={() => onAdd(item)} style={{pointerEvents:'all'}}>+</button>
+            ) : (
+              <div className="item-qty-ctrl" onClick={e => e.stopPropagation()}>
+                <button className="iqc-btn" onClick={() => onRemove(item)}>−</button>
+                <span className="iqc-val">{cartQty}</span>
+                <button className="iqc-btn" onClick={() => onAdd(item)}>+</button>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // ── MenuView ──────────────────────────────────────────────────────────────
+    function MenuView({ cartItems, onAddSimple, onRemoveSimple, onModalOpen }) {
+      const simpleQty = (itemId) => {
+        return cartItems.filter(ci => ci.itemId === itemId && !hasModal(itemId))
+          .reduce((s, ci) => s + ci.quantity, 0);
+      };
+      const modalCount = (itemId) => cartItems.filter(ci => ci.itemId === itemId).length;
+
+      return (
+        <div className="menu-page">
+          <div className="menu-inner">
+            <h1 className="menu-heading">pre-order</h1>
+            <p className="menu-sub">pickup only · 100 Enterprise Way, Scotts Valley, CA 95066</p>
+
+            {CATEGORIES.map(cat => {
+              const items = ITEMS.filter(it => it.cat === cat);
+              if (!items.length) return null;
               return (
-                <button key={f.name} className="po-flavor-chip" onClick={() => pick(f.name)}
-                  style={{ borderColor: on?f.color:'rgba(26,26,26,0.12)', color: on?f.color:'rgba(26,26,26,0.45)', background: on?f.color+'1a':'transparent' }}>
-                  {f.name}
-                </button>
+                <div key={cat} className="cat-section">
+                  <div className="cat-hdr">
+                    <span className="cat-name">{cat}</span>
+                    <div className="cat-rule" />
+                  </div>
+                  {CAT_DESC[cat] && <p className="cat-desc">{CAT_DESC[cat]}</p>}
+                  <div className="item-grid">
+                    {items.map(item => (
+                      <ItemCard
+                        key={item.id}
+                        item={item}
+                        cartQty={hasModal(item.id) ? modalCount(item.id) : simpleQty(item.id)}
+                        onAdd={onAddSimple}
+                        onRemove={onRemoveSimple}
+                        onModalOpen={onModalOpen}
+                      />
+                    ))}
+                  </div>
+                </div>
               );
             })}
           </div>
@@ -800,549 +1084,377 @@
       );
     }
 
-    /* ── Poke choice picker (fish × flavor, per unit) ── */
-    function PokeChoicePicker({ itemId, unitIndex, unitTotal, choices, setChoices }) {
-      const key      = `${itemId}_${unitIndex}`;
-      const selected = choices[key];
-      const ahi    = POKE_CHOICES.filter(c => c.fish === 'ahi');
-      const salmon = POKE_CHOICES.filter(c => c.fish === 'salmon');
-      function pick(name) { setChoices(prev => ({ ...prev, [key]: name })); }
+    // ── CartBar ───────────────────────────────────────────────────────────────
+    function CartBar({ cartItems, onCheckout }) {
+      const total = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
+      const count = cartItems.reduce((s, ci) => s + ci.quantity, 0);
+      const visible = cartItems.length > 0;
       return (
-        <div className="po-flavor-picker">
-          <div className="po-flavor-hdr">
-            {unitTotal > 1 && <span style={{opacity:0.45,marginRight:'6px'}}>item {unitIndex+1}</span>}
-            {selected ? 'choice selected ✓' : 'choice of poke'}
+        <div className={`cart-bar${visible ? ' visible' : ''}`}>
+          <div className="cart-bar-info">
+            <span className="cart-bar-count">{count} {count === 1 ? 'item' : 'items'}</span>
+            <span className="cart-bar-total">{fmtMoney(total)}</span>
           </div>
-          {[{ label:'ahi', items:ahi },{ label:'salmon', items:salmon }].map(grp => (
-            <div key={grp.label} className="po-poke-fish-row">
-              <div className="po-poke-fish-lbl">{grp.label}</div>
-              <div className="po-flavor-chips">
-                {grp.items.map(c => {
-                  const on = selected === c.name;
-                  const flavor = c.name.replace(' Ahi','').replace(' Salmon','');
-                  return (
-                    <button key={c.name} className="po-flavor-chip" onClick={() => pick(c.name)}
-                      style={{ borderColor: on?c.color:'rgba(26,26,26,0.12)', color: on?c.color:'rgba(26,26,26,0.45)', background: on?c.color+'1a':'transparent' }}>
-                      {flavor}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+          <button className="cart-bar-btn" onClick={onCheckout}>checkout →</button>
         </div>
       );
     }
 
-    /* ── Handroll poke picker (fish × flavor, pick 2, duplicates ok, per unit) ── */
-    function HandrollPokeChoicePicker({ itemId, unitIndex, unitTotal, choices, setChoices }) {
-      const key   = `${itemId}_${unitIndex}`;
-      const cur   = Array.isArray(choices[key]) ? choices[key] : [];
-      const total = cur.length;
-      const ahi    = POKE_CHOICES.filter(c => c.fish === 'ahi');
-      const salmon = POKE_CHOICES.filter(c => c.fish === 'salmon');
-      function toggle(name) {
-        setChoices(prev => {
-          const c     = Array.isArray(prev[key]) ? prev[key] : [];
-          const count = c.filter(n => n === name).length;
-          if (count > 0 && c.length >= 2) { const next=[...c]; next.splice(c.indexOf(name),1); return { ...prev, [key]: next }; }
-          if (c.length < 2) return { ...prev, [key]: [...c, name] };
-          return prev;
-        });
-      }
-      return (
-        <div className="po-flavor-picker">
-          <div className="po-flavor-hdr">
-            {unitTotal > 1 && <span style={{opacity:0.45,marginRight:'6px'}}>item {unitIndex+1}</span>}
-            {total >= 2 ? 'poke selections ✓' : `choose 2 poke · ${total}/2`}
-          </div>
-          {[{ label:'ahi', items:ahi },{ label:'salmon', items:salmon }].map(grp => (
-            <div key={grp.label} className="po-poke-fish-row">
-              <div className="po-poke-fish-lbl">{grp.label}</div>
-              <div className="po-flavor-chips">
-                {grp.items.map(c => {
-                  const count    = cur.filter(n => n === c.name).length;
-                  const on       = count > 0;
-                  const disabled = count === 0 && total >= 2;
-                  const flavor   = c.name.replace(' Ahi','').replace(' Salmon','');
-                  return (
-                    <button key={c.name} className="po-flavor-chip" onClick={() => !disabled && toggle(c.name)}
-                      style={{ borderColor: on?c.color:'rgba(26,26,26,0.12)', color: on?c.color:'rgba(26,26,26,0.45)', background: on?c.color+'1a':'transparent', opacity: disabled?0.22:1, position:'relative' }}>
-                      {flavor}
-                      {count === 2 && (
-                        <span style={{ position:'absolute', top:'-7px', right:'-7px', width:'16px', height:'16px', borderRadius:'50%', background:c.color, color:'#fff', fontSize:'9px', fontWeight:600, display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>×2</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      );
-    }
+    // ── CheckoutView ──────────────────────────────────────────────────────────
+    function CheckoutView({ cartItems, onEditItem, onRemoveItem, onQtyChange, details, setDetails, onBack, onSubmit, slotConflict, onClearSlotConflict, submitting, pickupDates }) {
+      const [smsConsent, setSmsConsent] = useState(false);
+      const [smsErr,     setSmsErr]     = useState(false);
+      const [errors,     setErrors]     = useState({});
+      const [promoInput, setPromoInput] = useState(details.promoCode || '');
+      const [promoStatus,setPromoStatus]= useState(details.promoCode ? 'ok' : null);
 
-    /* ── Running total panel ── */
-    function TotalPanel({ qtys, onProceed, choices }) {
-      const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-      const subtotal      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const missingChoice = lines.some(it => !hasChoice(it, choices, qtys[it.id]||0));
-      const disabled      = lines.length === 0 || missingChoice;
-
-      return (
-        <div className="po-total-panel">
-          <div className="po-total-ttl">your order</div>
-          {lines.length === 0
-            ? <div className="po-total-empty">no items yet</div>
-            : <div className="po-total-rows">
-                {lines.map(it => {
-                  const ct = choiceText(it, choices, qtys[it.id]||0);
-                  return (
-                    <div key={it.id} className="po-total-row">
-                      <span className="po-total-row-name">{it.name}{ct ? ` — ${ct}` : ''}</span>
-                      <span className="po-total-row-qty">×{qtys[it.id]}</span>
-                      <span className="po-total-row-price">${(it.price*qtys[it.id]).toFixed(2).replace('.00','')}</span>
-                    </div>
-                  );
-                })}
-              </div>
-          }
-          <div className="po-total-divider" />
-          <div className="po-total-amount"><span className="po-total-lbl">total</span><span>${subtotal.toFixed(2).replace('.00','')}</span></div>
-          <button
-            className="po-btn-proceed"
-            onClick={onProceed}
-            disabled={disabled}
-            style={{marginTop: lines.length > 0 ? '14px' : undefined}}
-          >
-            {lines.length === 0
-              ? 'add items to continue'
-              : missingChoice
-              ? 'select your flavors to continue'
-              : 'continue to details →'}
-          </button>
-        </div>
-      );
-    }
-
-    /* ── Step 1 ── */
-    function Step1({ qtys, setQtys, onNext, choices, setChoices }) {
-      function change(id, delta) {
-        setQtys(prev => {
-          const oldQty = prev[id]||0;
-          const newQty = Math.max(0, oldQty + delta);
-          if (delta < 0 && newQty < oldQty) {
-            setChoices(c => { const nc={...c}; for(let i=newQty;i<oldQty;i++) delete nc[`${id}_${i}`]; return nc; });
-          }
-          return { ...prev, [id]: newQty };
-        });
-      }
-
-      return (
-        <div className="po-step-content">
-          <div className="po-order-layout">
-            <div className="po-items-col">
-
-              {/* Pickup notice */}
-              <p className="po-mode-note" style={{marginTop:'0',marginBottom:'28px'}}>pickup only · 100 Enterprise Way, Scotts Valley, CA 95066</p>
-
-              {/* Menu groups */}
-              {GROUPS.map((group, gi) => (
-                <div key={group}>
-                  <div className="po-group-hdr" style={{marginTop: gi===0 ? 0 : 36}}>
-                    <div className="po-group-label">{group}</div>
-                    {GROUP_META[group] && <p className="po-group-desc">{GROUP_META[group]}</p>}
-                  </div>
-                  {ITEMS.filter(it => it.group===group).map(it => (
-                    <div key={it.id}>
-                      <div
-                        className={`po-item-card${(qtys[it.id]||0)>0?' selected':''}`}
-                        style={{marginBottom: needsChoice(it) && (qtys[it.id]||0)>0 ? 0 : undefined}}
-                      >
-                        <div className="po-item-info">
-                          <div className="po-item-name">{it.name}</div>
-                          {it.detail && <div className="po-item-meta">{it.detail}</div>}
-                        </div>
-                        <div className="po-item-price">${it.price}</div>
-                        {it.soldOut
-                          ? <div style={{fontSize:'11px',fontFamily:"'DM Sans',sans-serif",color:'var(--driftwood)',opacity:0.55,fontStyle:'italic',minWidth:'60px',textAlign:'right'}}>sold out</div>
-                          : <div className="po-qty">
-                              <button className="po-qty-btn" onClick={() => change(it.id,-1)} disabled={(qtys[it.id]||0)===0}>−</button>
-                              <span className="po-qty-val">{qtys[it.id]||0}</span>
-                              <button className="po-qty-btn" onClick={() => change(it.id, 1)}>+</button>
-                            </div>
-                        }
-                      </div>
-                      {(qtys[it.id]||0) > 0 && it.requiresFlavorChoice &&
-                        Array.from({ length: qtys[it.id]||0 }, (_,i) => (
-                          <FlavorPicker key={`${it.id}_${i}`} itemId={it.id} unitIndex={i} unitTotal={qtys[it.id]||0} choices={choices} setChoices={setChoices} />
-                        ))
-                      }
-                      {(qtys[it.id]||0) > 0 && it.requiresHandrollChoice &&
-                        Array.from({ length: qtys[it.id]||0 }, (_,i) => (
-                          <HandrollPokeChoicePicker key={`${it.id}_${i}`} itemId={it.id} unitIndex={i} unitTotal={qtys[it.id]||0} choices={choices} setChoices={setChoices} />
-                        ))
-                      }
-                      {(qtys[it.id]||0) > 0 && it.requiresPokeChoice &&
-                        Array.from({ length: qtys[it.id]||0 }, (_,i) => (
-                          <PokeChoicePicker key={`${it.id}_${i}`} itemId={it.id} unitIndex={i} unitTotal={qtys[it.id]||0} choices={choices} setChoices={setChoices} />
-                        ))
-                      }
-                    </div>
-                  ))}
-                </div>
-              ))}
-
-            </div>
-            <div className="po-total-col">
-              <TotalPanel qtys={qtys} onProceed={onNext} choices={choices} />
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    /* ── Step 2 ── */
-    function Step2({ details, setDetails, onNext, onBack, pickupDates, slotConflict, onClearSlotConflict }) {
-      const [errors,      setErrors]      = useState({});
-      const [promoInput,  setPromoInput]  = useState(details.promoCode || '');
-      const [promoStatus, setPromoStatus] = useState(details.promoCode ? 'valid' : null);
       const { booked: bookedSlots, loading: slotsLoading } = useBookedSlots(details.date);
       const allBooked = !!details.date && !slotsLoading && TIME_SLOTS.every(s => bookedSlots.has(s.key));
 
-      function set(field, val) {
-        setDetails(prev => ({ ...prev, [field]: val }));
-        setErrors(prev => ({ ...prev, [field]: false }));
-      }
+      const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
+      const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
+      const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
+      const finalTotal    = subtotal - ucscDiscount - promoDiscount;
+
+      function set(f, v) { setDetails(p => ({ ...p, [f]:v })); setErrors(p => ({ ...p, [f]:false })); }
+
       function applyPromo() {
         const code  = promoInput.trim().toLowerCase();
         const promo = PROMO_CODES[code];
         if (promo) {
-          setDetails(prev => ({ ...prev, promoCode: code, promoDiscount: promo.discount || 0, promoFreeMusubi: !!promo.freeMusubi }));
-          setPromoStatus('valid');
+          setDetails(p => ({ ...p, promoCode:code, promoDiscount:promo.discount||0, promoFreeMusubi:!!promo.freeMusubi }));
+          setPromoStatus('ok');
         } else {
-          setDetails(prev => ({ ...prev, promoCode: '', promoDiscount: 0, promoFreeMusubi: false }));
+          setDetails(p => ({ ...p, promoCode:'', promoDiscount:0, promoFreeMusubi:false }));
           setPromoStatus(null);
         }
       }
+
       function validate() {
         const e = {};
         if (!details.firstName?.trim()) e.firstName = 'required';
         if (!details.lastName?.trim())  e.lastName  = 'required';
-        if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'enter a valid phone number';
-        if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'enter a valid email';
+        if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'valid phone required';
+        if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'valid email required';
         if (!details.date) e.date = 'select a date';
         if (!details.time) e.time = 'select a time';
         setErrors(e);
         return Object.keys(e).length === 0;
       }
-      return (
-        <div className="po-step-content">
-          <div className="po-form">
-            <div className="po-form-row">
-              <div className="po-form-group">
-                <label className="po-label">first name</label>
-                <input className={`po-input${errors.firstName?' err':''}`} value={details.firstName||''} onChange={e=>set('firstName',e.target.value)} placeholder="kai" />
-                {errors.firstName && <span className="po-field-err">{errors.firstName}</span>}
-              </div>
-              <div className="po-form-group">
-                <label className="po-label">last name</label>
-                <input className={`po-input${errors.lastName?' err':''}`} value={details.lastName||''} onChange={e=>set('lastName',e.target.value)} placeholder="nakamura" />
-                {errors.lastName && <span className="po-field-err">{errors.lastName}</span>}
-              </div>
-            </div>
-            <div className="po-form-group">
-              <label className="po-label">phone</label>
-              <input className={`po-input${errors.phone?' err':''}`} value={details.phone||''} onChange={e=>set('phone',fmtPhone(e.target.value))} placeholder="(831) 555-0100" inputMode="tel" />
-              {errors.phone && <span className="po-field-err">{errors.phone}</span>}
-              <span className="po-field-hint">confirmation and pickup details will be texted to this number</span>
-            </div>
-            <div className="po-form-group">
-              <label className="po-label">email</label>
-              <input className={`po-input${errors.email?' err':''}`} type="email" value={details.email||''} onChange={e=>set('email',e.target.value)} placeholder="you@email.com" />
-              {errors.email && <span className="po-field-err">{errors.email}</span>}
-            </div>
 
-            <div className="po-office-block" style={{marginBottom:'20px'}}>
-              <p className="po-office-loc">pickup · 100 Enterprise Way, Scotts Valley, CA 95066</p>
-            </div>
-
-            <div className="po-label" style={{marginBottom:'10px'}}>
-              pickup date
-              {errors.date && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.date}</span>}
-            </div>
-            <div className="po-date-grid">
-              {pickupDates.map(d => (
-                <button key={d.key} className={`po-date-btn${details.date===d.key?' on':''}`} onClick={()=>{ set('date',d.key); set('time',''); }}>
-                  <span className="po-date-day">{d.day}</span>
-                  <span className="po-date-num">{d.num}</span>
-                </button>
-              ))}
-            </div>
-
-            <div className="po-label" style={{marginBottom:'10px'}}>
-              pickup time
-              {errors.time && <span className="po-field-err" style={{marginLeft:'8px',textTransform:'none',letterSpacing:0}}>{errors.time}</span>}
-            </div>
-            {slotConflict && <p className="po-slot-conflict">That slot was just booked — please pick another time.</p>}
-            {!details.date ? (
-              <p className="po-slot-hint">select a date above to see available times</p>
-            ) : slotsLoading ? (
-              <p className="po-slot-hint">loading available times…</p>
-            ) : allBooked ? (
-              <p className="po-slot-full">fully booked for this day</p>
-            ) : (
-              <div className="po-slot-grid">
-                {[0,1,2,3].map(hour => {
-                  const hourSlots = TIME_SLOTS.slice(hour * 12, (hour + 1) * 12);
-                  const hourLabel = hour === 0 ? '12 pm' : `${hour} pm`;
-                  return (
-                    <div key={hour} className="po-slot-col">
-                      <div className="po-slot-hour">{hourLabel}</div>
-                      {hourSlots.map(s => {
-                        const isBooked   = bookedSlots.has(s.key);
-                        const isSelected = details.time === s.label;
-                        const h = parseInt(s.key.slice(0,2));
-                        const display = `${h > 12 ? h - 12 : h}:${s.key.slice(2)}`;
-                        return (
-                          <button
-                            key={s.key}
-                            className={`po-slot-btn${isBooked ? ' booked' : ''}${isSelected ? ' on' : ''}`}
-                            onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
-                          >
-                            {display}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-
-            <div className="po-form-group">
-              <label className="po-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
-              <input className="po-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
-              <span className="po-field-hint">bring your physical voucher at pickup — drop it in the jar</span>
-            </div>
-
-            <div className="po-form-group" style={{marginTop:'4px'}}>
-              <label className="po-label">special instructions <span style={{opacity:0.45}}>(optional)</span></label>
-              <textarea className="po-textarea" value={details.notes||''} onChange={e=>set('notes',e.target.value)} placeholder="allergies, preferences, or notes" />
-            </div>
-
-            <div className="po-form-group">
-              <label className="po-label">promo code <span style={{opacity:0.45}}>(optional)</span></label>
-              <div className="po-promo-row">
-                <input
-                  className="po-input"
-                  value={promoInput}
-                  onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoStatus(null); setDetails(prev => ({ ...prev, promoCode: '', promoDiscount: 0 })); }}
-                  onKeyDown={e => e.key === 'Enter' && applyPromo()}
-                  placeholder="ENTER CODE"
-                  autoComplete="off"
-                />
-                <button className="po-promo-apply" onClick={applyPromo}>apply</button>
-              </div>
-              {promoStatus === 'valid' && details.promoFreeMusubi && <p className="po-promo-feedback valid">✓ Free spam musubi added to your order</p>}
-              {promoStatus === 'valid' && !details.promoFreeMusubi && <p className="po-promo-feedback valid">✓ {Math.round((details.promoDiscount||0)*100)}% off applied</p>}
-            </div>
-
-            <div className="po-ucsc-section">
-              <label className="po-ucsc-label">
-                <input
-                  type="checkbox"
-                  className="po-ucsc-check"
-                  checked={details.ucscStudent||false}
-                  onChange={e=>set('ucscStudent', e.target.checked)}
-                />
-                <span className="po-ucsc-text">i'm a UC Santa Cruz student</span>
-              </label>
-              <p className="po-ucsc-note">UC Santa Cruz students get 10% off their order</p>
-            </div>
-
-            <div className="po-step-actions">
-              <button className="po-btn-back" onClick={onBack}>← back</button>
-              <button className="po-btn-proceed" style={{maxWidth:'240px'}} onClick={()=>{ if(validate()) onNext(); }}>review order →</button>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    /* ── Step 3 ── */
-    function Step3({ qtys, details, choices, onSubmit, onBack, slotConflict, submitting }) {
-      const [smsConsent, setSmsConsent] = useState(false);
-      const [smsError,   setSmsError]   = useState(false);
-      function handleSubmit() {
-        if (!smsConsent) { setSmsError(true); return; }
+      function handlePay() {
+        if (!smsConsent) { setSmsErr(true); return; }
+        if (!validate()) { scrollTop(); return; }
         onSubmit();
       }
-      const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-      const subtotal      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-      const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
-      const finalTotal    = subtotal - ucscDiscount - promoDiscount;
+
       return (
-        <div className="po-step-content">
-          <div className="po-review-block">
-            <div className="po-review-ttl">your order</div>
-            {lines.map(it => {
-              const ct = choiceText(it, choices, qtys[it.id]||0);
-              return (
-                <div key={it.id} className="po-review-row">
-                  <span className="po-review-row-name">{it.name}{ct ? ` — ${ct}` : ''}</span>
-                  <span className="po-review-row-qty">×{qtys[it.id]}</span>
-                  <span className="po-review-row-price">${(it.price*qtys[it.id]).toFixed(2).replace('.00','')}</span>
+        <div className="checkout-page">
+          <div className="checkout-inner">
+            <h2 className="checkout-heading">checkout</h2>
+            <p className="checkout-sub">pickup only · inoa · scotts valley</p>
+
+            {/* Cart review */}
+            <div className="co-section">
+              <div className="co-section-title">your order</div>
+              {cartItems.map(ci => {
+                const needsModal = hasModal(ci.itemId);
+                const sum = modSummary(ci.modifiers || {});
+                return (
+                  <div key={ci.cartId} className="cri">
+                    <span className="cri-qty">×{ci.quantity}</span>
+                    <div className="cri-body">
+                      <div className="cri-name">{ci.name}</div>
+                      {sum && <div className="cri-mods">{sum}</div>}
+                      <div className="cri-acts">
+                        {needsModal
+                          ? <button className="cri-edit" onClick={() => onEditItem(ci)}>edit</button>
+                          : (
+                            <div className="cri-qty-ctrl">
+                              <button className="cqc-btn" onClick={() => onQtyChange(ci.cartId, ci.quantity - 1)}>−</button>
+                              <span className="cqc-val">{ci.quantity}</span>
+                              <button className="cqc-btn" onClick={() => onQtyChange(ci.cartId, ci.quantity + 1)}>+</button>
+                            </div>
+                          )
+                        }
+                        <button className="cri-del" onClick={() => onRemoveItem(ci.cartId)}>remove</button>
+                      </div>
+                    </div>
+                    <span className="cri-price">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
+                  </div>
+                );
+              })}
+              {details.promoFreeMusubi && (
+                <div className="cri">
+                  <span className="cri-qty">×1</span>
+                  <div className="cri-body"><div className="cri-name">Spam Musubi</div><div className="cri-mods">TANIKA promo — complimentary</div></div>
+                  <span className="cri-price" style={{color:'var(--ogo)'}}>free</span>
                 </div>
-              );
-            })}
-            {ucscDiscount > 0 && (
-              <div className="po-review-row po-review-discount">
-                <span className="po-review-row-name">ucsc student discount (10%)</span>
-                <span className="po-review-row-qty"></span>
-                <span className="po-review-row-price">−${ucscDiscount.toFixed(2)}</span>
+              )}
+            </div>
+
+            {/* Pickup date */}
+            <div className="co-section">
+              <div className="co-section-title">
+                pickup date
+                {errors.date && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.date}</span>}
               </div>
-            )}
-            {details.promoFreeMusubi && (
-              <div className="po-review-row">
-                <span className="po-review-row-name">Spam Musubi — TANIKA promo</span>
-                <span className="po-review-row-qty">×1</span>
-                <span className="po-review-row-price">free</span>
+              <div className="date-grid">
+                {pickupDates.map(d => (
+                  <button key={d.key} className={`date-btn${details.date===d.key?' on':''}`} onClick={() => { set('date',d.key); set('time',''); }}>
+                    <span className="date-day">{d.day}</span>
+                    <span className="date-num">{d.num}</span>
+                  </button>
+                ))}
               </div>
-            )}
-            {promoDiscount > 0 && (
-              <div className="po-review-row po-review-discount">
-                <span className="po-review-row-name">promo code — {details.promoCode.toUpperCase()} ({Math.round(details.promoDiscount*100)}% off)</span>
-                <span className="po-review-row-qty"></span>
-                <span className="po-review-row-price">−${promoDiscount.toFixed(2)}</span>
+            </div>
+
+            {/* Pickup time */}
+            <div className="co-section">
+              <div className="co-section-title">
+                pickup time
+                {errors.time && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.time}</span>}
               </div>
-            )}
-            <div className="po-review-total-row"><span>total</span><span>${finalTotal.toFixed(2)}</span></div>
-            <p className="po-payment-note">secure payment via Square</p>
-          </div>
+              {slotConflict && <p className="slot-conflict">That slot was just taken — please choose another time.</p>}
+              {!details.date ? (
+                <p className="slot-hint">select a date above to see available times</p>
+              ) : slotsLoading ? (
+                <p className="slot-hint">loading available times…</p>
+              ) : allBooked ? (
+                <p className="slot-full">fully booked for this day</p>
+              ) : (
+                <div className="slot-grid">
+                  {[0,1,2,3].map(hour => {
+                    const hourSlots = TIME_SLOTS.slice(hour * 12, (hour+1) * 12);
+                    const label = hour === 0 ? '12 pm' : `${hour} pm`;
+                    return (
+                      <div key={hour} className="slot-col">
+                        <div className="slot-hour">{label}</div>
+                        {hourSlots.map(s => {
+                          const isBooked   = bookedSlots.has(s.key);
+                          const isSelected = details.time === s.label;
+                          const h = parseInt(s.key.slice(0,2));
+                          const display = `${h > 12 ? h-12 : h}:${s.key.slice(2)}`;
+                          return (
+                            <button
+                              key={s.key}
+                              className={`slot-btn${isBooked?' booked':''}${isSelected?' on':''}`}
+                              onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
+                            >{display}</button>
+                          );
+                        })}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
-          <div className="po-review-block">
-            <div className="po-review-ttl">your details</div>
-            <p className="po-review-detail">
-              {details.firstName} {details.lastName}<br/>
-              {details.phone}<br/>
-              {details.email}
-            </p>
-          </div>
+            {/* Customer details */}
+            <div className="co-section">
+              <div className="co-section-title">your details</div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">first name</label>
+                  <input className={`form-input${errors.firstName?' err':''}`} value={details.firstName||''} onChange={e=>set('firstName',e.target.value)} placeholder="kai" />
+                  {errors.firstName && <span className="form-err">{errors.firstName}</span>}
+                </div>
+                <div className="form-group">
+                  <label className="form-label">last name</label>
+                  <input className={`form-input${errors.lastName?' err':''}`} value={details.lastName||''} onChange={e=>set('lastName',e.target.value)} placeholder="nakamura" />
+                  {errors.lastName && <span className="form-err">{errors.lastName}</span>}
+                </div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">phone</label>
+                <input className={`form-input${errors.phone?' err':''}`} value={details.phone||''} onChange={e=>set('phone',fmtPhone(e.target.value))} placeholder="(831) 555-0100" inputMode="tel" />
+                {errors.phone && <span className="form-err">{errors.phone}</span>}
+                <span className="form-hint">confirmation and pickup details will be texted to this number</span>
+              </div>
+              <div className="form-group">
+                <label className="form-label">email</label>
+                <input className={`form-input${errors.email?' err':''}`} type="email" value={details.email||''} onChange={e=>set('email',e.target.value)} placeholder="you@email.com" />
+                {errors.email && <span className="form-err">{errors.email}</span>}
+              </div>
+              <div className="form-group">
+                <label className="form-label">special instructions <span style={{opacity:0.45}}>(optional)</span></label>
+                <textarea className="form-textarea" value={details.notes||''} onChange={e=>set('notes',e.target.value)} placeholder="allergies, preferences, or notes" />
+              </div>
+              <div className="form-group">
+                <label className="form-label">voucher # <span style={{opacity:0.45}}>(optional)</span></label>
+                <input className="form-input" value={details.voucher||''} onChange={e=>set('voucher',e.target.value)} placeholder="e.g. V-0042" />
+                <span className="form-hint">bring your physical voucher at pickup — drop it in the jar</span>
+              </div>
+            </div>
 
-          <div className="po-review-block">
-            <div className="po-review-ttl">pickup details</div>
-            <p className="po-review-detail">
-              {fmtDate(details.date)} at {details.time}<br/>
-              100 Enterprise Way, Scotts Valley, CA 95066
-            </p>
-            {details.voucher && <p className="po-review-detail" style={{marginTop:'8px',opacity:0.55}}>voucher: {details.voucher}</p>}
-            {details.notes && <p className="po-review-detail" style={{marginTop:'10px',opacity:0.45}}>note: {details.notes}</p>}
-          </div>
+            {/* Promo + UCSC */}
+            <div className="co-section">
+              <div className="co-section-title">discounts</div>
+              <div className="form-group">
+                <label className="form-label">promo code <span style={{opacity:0.45}}>(optional)</span></label>
+                <div className="promo-row">
+                  <input
+                    className="form-input"
+                    value={promoInput}
+                    onChange={e => { setPromoInput(e.target.value.toUpperCase()); setPromoStatus(null); setDetails(p => ({ ...p, promoCode:'', promoDiscount:0, promoFreeMusubi:false })); }}
+                    onKeyDown={e => e.key === 'Enter' && applyPromo()}
+                    placeholder="ENTER CODE" autoComplete="off"
+                  />
+                  <button className="promo-apply" onClick={applyPromo}>apply</button>
+                </div>
+                {promoStatus === 'ok' && details.promoFreeMusubi && <p className="promo-feedback ok">✓ free spam musubi added</p>}
+                {promoStatus === 'ok' && !details.promoFreeMusubi && <p className="promo-feedback ok">✓ {Math.round((details.promoDiscount||0)*100)}% off applied</p>}
+              </div>
+              <div className="ucsc-block">
+                <label className="ucsc-label">
+                  <input type="checkbox" className="ucsc-check" checked={details.ucscStudent||false} onChange={e=>set('ucscStudent',e.target.checked)} />
+                  <span className="ucsc-text">i'm a UC Santa Cruz student</span>
+                </label>
+                <p className="ucsc-note">UC Santa Cruz students get 10% off their order</p>
+              </div>
+            </div>
 
-          <div className="po-review-notices">
-            <p className="po-notice">
-              <em>*Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness. By ordering you voluntarily relinquish any liability of any illnesses that may occur.*</em>
-            </p>
-            <p className="po-notice">
-              A text will be sent regarding your receipt &amp; pickup details and confirmation following order placement.<br/>
-              <strong>Order will be canceled if not confirmed within 12 hours after confirmation text is sent.</strong>
-            </p>
-          </div>
+            {/* Order total */}
+            <div className="co-section">
+              <div className="co-section-title">order total</div>
+              <div className="totals-block">
+                {cartItems.map(ci => (
+                  <div key={ci.cartId} className="total-row">
+                    <span className="total-row-label">{ci.name} ×{ci.quantity}</span>
+                    <span className="total-row-val">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
+                  </div>
+                ))}
+                {ucscDiscount > 0 && (
+                  <div className="total-row discount">
+                    <span className="total-row-label">ucsc student (10% off)</span>
+                    <span className="total-row-val">−{fmtMoney(ucscDiscount)}</span>
+                  </div>
+                )}
+                {promoDiscount > 0 && (
+                  <div className="total-row discount">
+                    <span className="total-row-label">{details.promoCode?.toUpperCase()} promo ({Math.round(details.promoDiscount*100)}% off)</span>
+                    <span className="total-row-val">−{fmtMoney(promoDiscount)}</span>
+                  </div>
+                )}
+                <div className="total-row final">
+                  <span className="total-row-label">total</span>
+                  <span className="total-row-val">{fmtMoney(finalTotal)}</span>
+                </div>
+              </div>
+            </div>
 
-          <div className={`po-sms-consent${smsError ? ' err' : ''}`}>
-            <label className="po-sms-consent-label">
-              <input
-                type="checkbox"
-                className="po-sms-consent-check"
-                checked={smsConsent}
-                onChange={e => { setSmsConsent(e.target.checked); if (e.target.checked) setSmsError(false); }}
-              />
-              <span className="po-sms-consent-text">By submitting this form, I agree to receive order confirmation and status updates via text message from Inoa Food Group. Message &amp; data rates may apply. Reply STOP to unsubscribe.</span>
-            </label>
-            {smsError && <p className="po-sms-consent-err">You must agree to receive SMS updates to place an order.</p>}
-          </div>
+            {/* Notices + SMS + Pay */}
+            <div className="notices">
+              <p className="notice"><em>*Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness. By ordering you voluntarily relinquish any liability of any illnesses that may occur.*</em></p>
+              <p className="notice">A text will be sent with your receipt &amp; pickup details following order placement.<br/><strong>Order will be canceled if not confirmed within 12 hours after confirmation text is sent.</strong></p>
+            </div>
 
-          {slotConflict && (
-            <p className="po-slot-conflict" style={{marginBottom:'12px'}}>
-              That pickup time was just booked by someone else — go back and pick a different slot.
-            </p>
-          )}
-          <div className="po-step-actions">
-            <button className="po-btn-back" onClick={onBack} disabled={submitting}>← back</button>
-            <button className="po-submit-btn" onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'redirecting to payment…' : 'pay now →'}
-            </button>
+            <div className={`sms-block${smsErr?' err':''}`}>
+              <label className="sms-label">
+                <input type="checkbox" className="sms-check" checked={smsConsent} onChange={e => { setSmsConsent(e.target.checked); if(e.target.checked) setSmsErr(false); }} />
+                <span className="sms-text">By submitting this form, I agree to receive order confirmation and status updates via text message from Inoa Food Group. Message &amp; data rates may apply. Reply STOP to unsubscribe.</span>
+              </label>
+              {smsErr && <p className="sms-err">You must agree to receive SMS updates to place an order.</p>}
+            </div>
+
+            {slotConflict && <p className="slot-conflict" style={{marginTop:'12px'}}>That pickup time was just taken — scroll up and choose a different slot.</p>}
+
+            <div className="co-actions">
+              <button className="co-back" onClick={onBack} disabled={submitting}>← back to menu</button>
+              <button className="co-pay" onClick={handlePay} disabled={submitting}>
+                {submitting ? 'redirecting…' : 'pay now →'}
+              </button>
+            </div>
+            <p className="co-pay-note">secure payment via Square</p>
           </div>
         </div>
       );
     }
 
-    /* ── Confirmation ── */
-    function ConfirmView({ qtys, details, choices, onReset }) {
-      const lines         = ITEMS.filter(it => (qtys[it.id]||0) > 0);
-      const subtotal      = lines.reduce((s,it) => s + it.price*(qtys[it.id]||0), 0);
-      const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
-      const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
-      const total         = subtotal - ucscDiscount - promoDiscount;
-      return (
-        <div className="po-confirm po-step-content">
-          <div className="po-confirm-check">✓</div>
-          <h3 className="po-confirm-heading">order received</h3>
-          <p className="po-confirm-body">
-            thanks, {details.firstName}. we'll confirm your order via text within 24 hours.
-          </p>
-          <div className="po-confirm-summary">
-            <div className="po-review-ttl">order summary</div>
-            {lines.map(it => {
-              const ct = choiceText(it, choices, qtys[it.id]||0);
-              return (
-                <div key={it.id} className="po-confirm-row">
-                  <span>{it.name}{ct ? ` — ${ct}` : ''} ×{qtys[it.id]}</span>
-                  <span>${(it.price*qtys[it.id]).toFixed(2).replace('.00','')}</span>
-                </div>
-              );
-            })}
-            <div className="po-review-total-row"><span>total</span><span>${total.toFixed(2)}</span></div>
-            <p className="po-review-detail" style={{marginTop:'12px',fontSize:'12px'}}>
-              pickup: {fmtDate(details.date)} at {details.time}
-            </p>
-          </div>
-          <div className="po-confirm-actions">
-            <button className="po-new-order-btn" onClick={onReset}>place another order</button>
-            <a href="/home" className="po-back-home-btn">back to menu</a>
-          </div>
-        </div>
-      );
-    }
-
-    /* ── Root ── */
+    // ── PreorderForm (root) ───────────────────────────────────────────────────
     function PreorderForm() {
-      const WINDOW       = getWindowDates();
-      const PICKUP_DATES = WINDOW;
-      const last         = WINDOW[WINDOW.length - 1];
-      const consecutive  = WINDOW.length > 1 && (last.num - WINDOW[0].num === WINDOW.length - 1);
-      const headerSpan   = WINDOW.length === 1
-        ? `${WINDOW[0].month}/${WINDOW[0].num}`
-        : consecutive
-          ? `${WINDOW[0].month}/${WINDOW[0].num}–${last.month}/${last.num}`
-          : `${WINDOW[0].month}/${WINDOW[0].num} & ${last.month}/${last.num}`;
+      const PICKUP_DATES = getWindowDates();
 
       const [open,         setOpen]         = useState(isFormOpen);
-      const [step,         setStep]         = useState(1);
-      const [submitting,   setSubmitting]   = useState(false);
-      const [qtys,         setQtys]         = useState({});
-      const [choices,      setChoices]      = useState({});
+      const [view,         setView]         = useState('menu');
+      const [cartItems,    setCartItems]    = useState([]);
+      const [modalItem,    setModalItem]    = useState(null);
+      const [editLine,     setEditLine]     = useState(null);
       const [details,      setDetails]      = useState({ mode:'pickup' });
       const [slotConflict, setSlotConflict] = useState(false);
+      const [submitting,   setSubmitting]   = useState(false);
 
-      function goTo(n) { if (n === 2) setSlotConflict(false); setStep(n); setTimeout(scrollTop, 60); }
+      // Add simple (no-modal) item to cart
+      function addSimple(item) {
+        setCartItems(prev => {
+          const existing = prev.find(ci => ci.itemId === item.id && !hasModal(item.id));
+          if (existing) {
+            return prev.map(ci => ci.cartId === existing.cartId ? { ...ci, quantity: ci.quantity + 1 } : ci);
+          }
+          return [...prev, {
+            cartId:    uid(),
+            itemId:    item.id,
+            name:      item.name,
+            basePrice: item.price,
+            modifiers: {},
+            quantity:  1,
+            unitPrice: item.price,
+          }];
+        });
+      }
+
+      // Remove one unit of a simple item
+      function removeSimple(item) {
+        setCartItems(prev => {
+          const existing = prev.find(ci => ci.itemId === item.id && !hasModal(item.id));
+          if (!existing) return prev;
+          if (existing.quantity <= 1) return prev.filter(ci => ci.cartId !== existing.cartId);
+          return prev.map(ci => ci.cartId === existing.cartId ? { ...ci, quantity: ci.quantity - 1 } : ci);
+        });
+      }
+
+      // Open modal for a new modal item
+      function openModal(item) {
+        setEditLine(null);
+        setModalItem(item);
+      }
+
+      // Open modal for editing an existing cart line
+      function editCartItem(line) {
+        const item = ITEMS.find(it => it.id === line.itemId);
+        if (!item) return;
+        setEditLine(line);
+        setModalItem(item);
+      }
+
+      // Add/update from modal
+      function addFromModal(cartLine, isEdit) {
+        setCartItems(prev => {
+          if (isEdit) {
+            return prev.map(ci => ci.cartId === cartLine.cartId ? cartLine : ci);
+          }
+          return [...prev, cartLine];
+        });
+      }
+
+      // Remove a cart item by cartId
+      function removeItem(cartId) {
+        setCartItems(prev => prev.filter(ci => ci.cartId !== cartId));
+      }
+
+      // Change qty for a simple item in checkout review
+      function changeQty(cartId, newQty) {
+        if (newQty <= 0) { removeItem(cartId); return; }
+        setCartItems(prev => prev.map(ci => ci.cartId === cartId ? { ...ci, quantity: newQty } : ci));
+      }
+
+      function goCheckout() { setView('checkout'); scrollTop(); }
+      function goMenu()     { setView('menu');     scrollTop(); }
 
       async function handleSubmit() {
         setSubmitting(true);
 
-        // 1. Atomically reserve the time slot in Firestore (prevents double-booking)
+        // Reserve slot in Firestore
         if (db) {
           const selectedSlot = TIME_SLOTS.find(s => s.label === details.time);
           if (selectedSlot) {
@@ -1353,7 +1465,6 @@
                 const doc = await t.get(slotRef);
                 if (doc.exists) {
                   const data = doc.data();
-                  // Allow overwriting if it's an expired hold (reserved > 10 min ago)
                   const isExpired = data.status === 'reserved' &&
                     (Date.now() - (data.reservedAt?.toDate?.()?.getTime?.() || 0)) >= SLOT_HOLD_MS;
                   if (!isExpired) throw new Error('SLOT_TAKEN');
@@ -1377,14 +1488,18 @@
           }
         }
 
-        // 2. Create Square hosted payment link
+        // Create Square payment link
         try {
           const res = await fetch('/api/create-payment-link', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              qtys,
-              choices,
+              cartItems: cartItems.map(ci => ({
+                itemId:    ci.itemId,
+                name:      ci.name,
+                modifiers: ci.modifiers,
+                quantity:  ci.quantity,
+              })),
               details: {
                 date:            details.date,
                 time:            details.time,
@@ -1407,29 +1522,62 @@
         } catch (err) {
           console.error('[inoa] payment link error:', err);
           setSubmitting(false);
-          // Slot hold will auto-expire in 10 min if user doesn't complete payment
         }
       }
 
-      if (!open) return (
-        <div className="preorder-inner">
-          <ClosedView onOpen={() => setOpen(true)} />
-        </div>
-      );
+      if (!open) {
+        return <ClosedView onOpen={() => setOpen(true)} />;
+      }
 
       return (
-        <div className="preorder-inner">
-          <h2 className="preorder-heading">pre-order <span style={{fontSize:'0.55em', opacity:0.6, letterSpacing:'0.01em'}}>{headerSpan}</span></h2>
-          <StepIndicator step={step} />
-          {step===1 && <Step1 qtys={qtys} setQtys={setQtys} choices={choices} setChoices={setChoices} onNext={()=>goTo(2)} />}
-          {step===2 && <Step2 details={details} setDetails={setDetails} onNext={()=>goTo(3)} onBack={()=>goTo(1)}
-            pickupDates={PICKUP_DATES} slotConflict={slotConflict} onClearSlotConflict={()=>setSlotConflict(false)} />}
-          {step===3 && <Step3 qtys={qtys} details={details} choices={choices} onSubmit={handleSubmit} onBack={()=>goTo(2)} slotConflict={slotConflict} submitting={submitting} />}
-        </div>
+        <>
+          {view === 'menu' && (
+            <MenuView
+              cartItems={cartItems}
+              onAddSimple={addSimple}
+              onRemoveSimple={removeSimple}
+              onModalOpen={openModal}
+            />
+          )}
+
+          {view === 'checkout' && (
+            <CheckoutView
+              cartItems={cartItems}
+              onEditItem={editCartItem}
+              onRemoveItem={removeItem}
+              onQtyChange={changeQty}
+              details={details}
+              setDetails={setDetails}
+              onBack={goMenu}
+              onSubmit={handleSubmit}
+              slotConflict={slotConflict}
+              onClearSlotConflict={() => setSlotConflict(false)}
+              submitting={submitting}
+              pickupDates={PICKUP_DATES}
+            />
+          )}
+
+          {modalItem && (
+            <ItemModal
+              item={modalItem}
+              editLine={editLine}
+              onAdd={addFromModal}
+              onClose={() => { setModalItem(null); setEditLine(null); }}
+            />
+          )}
+
+          {view === 'menu' && (
+            <CartBar
+              cartItems={cartItems}
+              onCheckout={goCheckout}
+            />
+          )}
+        </>
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('preorder-root'));
+    // Mount
+    const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<PreorderForm />);
   </script>
 </body>
