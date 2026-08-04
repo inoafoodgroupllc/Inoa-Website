@@ -150,7 +150,6 @@ export default async function handler(req, res) {
       }
     }
 
-    const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
     const baseUrl = process.env.SQUARE_ENV === 'production'
       ? 'https://connect.squareup.com'
       : 'https://connect.squareupsandbox.com';
@@ -159,33 +158,11 @@ export default async function handler(req, res) {
     const body = {
       idempotency_key: crypto.randomUUID(),
       order: {
-        reference_id: slotDocId,
-        location_id:  process.env.SQUARE_LOCATION_ID,
+        location_id: process.env.SQUARE_LOCATION_ID,
         line_items,
-        ...(discounts.length > 0 ? { discounts } : {}),
-        fulfillments: [{
-          type: 'PICKUP',
-          pickup_details: {
-            schedule_type: 'SCHEDULED',
-            pickup_at:     pickupAtISO(details.date, details.time),
-            recipient: {
-              display_name:  `${details.firstName} ${details.lastName}`,
-              phone_number:  details.phone,
-              email_address: details.email,
-            },
-            ...(details.notes ? { note: details.notes } : {}),
-          },
-        }],
-        metadata: {
-          slot_doc_id:    slotDocId,
-          voucher:        details.voucher || '',
-          customer_phone: details.phone,
-        },
       },
       checkout_options: {
-        redirect_url:             `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
-        ask_for_shipping_address: false,
-        merchant_support_email:   'clyde.ccollado@gmail.com',
+        redirect_url: `${process.env.SITE_URL || 'https://inoa.kitchen'}/confirmation`,
       },
     };
 
@@ -211,6 +188,7 @@ export default async function handler(req, res) {
       });
     }
 
+    const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
     return res.status(200).json({
       url:        data.payment_link.url,
       orderId:    data.payment_link.order_id,
