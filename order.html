@@ -1114,7 +1114,9 @@
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
-      const finalTotal    = subtotal - ucscDiscount - promoDiscount;
+      const taxableTotal  = subtotal - ucscDiscount - promoDiscount;
+      const taxAmount     = Math.round(taxableTotal * 0.0975 * 100) / 100;
+      const finalTotal    = taxableTotal + taxAmount;
 
       function set(f, v) { setDetails(p => ({ ...p, [f]:v })); setErrors(p => ({ ...p, [f]:false })); }
 
@@ -1336,9 +1338,17 @@
                     <span className="total-row-val">−{fmtMoney(promoDiscount)}</span>
                   </div>
                 )}
+                <div className="total-row">
+                  <span className="total-row-label">tax (9.75%)</span>
+                  <span className="total-row-val">{fmtMoney(taxAmount)}</span>
+                </div>
                 <div className="total-row final">
-                  <span className="total-row-label">total</span>
+                  <span className="total-row-label">est. total</span>
                   <span className="total-row-val">{fmtMoney(finalTotal)}</span>
+                </div>
+                <div className="total-row" style={{opacity:0.55,fontSize:'0.78rem',marginTop:'2px'}}>
+                  <span className="total-row-label">tip</span>
+                  <span className="total-row-val">added at checkout</span>
                 </div>
               </div>
             </div>
