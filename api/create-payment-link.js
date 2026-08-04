@@ -155,6 +155,13 @@ export default async function handler(req, res) {
         reference_id: slotDocId,
         location_id: process.env.SQUARE_LOCATION_ID,
         line_items,
+        taxes: [{
+          uid:        'sales_tax',
+          name:       'Santa Cruz County Sales Tax (9.75%)',
+          type:       'ADDITIVE',
+          percentage: '9.75',
+          scope:      'ORDER',
+        }],
         ...(discounts.length > 0 ? { discounts } : {}),
         fulfillments: [{
           type: 'PICKUP',
