@@ -238,6 +238,33 @@ export default async function handler(req, res) {
 
     const payment = paymentData.payment;
 
+    // ── Mark slot paid in Firestore ────────────────────────────────
+    try {
+      const FIREBASE_PROJECT_ID = 'inoa-times';
+      const FIREBASE_API_KEY    = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
+      const slotUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}`
+        + `?key=${FIREBASE_API_KEY}`
+        + `&updateMask.fieldPaths=status&updateMask.fieldPaths=paidAt&updateMask.fieldPaths=squarePaymentId`;
+      const fsSlotRes = await fetch(slotUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: {
+            status:          { stringValue: 'paid' },
+            paidAt:          { timestampValue: new Date().toISOString() },
+            squarePaymentId: { stringValue: payment.id },
+          },
+        }),
+      });
+      if (!fsSlotRes.ok) {
+        console.error('[inoa] Firestore slot update failed:', await fsSlotRes.text());
+      } else {
+        console.log('[inoa] Slot marked paid:', slotDocId);
+      }
+    } catch (slotErr) {
+      console.error('[inoa] Firestore slot update error (non-fatal):', slotErr?.message);
+    }
+
     // ── Send order confirmation email via Formspree ─────────────────
     try {
       const formspreeId = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
