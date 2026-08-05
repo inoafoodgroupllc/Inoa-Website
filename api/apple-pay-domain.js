@@ -7,7 +7,8 @@ const FILE_B64 = 'eyJwc3BJZCI6IkI4NkJGN0Y4OTM3NzU1MkI0M0Y3NEEyRDQwRjUxMUE0MUEzQj
 export default function handler(req, res) {
   const buf = Buffer.from(FILE_B64, 'base64');
   res.setHeader('Content-Type', 'application/octet-stream');
-  res.setHeader('Cache-Control', 'public, max-age=86400');
-  res.setHeader('Content-Length', buf.length);
+  res.setHeader('Cache-Control', 'no-transform, public, max-age=86400');
+  res.setHeader('Content-Length', String(buf.length));
+  res.setHeader('Content-Encoding', 'identity');
   res.status(200).end(buf);
 }
