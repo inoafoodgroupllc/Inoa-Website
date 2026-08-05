@@ -136,10 +136,11 @@ export default async function handler(req, res) {
 
   if (event.type === 'payment.created' || event.type === 'payment.updated') {
     const payment = event.data?.object?.payment;
-    if (payment?.status === 'COMPLETED' && payment?.orderId) {
-      console.log('[inoa] Processing completed payment:', payment.id, 'order:', payment.orderId);
+    const orderId = payment?.order_id || payment?.orderId;
+    if (payment?.status === 'COMPLETED' && orderId) {
+      console.log('[inoa] Processing completed payment:', payment.id, 'order:', orderId);
       try {
-        const order = await fetchSquareOrder(payment.orderId);
+        const order = await fetchSquareOrder(orderId);
         console.log('[inoa] Order fetched:', order.id, '| referenceId:', order.referenceId);
         const slotDocId = order.referenceId;
         if (slotDocId) {
