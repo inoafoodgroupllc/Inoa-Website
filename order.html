@@ -1423,7 +1423,6 @@
       const [tipCustom,    setTipCustom]    = useState('');
       const [paying,       setPaying]       = useState(false);
       const [error,        setError]        = useState('');
-      const [apDebug,      setApDebug]      = useState([]);
       const paymentReqRef  = useRef(null);
       const googlePayRef   = useRef(null);
       const applePayRef    = useRef(null);
@@ -1487,29 +1486,12 @@
             if (mounted) setHasGooglePay(true);
           } catch (_) { /* not available in this browser */ }
 
-          // Apple Pay — with visible on-screen debug
-          const apLog = [];
-          const apd = msg => { apLog.push(msg); if (mounted) setApDebug([...apLog]); };
-          apd(`ApplePaySession: ${typeof window.ApplePaySession}`);
-          apd(`canMakePayments: ${window.ApplePaySession?.canMakePayments?.()}`);
-          apd(`canMakePaymentsWithActiveCard: ${window.ApplePaySession?.canMakePaymentsWithActiveCard?.('merchant.kitchen.inoa')}`);
-          apd(`env: ${cfg.env} | appId: ${cfg.applicationId?.slice(0,12)}…`);
-          apd(`UA: ${navigator.userAgent.slice(0,80)}`);
+          // Apple Pay — button rendered manually in JSX; tokenize() called on tap
           try {
-            apd('calling payments.applePay()…');
             const ap = await payments.applePay(pr);
-            apd('applePay() resolved OK');
-            apd('calling ap.attach()…');
-            await ap.attach('#ap-button');
-            apd('attach() done — button should render');
             applePayRef.current = ap;
-            ap.addEventListener('ontokenization', ({ detail: { tokenResult } }) => {
-              if (tokenResult?.status === 'OK') submitPayment(tokenResult.token);
-            });
             if (mounted) setHasApplePay(true);
-          } catch (apErr) {
-            apd(`applePay() threw: ${apErr?.message || String(apErr)}`);
-          }
+          } catch (_) { /* not available / domain not registered */ }
 
           // Card widget
           cardInstance = await payments.card({
@@ -1579,6 +1561,19 @@
           return;
         }
         submitPayment(result.token);
+      }
+
+      async function handleApplePay() {
+        if (!applePayRef.current || paying) return;
+        setPaying(true);
+        setError('');
+        const result = await applePayRef.current.tokenize().catch(err => ({ status: 'ERROR', errors: [{ message: err?.message || 'cancelled' }] }));
+        if (result?.status === 'OK') {
+          submitPayment(result.token);
+        } else {
+          setError(result?.errors?.map(e => e.message).join(' · ') || 'Apple Pay failed.');
+          setPaying(false);
+        }
       }
 
       const TIP_OPTIONS = [{ label: 'none', pct: 0 }, { label: '15%', pct: 15 }, { label: '20%', pct: 20 }, { label: '25%', pct: 25 }];
@@ -1668,7 +1663,10 @@
               <div className="co-section-title">express checkout</div>
               <div className="express-row">
                 <div id="gp-button" style={{display: hasGooglePay ? 'block' : 'none'}}></div>
-                <div id="ap-button" style={{display: hasApplePay  ? 'block' : 'none'}}></div>
+                <div style={{display: hasApplePay ? 'block' : 'none'}} onClick={handleApplePay}>
+                  <apple-pay-button buttonstyle="black" type="buy" locale="en-US"
+                    style={{width:'100%',height:'48px',display:'block',cursor:'pointer'}} />
+                </div>
               </div>
             </div>
 
@@ -1691,13 +1689,6 @@
                 {paying ? 'processing…' : `pay ${fmtMoney(grandTotal)} →`}
               </button>
             </div>
-            {apDebug.length > 0 && (
-              <div style={{background:'rgba(0,0,0,0.04)',border:'1px solid rgba(0,0,0,0.12)',borderRadius:'4px',padding:'10px 12px',marginBottom:'10px',fontFamily:'monospace',fontSize:'10px',lineHeight:'1.7',color:'#333',wordBreak:'break-all'}}>
-                <div style={{fontWeight:'700',marginBottom:'4px',fontSize:'11px'}}>🍎 Apple Pay Debug</div>
-                {apDebug.map((line, i) => <div key={i}>{line}</div>)}
-              </div>
-            )}
-
             <div className="pv-secure-badge">
               <svg width="11" height="13" viewBox="0 0 11 13" fill="none"><path d="M5.5 0L0 2v4c0 3.31 2.34 6.41 5.5 7 3.16-.59 5.5-3.69 5.5-7V2L5.5 0z" fill="currentColor" opacity="0.5"/></svg>
               secured by Square · your card info is encrypted and never stored on our servers
