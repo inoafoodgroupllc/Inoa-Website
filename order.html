@@ -726,6 +726,7 @@
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       if (key === '2026-07-02') return true;
       if (key === '2026-07-18') return true;
+      if (key === '2026-08-04') return true;
       if (key < '2026-08-05') return false;
       const d = now.getDay();
       return d === 0 || d === 3;
