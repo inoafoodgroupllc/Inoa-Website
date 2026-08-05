@@ -85,7 +85,17 @@ async function sendOrderConfirmation(order, payment) {
     customer_email:    customer.email_address,
     fulfillment_type:  'Pickup',
     fulfillment_date:  order.reference_id?.split('_')[0],
-    fulfillment_time:  order.fulfillments?.[0]?.pickup_details?.pickup_at || '—',
+    fulfillment_time:  (() => {
+      const raw = order.fulfillments?.[0]?.pickup_details?.pickup_at;
+      if (!raw) return '—';
+      try {
+        return new Date(raw).toLocaleString('en-US', {
+          timeZone: 'America/Los_Angeles',
+          weekday: 'short', month: 'short', day: 'numeric',
+          hour: 'numeric', minute: '2-digit', hour12: true,
+        });
+      } catch (_) { return raw; }
+    })(),
     pickup_address:    '100 Enterprise Way, Scotts Valley, CA 95066',
     voucher_number:    meta.voucher || 'none',
     order_items:       lineItems,
