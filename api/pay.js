@@ -236,10 +236,63 @@ export default async function handler(req, res) {
       });
     }
 
+    const payment = paymentData.payment;
+
+    // ── Send order confirmation email via Formspree ─────────────────
+    try {
+      const formspreeId = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
+      const meta     = order.metadata || {};
+      const customer = order.fulfillments?.[0]?.pickup_details?.recipient || {};
+      const lineItems = (order.line_items || [])
+        .map(li => `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
+        .join('\n');
+      const raw = order.fulfillments?.[0]?.pickup_details?.pickup_at;
+      const fulfillmentTime = raw ? (() => {
+        try {
+          return new Date(raw).toLocaleString('en-US', {
+            timeZone: 'America/Los_Angeles',
+            weekday: 'short', month: 'short', day: 'numeric',
+            hour: 'numeric', minute: '2-digit', hour12: true,
+          });
+        } catch (_) { return raw; }
+      })() : '—';
+
+      const emailPayload = {
+        _subject:          `✅ Paid inoa Pre-Order — ${customer.display_name}`,
+        customer_name:     customer.display_name,
+        customer_phone:    meta.customer_phone || customer.phone_number,
+        customer_email:    customer.email_address,
+        fulfillment_type:  'Pickup',
+        fulfillment_date:  order.reference_id?.split('_')[0],
+        fulfillment_time:  fulfillmentTime,
+        pickup_address:    '100 Enterprise Way, Scotts Valley, CA 95066',
+        voucher_number:    meta.voucher || 'none',
+        order_items:       lineItems,
+        order_total:       `$${(Number(order.total_money?.amount || 0) / 100).toFixed(2)}`,
+        square_order_id:   order.id,
+        square_payment_id: payment.id,
+      };
+
+      console.log('[inoa] Sending confirmation email for:', customer.display_name);
+      const fsRes = await fetch(`https://formspree.io/f/${formspreeId}`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body:    JSON.stringify(emailPayload),
+      });
+      const fsBody = await fsRes.json().catch(() => ({}));
+      if (!fsRes.ok) {
+        console.error('[inoa] Formspree error:', fsRes.status, JSON.stringify(fsBody));
+      } else {
+        console.log('[inoa] Confirmation email sent OK');
+      }
+    } catch (emailErr) {
+      console.error('[inoa] Email send failed (non-fatal):', emailErr?.message);
+    }
+
     return res.status(200).json({
       success:   true,
       orderId:   order.id,
-      paymentId: paymentData.payment.id,
+      paymentId: payment.id,
       slotDocId,
     });
 
