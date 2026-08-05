@@ -1303,7 +1303,7 @@
                 <label className="form-label">phone</label>
                 <input className={`form-input${errors.phone?' err':''}`} value={details.phone||''} onChange={e=>set('phone',fmtPhone(e.target.value))} placeholder="(831) 555-0100" inputMode="tel" />
                 {errors.phone && <span className="form-err">{errors.phone}</span>}
-                <span className="form-hint">confirmation and pickup details will be texted to this number</span>
+                <span className="form-hint">your receipt will be sent to you</span>
               </div>
               <div className="form-group">
                 <label className="form-label">email</label>
@@ -1388,15 +1388,15 @@
             {/* Notices + SMS + Pay */}
             <div className="notices">
               <p className="notice"><em>*Consuming raw or undercooked meats, poultry, seafood, shellfish, or eggs may increase your risk of foodborne illness. By ordering you voluntarily relinquish any liability of any illnesses that may occur.*</em></p>
-              <p className="notice">A text will be sent with your receipt &amp; pickup details following order placement.<br/><strong>Order will be canceled if not confirmed within 12 hours after confirmation text is sent.</strong></p>
+              <p className="notice">Your receipt will be sent to you after your order is placed.</p>
             </div>
 
             <div className={`sms-block${smsErr?' err':''}`}>
               <label className="sms-label">
                 <input type="checkbox" className="sms-check" checked={smsConsent} onChange={e => { setSmsConsent(e.target.checked); if(e.target.checked) setSmsErr(false); }} />
-                <span className="sms-text">By submitting this form, I agree to receive order confirmation and status updates via text message from Inoa Food Group. Message &amp; data rates may apply. Reply STOP to unsubscribe.</span>
+                <span className="sms-text">By submitting this form, I confirm that my order and payment are final. A receipt will be sent to the email provided.</span>
               </label>
-              {smsErr && <p className="sms-err">You must agree to receive SMS updates to place an order.</p>}
+              {smsErr && <p className="sms-err">Please check the box to confirm your order.</p>}
             </div>
 
             {slotConflict && <p className="slot-conflict" style={{marginTop:'12px'}}>That pickup time was just taken — scroll up and choose a different slot.</p>}
