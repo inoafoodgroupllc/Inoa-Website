@@ -8,6 +8,7 @@
     }
   ],
   "rewrites": [
+    { "source": "/.well-known/apple-developer-merchantid-domain-association", "destination": "/api/apple-pay-domain" },
     { "source": "/home", "destination": "/index.html" },
     { "source": "/order", "destination": "/order.html" },
     { "source": "/confirmation", "destination": "/confirmation.html" },
