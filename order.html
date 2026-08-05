@@ -1426,6 +1426,7 @@
       const [paying,       setPaying]       = useState(false);
       const [error,        setError]        = useState('');
       const [apInitError,  setApInitError]  = useState('');
+      const [payLog,       setPayLog]       = useState([]);
       const paymentReqRef  = useRef(null);
       const googlePayRef   = useRef(null);
       const applePayRef    = useRef(null);
@@ -1520,7 +1521,11 @@
       async function submitPayment(token) {
         setPaying(true);
         setError('');
+        const log = [];
+        const pd = msg => { log.push(msg); setPayLog([...log]); };
         try {
+          pd(`token: ${token?.slice(0,20)}…`);
+          pd('calling /api/pay…');
           const res = await fetch('/api/pay', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1539,17 +1544,20 @@
               tipCents,
             }),
           });
+          pd(`HTTP ${res.status}`);
           const data = await res.json();
+          pd(`body: ${JSON.stringify(data)}`);
           if (!res.ok || !data.success) {
             setError(data.detail || data.error || 'Payment failed. Please try again.');
             setPaying(false);
             return;
           }
+          pd('success — redirecting to /confirmation…');
           sessionStorage.setItem('inoa_pickup_date', details.date);
           sessionStorage.setItem('inoa_pickup_time', details.time);
           window.location.href = '/confirmation';
         } catch (err) {
-          console.error('[inoa] pay error:', err);
+          pd(`fetch threw: ${err?.message}`);
           setError('An unexpected error occurred. Please try again.');
           setPaying(false);
         }
@@ -1696,6 +1704,13 @@
                 {paying ? 'processing…' : `pay ${fmtMoney(grandTotal)} →`}
               </button>
             </div>
+            {payLog.length > 0 && (
+              <div style={{background:'rgba(0,0,0,0.04)',border:'1px solid rgba(0,0,0,0.12)',borderRadius:'4px',padding:'10px 12px',marginBottom:'10px',fontFamily:'monospace',fontSize:'10px',lineHeight:'1.7',color:'#333',wordBreak:'break-all'}}>
+                <div style={{fontWeight:'700',marginBottom:'4px',fontSize:'11px'}}>💳 Payment Debug</div>
+                {payLog.map((line, i) => <div key={i}>{line}</div>)}
+              </div>
+            )}
+
             <div className="pv-secure-badge">
               <svg width="11" height="13" viewBox="0 0 11 13" fill="none"><path d="M5.5 0L0 2v4c0 3.31 2.34 6.41 5.5 7 3.16-.59 5.5-3.69 5.5-7V2L5.5 0z" fill="currentColor" opacity="0.5"/></svg>
               secured by Square · your card info is encrypted and never stored on our servers
