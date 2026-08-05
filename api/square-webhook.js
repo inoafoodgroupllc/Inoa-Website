@@ -86,7 +86,7 @@ async function sendOrderConfirmation(order, payment) {
       customer_email:   customer.emailAddress,
       fulfillment_type: 'Pickup',
       fulfillment_date: order.referenceId?.split('_')[0],
-      fulfillment_time: order.lineItems?.[0]?.metadata?.time || '—',
+      fulfillment_time: order.fulfillments?.[0]?.pickupDetails?.pickupAt || '—',
       pickup_address:   '100 Enterprise Way, Scotts Valley, CA 95066',
       voucher_number:   meta.voucher || 'none',
       order_items:      lineItems,

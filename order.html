@@ -718,7 +718,6 @@
 
     // ── Form open / window logic ──────────────────────────────────────────────
     function isFormOpen() {
-      return true; // TEST OVERRIDE — remove before shipping
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       if (key === '2026-07-02') return true;
