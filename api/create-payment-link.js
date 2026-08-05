@@ -42,6 +42,7 @@ const CATALOG = {
   704: { name: 'Side of Pickled Fresno Chili', cents: 200 },
   705: { name: 'Side of Takuan',          cents:  200 },
   706: { name: 'Roasted Nori Pack',       cents:  250 },
+  707: { name: 'Seasoned Sushi Rice',    cents:  400 },
   // DRINKS
   801: { name: 'Hawaiian Sun',            cents:  300 },
 };
@@ -52,7 +53,6 @@ const ADDON_PRICES = {
   'Spicy Mayo Drizzle':   50,
   'Sweet Soy Drizzle':    50,
   'Wasabi':               75,
-  'Seasoned Sushi Rice': 400,
 };
 
 // "12:05 PM – 12:10 PM" → "2026-08-06T12:05:00-07:00"
