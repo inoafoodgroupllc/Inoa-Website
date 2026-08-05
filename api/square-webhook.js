@@ -116,7 +116,7 @@ export default async function handler(req, res) {
   try { event = JSON.parse(rawBody); }
   catch { return res.status(400).json({ error: 'invalid json' }); }
 
-  if (event.type === 'payment.updated') {
+  if (event.type === 'payment.created' || event.type === 'payment.updated') {
     const payment = event.data?.object?.payment;
     if (payment?.status === 'COMPLETED' && payment?.orderId) {
       try {
