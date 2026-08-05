@@ -70,22 +70,22 @@ async function markSlotPaid(slotDocId, paymentId) {
 async function sendOrderConfirmation(order, payment) {
   const formspreeId = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
   const meta = order.metadata || {};
-  const customer = order.fulfillments?.[0]?.pickupDetails?.recipient || {};
+  const customer = order.fulfillments?.[0]?.pickup_details?.recipient || {};
 
-  const lineItems = (order.lineItems || [])
-    .map(li => `${li.name} ×${li.quantity} — $${((Number(li.basePriceMoney?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
+  const lineItems = (order.line_items || [])
+    .map(li => `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
     .join('\n');
 
-  const totalCents = Number(order.totalMoney?.amount || payment.totalMoney?.amount || 0);
+  const totalCents = Number(order.total_money?.amount || payment.total_money?.amount || 0);
 
   const payload = {
-    _subject:          `✅ Paid inoa Pre-Order — ${customer.displayName}`,
-    customer_name:     customer.displayName,
-    customer_phone:    meta.customerPhone || customer.phoneNumber,
-    customer_email:    customer.emailAddress,
+    _subject:          `✅ Paid inoa Pre-Order — ${customer.display_name}`,
+    customer_name:     customer.display_name,
+    customer_phone:    meta.customer_phone || customer.phone_number,
+    customer_email:    customer.email_address,
     fulfillment_type:  'Pickup',
-    fulfillment_date:  order.referenceId?.split('_')[0],
-    fulfillment_time:  order.fulfillments?.[0]?.pickupDetails?.pickupAt || '—',
+    fulfillment_date:  order.reference_id?.split('_')[0],
+    fulfillment_time:  order.fulfillments?.[0]?.pickup_details?.pickup_at || '—',
     pickup_address:    '100 Enterprise Way, Scotts Valley, CA 95066',
     voucher_number:    meta.voucher || 'none',
     order_items:       lineItems,
@@ -94,7 +94,7 @@ async function sendOrderConfirmation(order, payment) {
     square_payment_id: payment.id,
   };
 
-  console.log('[inoa] Sending to Formspree form:', formspreeId, '| customer:', customer.displayName);
+  console.log('[inoa] Sending to Formspree form:', formspreeId, '| customer:', customer.display_name);
   const fsRes = await fetch(`https://formspree.io/f/${formspreeId}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
@@ -141,8 +141,8 @@ export default async function handler(req, res) {
       console.log('[inoa] Processing completed payment:', payment.id, 'order:', orderId);
       try {
         const order = await fetchSquareOrder(orderId);
-        console.log('[inoa] Order fetched:', order.id, '| referenceId:', order.referenceId);
-        const slotDocId = order.referenceId;
+        console.log('[inoa] Order fetched:', order.id, '| reference_id:', order.reference_id);
+        const slotDocId = order.reference_id;
         if (slotDocId) {
           await markSlotPaid(slotDocId, payment.id);
         }
