@@ -728,9 +728,6 @@
     function isFormOpen() {
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key === '2026-07-02') return true;
-      if (key === '2026-07-18') return true;
-      if (key === '2026-08-04') return true;
       if (key < '2026-08-05') return false;
       const d = now.getDay();
       return d === 0 || d === 3;
@@ -753,8 +750,6 @@
       const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
       const now  = new Date();
       const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (todayKey === '2026-07-02') return [{ key:'2026-07-03', day:'fri', num:3,  month:7, dayOfWeek:5 }];
-      if (todayKey === '2026-07-18') return [{ key:'2026-07-19', day:'sun', num:19, month:7, dayOfWeek:0 }];
       const today = now.getDay();
       let daysBack = 0;
       for (let i = 0; i <= 6; i++) {
@@ -764,7 +759,6 @@
       const anchor = new Date(now);
       anchor.setDate(now.getDate() - daysBack);
       const anchorKey = `${anchor.getFullYear()}-${String(anchor.getMonth()+1).padStart(2,'0')}-${String(anchor.getDate()).padStart(2,'0')}`;
-      if (anchorKey === '2026-07-22') return [1,2].map(off => { const d=new Date(anchor); d.setDate(anchor.getDate()+off); return { key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, day:DAYS[d.getDay()], num:d.getDate(), month:d.getMonth()+1, dayOfWeek:d.getDay() }; });
       const openDay = anchor.getDay();
       const offsets = openDay === 0 ? [1,2] : [1,2,3];
       return offsets.map(off => {
@@ -1428,8 +1422,6 @@
       const [tipCustom,    setTipCustom]    = useState('');
       const [paying,       setPaying]       = useState(false);
       const [error,        setError]        = useState('');
-      const [apInitError,  setApInitError]  = useState('');
-      const [payLog,       setPayLog]       = useState([]);
       const paymentReqRef  = useRef(null);
       const googlePayRef   = useRef(null);
       const applePayRef    = useRef(null);
@@ -1499,7 +1491,7 @@
             applePayRef.current = ap;
             if (mounted) setHasApplePay(true);
           } catch (apErr) {
-            if (mounted) setApInitError(apErr?.message || String(apErr));
+            console.warn('[inoa] Apple Pay init failed:', apErr?.message);
           }
 
           // Card widget
@@ -1524,11 +1516,7 @@
       async function submitPayment(token) {
         setPaying(true);
         setError('');
-        const log = [];
-        const pd = msg => { log.push(msg); setPayLog([...log]); };
         try {
-          pd(`token: ${token?.slice(0,20)}…`);
-          pd('calling /api/pay…');
           const res = await fetch('/api/pay', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -1547,20 +1535,16 @@
               tipCents,
             }),
           });
-          pd(`HTTP ${res.status}`);
           const data = await res.json();
-          pd(`body: ${JSON.stringify(data)}`);
           if (!res.ok || !data.success) {
             setError(data.detail || data.error || 'Payment failed. Please try again.');
             setPaying(false);
             return;
           }
-          pd('success — redirecting to /confirmation…');
           sessionStorage.setItem('inoa_pickup_date', details.date);
           sessionStorage.setItem('inoa_pickup_time', details.time);
           window.location.href = '/confirmation';
         } catch (err) {
-          pd(`fetch threw: ${err?.message}`);
           setError('An unexpected error occurred. Please try again.');
           setPaying(false);
         }
@@ -1684,7 +1668,6 @@
                   <svg width="14" height="17" viewBox="0 0 14 17" fill="white"><path d="M11.24 0c-.74.04-1.63.52-2.14 1.14-.47.56-.88 1.42-.74 2.26.82.06 1.67-.45 2.17-1.07.47-.59.82-1.44.71-2.33zM13.97 12.02c-.04.08-1.55 2.5-3.07 2.5-.73 0-1.22-.48-2.02-.48-.82 0-1.43.49-2.03.49-1.43 0-3.06-2.38-3.06-5.41 0-2.96 1.91-4.51 3.7-4.51.84 0 1.55.54 2.07.54.5 0 1.3-.57 2.27-.57.61 0 2.14.18 3.06 1.7l.08.14c-.06.04-1.77 1.01-1.77 3.17 0 2.42 2.08 3.3 2.08 3.3l-.31.13z"/></svg>
                   <span style={{fontFamily:'-apple-system,sans-serif',fontSize:'17px',fontWeight:'500',letterSpacing:'-0.01em'}}>Pay</span>
                 </button>
-                {apInitError ? <p style={{fontSize:'10px',color:'#c44',marginTop:'4px',fontFamily:'monospace',wordBreak:'break-all'}}>AP: {apInitError}</p> : null}
               </div>
             </div>
 
@@ -1707,13 +1690,6 @@
                 {paying ? 'processing…' : `pay ${fmtMoney(grandTotal)} →`}
               </button>
             </div>
-            {payLog.length > 0 && (
-              <div style={{background:'rgba(0,0,0,0.04)',border:'1px solid rgba(0,0,0,0.12)',borderRadius:'4px',padding:'10px 12px',marginBottom:'10px',fontFamily:'monospace',fontSize:'10px',lineHeight:'1.7',color:'#333',wordBreak:'break-all'}}>
-                <div style={{fontWeight:'700',marginBottom:'4px',fontSize:'11px'}}>💳 Payment Debug</div>
-                {payLog.map((line, i) => <div key={i}>{line}</div>)}
-              </div>
-            )}
-
             <div className="pv-secure-badge">
               <svg width="11" height="13" viewBox="0 0 11 13" fill="none"><path d="M5.5 0L0 2v4c0 3.31 2.34 6.41 5.5 7 3.16-.59 5.5-3.69 5.5-7V2L5.5 0z" fill="currentColor" opacity="0.5"/></svg>
               secured by Square · your card info is encrypted and never stored on our servers
