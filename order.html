@@ -276,6 +276,7 @@
     .addon-cb-check { font-size: 9px; color: var(--white); opacity: 0; transition: opacity 0.12s; line-height: 1; }
     .addon-card.sel .addon-cb-check { opacity: 1; }
     .addon-name { font-size: 12px; color: var(--ink); flex: 1; line-height: 1.3; }
+    .addon-desc { font-size: 10px; color: var(--ink); opacity: 0.45; line-height: 1.3; margin-top: 1px; }
     .addon-price { font-size: 11px; color: var(--ink); opacity: 0.42; flex-shrink: 0; }
 
     /* Modal sticky bottom */
@@ -610,10 +611,10 @@
       { id:401, cat:'specials', name:'Poke Nachos',               desc:'housemade wonton chips, shoyu marinated ahi/salmon, avocado, cilantro, serrano, green onion, spicy mayo & sweet soy drizzle, furikake, masago',   price:16.50 },
       { id:402, cat:'specials', name:'Poke Bombs',                desc:'three sweet tofu pouches filled with seasoned sushi rice & your choice of poke flavors',                                                           price:15.00 },
       // SIDES
-      { id:501, cat:'sides',    name:'Crab Mac Salad',            desc:'macaroni, imitation crab, mayo',                                                                                                                    price:5.00 },
-      { id:502, cat:'sides',    name:'Seaweed Salad',             desc:'sesame oil',                                                                                                                                        price:4.00 },
-      { id:503, cat:'sides',    name:'Kimchi Cucumber',           desc:'english cucumber, korean chili powder, sesame oil, shoyu',                                                                                          price:4.00 },
-      { id:504, cat:'sides',    name:'Cold Roasted Sweet Potato', desc:'sesame oil, salt, sugar',                                                                                                                           price:4.00 },
+      { id:501, cat:'sides',    name:'Crab Mac Salad',            desc:'macaroni, imitation crab, mayo',                                                                                                                    price:6.00 },
+      { id:502, cat:'sides',    name:'Seaweed Salad',             desc:'from japan',                                                                                                                                        price:5.00 },
+      { id:503, cat:'sides',    name:'Kimchi Cucumber',           desc:'persian cucumber, korean chili powder, sesame oil, shoyu',                                                                                          price:5.00 },
+      { id:504, cat:'sides',    name:'Cold Roasted Sweet Potato', desc:'variety of hawaiian/japanese/american sweet potato, sesame oil, salt, sugar',                                                                       price:5.00 },
       // MUSUBI
       { id:601, cat:'musubi',   name:'Single Musubi',             desc:'spam, housemade soy glaze, seasoned sushi rice, nori',                                                                                              price:4.00 },
       { id:602, cat:'musubi',   name:'Triple Pack',               desc:'spam, housemade soy glaze, seasoned sushi rice, nori',                                                                                              price:10.00 },
@@ -657,6 +658,7 @@
     const ADDON_OPTS = [
       { name:'Sliced Avocado',     price:2.00 },
       { name:'Roasted Nori Pack',  price:2.50 },
+      { name:'Seasoned Sushi Rice',price:4.00, desc:'w/ housemade furikake' },
       { name:'Spicy Mayo Drizzle', price:0.50 },
       { name:'Sweet Soy Drizzle',  price:0.50 },
       { name:'Wasabi',             price:0.75 },
@@ -1010,6 +1012,7 @@
                           <div className="addon-cb"><span className="addon-cb-check">✓</span></div>
                           <div style={{flex:1,minWidth:0}}>
                             <div className="addon-name">{addon.name}</div>
+                            {addon.desc && <div className="addon-desc">{addon.desc}</div>}
                             <div className="addon-price">+{fmtMoney(addon.price)}</div>
                           </div>
                         </div>

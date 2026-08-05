@@ -28,10 +28,10 @@ const CATALOG = {
   401: { name: 'Poke Nachos',             cents: 1650 },
   402: { name: 'Poke Bombs',              cents: 1500 },
   // SIDES
-  501: { name: 'Crab Mac Salad',          cents:  500 },
-  502: { name: 'Seaweed Salad',           cents:  400 },
-  503: { name: 'Kimchi Cucumber',         cents:  400 },
-  504: { name: 'Cold Roasted Sweet Potato', cents: 400 },
+  501: { name: 'Crab Mac Salad',          cents:  600 },
+  502: { name: 'Seaweed Salad',           cents:  500 },
+  503: { name: 'Kimchi Cucumber',         cents:  500 },
+  504: { name: 'Cold Roasted Sweet Potato', cents: 500 },
   // MUSUBI
   601: { name: 'Single Musubi',           cents:  400 },
   602: { name: 'Triple Pack',             cents: 1000 },
@@ -47,11 +47,12 @@ const CATALOG = {
 };
 
 const ADDON_PRICES = {
-  'Sliced Avocado':     200,
-  'Roasted Nori Pack':  250,
-  'Spicy Mayo Drizzle':  50,
-  'Sweet Soy Drizzle':   50,
-  'Wasabi':              75,
+  'Sliced Avocado':      200,
+  'Roasted Nori Pack':   250,
+  'Spicy Mayo Drizzle':   50,
+  'Sweet Soy Drizzle':    50,
+  'Wasabi':               75,
+  'Seasoned Sushi Rice': 400,
 };
 
 function pickupAtISO(date, timeLabel) {
