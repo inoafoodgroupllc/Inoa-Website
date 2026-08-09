@@ -684,6 +684,20 @@
       return out;
     })();
 
+    // ── Per-date time slot override (start hour may differ by date) ──────────
+    function getTimeSlotsForDate(dateKey) {
+      const DATE_START_HOUR = { '2026-08-10': 14 }; // Mon Aug 10: 2–6 PM
+      const startHour = DATE_START_HOUR[dateKey] ?? 12;
+      const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
+      const out = [];
+      for (let min = 0; min < 240; min += 5) {
+        const h = startHour + Math.floor(min / 60), m = min % 60;
+        const eh = startHour + Math.floor((min + 5) / 60), em = (min + 5) % 60;
+        out.push({ label:`${fmt(h,m)} – ${fmt(eh,em)}`, key:`${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}` });
+      }
+      return { slots: out, startHour };
+    }
+
     // ── Helpers ───────────────────────────────────────────────────────────────
     function uid() { return Math.random().toString(36).slice(2, 10); }
     function hasModal(itemId) { return !!MODIFIER_CONFIGS[itemId]; }
@@ -762,7 +776,8 @@
       anchor.setDate(now.getDate() - daysBack);
       const anchorKey = `${anchor.getFullYear()}-${String(anchor.getMonth()+1).padStart(2,'0')}-${String(anchor.getDate()).padStart(2,'0')}`;
       const openDay = anchor.getDay();
-      const offsets = openDay === 0 ? [1,2] : [1,2,3];
+      let offsets = openDay === 0 ? [1,2] : [1,2,3];
+      if (anchorKey === '2026-08-09') offsets = [1]; // Mon only — Tue removed this cycle
       return offsets.map(off => {
         const d = new Date(anchor);
         d.setDate(anchor.getDate() + off);
@@ -1160,7 +1175,7 @@
       const [promoStatus,setPromoStatus]= useState(details.promoCode ? 'ok' : null);
 
       const { booked: bookedSlots, loading: slotsLoading } = useBookedSlots(details.date);
-      const allBooked = !!details.date && !slotsLoading && TIME_SLOTS.every(s => bookedSlots.has(s.key));
+      const allBooked = !!details.date && !slotsLoading && getTimeSlotsForDate(details.date).slots.every(s => bookedSlots.has(s.key));
 
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
@@ -1277,28 +1292,32 @@
                 <p className="slot-full">fully booked for this day</p>
               ) : (
                 <div className="slot-grid">
-                  {[0,1,2,3].map(hour => {
-                    const hourSlots = TIME_SLOTS.slice(hour * 12, (hour+1) * 12);
-                    const label = hour === 0 ? '12 pm' : `${hour} pm`;
-                    return (
-                      <div key={hour} className="slot-col">
-                        <div className="slot-hour">{label}</div>
-                        {hourSlots.map(s => {
-                          const isBooked   = bookedSlots.has(s.key);
-                          const isSelected = details.time === s.label;
-                          const h = parseInt(s.key.slice(0,2));
-                          const display = `${h > 12 ? h-12 : h}:${s.key.slice(2)}`;
-                          return (
-                            <button
-                              key={s.key}
-                              className={`slot-btn${isBooked?' booked':''}${isSelected?' on':''}`}
-                              onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
-                            >{display}</button>
-                          );
-                        })}
-                      </div>
-                    );
-                  })}
+                  {(() => {
+                    const { slots, startHour } = getTimeSlotsForDate(details.date);
+                    return [0,1,2,3].map(hour => {
+                      const hourSlots = slots.slice(hour * 12, (hour+1) * 12);
+                      const absHour = startHour + hour;
+                      const label = absHour === 12 ? '12 pm' : `${absHour - 12} pm`;
+                      return (
+                        <div key={hour} className="slot-col">
+                          <div className="slot-hour">{label}</div>
+                          {hourSlots.map(s => {
+                            const isBooked   = bookedSlots.has(s.key);
+                            const isSelected = details.time === s.label;
+                            const h = parseInt(s.key.slice(0,2));
+                            const display = `${h > 12 ? h-12 : h}:${s.key.slice(2)}`;
+                            return (
+                              <button
+                                key={s.key}
+                                className={`slot-btn${isBooked?' booked':''}${isSelected?' on':''}`}
+                                onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
+                              >{display}</button>
+                            );
+                          })}
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               )}
             </div>
