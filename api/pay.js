@@ -148,6 +148,27 @@ export default async function handler(req, res) {
 
     const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
 
+    // ── Pre-check: reject if slot already paid (prevents double-charging) ──
+    const FIREBASE_PROJECT_ID = 'inoa-times';
+    const FIREBASE_API_KEY    = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
+    const slotBaseUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}?key=${FIREBASE_API_KEY}`;
+    let slotUpdateTime = null;
+    try {
+      const slotRead = await fetch(slotBaseUrl);
+      if (slotRead.ok) {
+        const slotDoc = await slotRead.json();
+        const status = slotDoc.fields?.status?.stringValue;
+        slotUpdateTime = slotDoc.updateTime || null;
+        console.log('[inoa] Slot pre-check:', slotDocId, '| status:', status);
+        if (status === 'paid') {
+          console.warn('[inoa] Slot already paid — rejecting charge:', slotDocId);
+          return res.status(409).json({ error: 'slot_taken', detail: 'That pickup time was just booked by someone else. Please go back and choose a different slot.' });
+        }
+      }
+    } catch (preCheckErr) {
+      console.error('[inoa] Slot pre-check error (proceeding anyway):', preCheckErr?.message);
+    }
+
     // ── Create Square Order ────────────────────────────────────────
     const orderBody = {
       idempotency_key: crypto.randomUUID(),
@@ -238,8 +259,6 @@ export default async function handler(req, res) {
 
     const payment = paymentData.payment;
 
-    const FIREBASE_PROJECT_ID = 'inoa-times';
-    const FIREBASE_API_KEY    = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
     const meta     = order.metadata || {};
     const customer = order.fulfillments?.[0]?.pickup_details?.recipient || {};
     const rawPickupAt = order.fulfillments?.[0]?.pickup_details?.pickup_at;
@@ -285,12 +304,15 @@ export default async function handler(req, res) {
       console.error('[inoa] Firestore order save error:', orderErr?.message);
     }
 
-    // ── Mark slot paid in Firestore ────────────────────────────────
+    // ── Mark slot paid in Firestore (conditional write) ───────────
     try {
-      const slotUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}`
+      let slotPatchUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}`
         + `?key=${FIREBASE_API_KEY}`
         + `&updateMask.fieldPaths=status&updateMask.fieldPaths=paidAt&updateMask.fieldPaths=squarePaymentId`;
-      const fsSlotRes = await fetch(slotUrl, {
+      if (slotUpdateTime) {
+        slotPatchUrl += `&currentDocument.updateTime=${encodeURIComponent(slotUpdateTime)}`;
+      }
+      const fsSlotRes = await fetch(slotPatchUrl, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -301,10 +323,12 @@ export default async function handler(req, res) {
           },
         }),
       });
-      if (!fsSlotRes.ok) {
+      if (fsSlotRes.status === 412) {
+        console.error(`[CRITICAL] DOUBLE CHARGE POSSIBLE — slot ${slotDocId} was modified between pre-check and paid-mark. Order: ${order.id}, Payment: ${payment.id}. Manual review required.`);
+      } else if (!fsSlotRes.ok) {
         console.error('[inoa] Firestore slot update failed:', await fsSlotRes.text());
       } else {
-        console.log('[inoa] Slot marked paid:', slotDocId);
+        console.log('[inoa] Slot marked paid (conditional):', slotDocId);
       }
     } catch (slotErr) {
       console.error('[inoa] Firestore slot update error:', slotErr?.message);

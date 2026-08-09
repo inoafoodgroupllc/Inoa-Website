@@ -585,7 +585,7 @@
       catch(e) { console.error('[inoa] Firebase init failed:', e); }
     }
 
-    const SLOT_HOLD_MS = 10 * 60 * 1000;
+    const SLOT_HOLD_MS = 60 * 60 * 1000;
 
     // ── Menu data ─────────────────────────────────────────────────────────────
     const ITEMS = [
@@ -1538,7 +1538,11 @@
           });
           const data = await res.json();
           if (!res.ok || !data.success) {
-            setError(data.detail || data.error || 'Payment failed. Please try again.');
+            if (data.error === 'slot_taken') {
+              setError('That pickup time was just taken — go back and choose a different slot.');
+            } else {
+              setError(data.detail || data.error || 'Payment failed. Please try again.');
+            }
             setPaying(false);
             return;
           }
