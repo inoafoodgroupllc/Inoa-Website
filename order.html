@@ -123,6 +123,8 @@
     .item-card.modal-item { cursor: pointer; }
     .item-card.modal-item:hover { border-color: rgba(26,26,26,0.18); box-shadow: 0 2px 10px rgba(26,26,26,0.07); }
     .item-card.has-qty { border-color: var(--driftwood); background: rgba(139,115,85,0.025); }
+    .item-card.sold-out { opacity: 0.38; pointer-events: none; cursor: not-allowed; }
+    .item-card-sold-out { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--err); }
     .item-card-badge {
       position: absolute; top: 12px; right: 12px;
       width: 20px; height: 20px; border-radius: 50%;
@@ -601,7 +603,7 @@
       { id:204, cat:'poke ½lb', name:'Spicy Salmon',              desc:'housemade spicy mayo blend, sesame oil, masago, togarashi, sweet onion, green onion',                                                              price:16.00, tag:'GF' },
       { id:205, cat:'poke ½lb', name:'Sweet Unagi Salmon',        desc:'housemade sweet unagi sauce, sesame oil, sweet onion, green onion',                                                                                price:16.00 },
       { id:206, cat:'poke ½lb', name:'Chili Garlic Salmon',       desc:'housemade chili crunch, fried garlic, shoyu, sesame oil, tobiko, sweet onion, green onion',                                                       price:16.00 },
-      { id:207, cat:'poke ½lb', name:'Tobiko Scallop',            desc:'mayo, tobiko, sesame oil, togarashi, green onion',                                                                                                  price:16.00, tag:'GF' },
+      { id:207, cat:'poke ½lb', name:'Tobiko Scallop',            desc:'mayo, tobiko, sesame oil, togarashi, green onion',                                                                                                  price:16.00, tag:'GF', soldOut:true },
       { id:208, cat:'poke ½lb', name:'Kimchi Tako',               desc:'cooked · kimchi base, sesame oil, sweet onion, green onion',                                                                                       price:16.00, tag:'GF' },
       { id:209, cat:'poke ½lb', name:'Garlic Shrimp',             desc:'cooked · homemade fried garlic, minced garlic, sesame oil, alaea salt, sweet onion, green onion',                                                 price:15.00, tag:'GF' },
       // COMBOS
@@ -1031,6 +1033,22 @@
     // ── ItemCard ──────────────────────────────────────────────────────────────
     function ItemCard({ item, cartQty, onAdd, onRemove, onModalOpen }) {
       const needsModal = hasModal(item.id);
+
+      if (item.soldOut) {
+        return (
+          <div className="item-card sold-out">
+            <div className="item-card-name">
+              {item.name}
+              {item.tag && <span className="item-card-tag">{item.tag}</span>}
+            </div>
+            {item.desc && <div className="item-card-desc">{item.desc}</div>}
+            <div className="item-card-footer">
+              <span className="item-card-price">{fmtMoney(item.price)}</span>
+              <span className="item-card-sold-out">sold out</span>
+            </div>
+          </div>
+        );
+      }
 
       if (needsModal) {
         return (
