@@ -238,10 +238,55 @@ export default async function handler(req, res) {
 
     const payment = paymentData.payment;
 
+    const FIREBASE_PROJECT_ID = 'inoa-times';
+    const FIREBASE_API_KEY    = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
+    const meta     = order.metadata || {};
+    const customer = order.fulfillments?.[0]?.pickup_details?.recipient || {};
+    const rawPickupAt = order.fulfillments?.[0]?.pickup_details?.pickup_at;
+    const fulfillmentTime = rawPickupAt ? (() => {
+      try {
+        return new Date(rawPickupAt).toLocaleString('en-US', {
+          timeZone: 'America/Los_Angeles',
+          weekday: 'short', month: 'short', day: 'numeric',
+          hour: 'numeric', minute: '2-digit', hour12: true,
+        });
+      } catch (_) { return rawPickupAt; }
+    })() : '—';
+    const lineItemsText = (order.line_items || [])
+      .map(li => `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
+      .join('\n');
+    const orderTotalStr = `$${(Number(order.total_money?.amount || 0) / 100).toFixed(2)}`;
+
+    // ── Write full order record to Firestore (permanent backup) ───────
+    try {
+      const orderDocUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/orders/${encodeURIComponent(order.id)}?key=${FIREBASE_API_KEY}`;
+      await fetch(orderDocUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fields: {
+            squareOrderId:   { stringValue: order.id },
+            squarePaymentId: { stringValue: payment.id },
+            slotDocId:       { stringValue: slotDocId },
+            customerName:    { stringValue: customer.display_name || '' },
+            customerPhone:   { stringValue: meta.customer_phone || customer.phone_number || '' },
+            customerEmail:   { stringValue: customer.email_address || '' },
+            fulfillmentDate: { stringValue: order.reference_id?.split('_')[0] || '' },
+            fulfillmentTime: { stringValue: fulfillmentTime },
+            orderItems:      { stringValue: lineItemsText },
+            orderTotal:      { stringValue: orderTotalStr },
+            paidAt:          { timestampValue: new Date().toISOString() },
+            emailSent:       { booleanValue: false },
+          },
+        }),
+      });
+      console.log('[inoa] Order record saved to Firestore:', order.id);
+    } catch (orderErr) {
+      console.error('[inoa] Firestore order save error:', orderErr?.message);
+    }
+
     // ── Mark slot paid in Firestore ────────────────────────────────
     try {
-      const FIREBASE_PROJECT_ID = 'inoa-times';
-      const FIREBASE_API_KEY    = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
       const slotUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}`
         + `?key=${FIREBASE_API_KEY}`
         + `&updateMask.fieldPaths=status&updateMask.fieldPaths=paidAt&updateMask.fieldPaths=squarePaymentId`;
@@ -262,58 +307,61 @@ export default async function handler(req, res) {
         console.log('[inoa] Slot marked paid:', slotDocId);
       }
     } catch (slotErr) {
-      console.error('[inoa] Firestore slot update error (non-fatal):', slotErr?.message);
+      console.error('[inoa] Firestore slot update error:', slotErr?.message);
     }
 
-    // ── Send order confirmation email via Formspree ─────────────────
-    try {
-      const formspreeId = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
-      const meta     = order.metadata || {};
-      const customer = order.fulfillments?.[0]?.pickup_details?.recipient || {};
-      const lineItems = (order.line_items || [])
-        .map(li => `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
-        .join('\n');
-      const raw = order.fulfillments?.[0]?.pickup_details?.pickup_at;
-      const fulfillmentTime = raw ? (() => {
-        try {
-          return new Date(raw).toLocaleString('en-US', {
-            timeZone: 'America/Los_Angeles',
-            weekday: 'short', month: 'short', day: 'numeric',
-            hour: 'numeric', minute: '2-digit', hour12: true,
-          });
-        } catch (_) { return raw; }
-      })() : '—';
+    // ── Send order confirmation email (with one retry) ─────────────
+    const formspreeId  = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
+    const emailPayload = {
+      _subject:          `✅ Paid inoa Pre-Order — ${customer.display_name}`,
+      customer_name:     customer.display_name,
+      customer_phone:    meta.customer_phone || customer.phone_number,
+      customer_email:    customer.email_address,
+      fulfillment_type:  'Pickup',
+      fulfillment_date:  order.reference_id?.split('_')[0],
+      fulfillment_time:  fulfillmentTime,
+      pickup_address:    '100 Enterprise Way, Scotts Valley, CA 95066',
+      voucher_number:    meta.voucher || 'none',
+      order_items:       lineItemsText,
+      order_total:       orderTotalStr,
+      square_order_id:   order.id,
+      square_payment_id: payment.id,
+    };
 
-      const emailPayload = {
-        _subject:          `✅ Paid inoa Pre-Order — ${customer.display_name}`,
-        customer_name:     customer.display_name,
-        customer_phone:    meta.customer_phone || customer.phone_number,
-        customer_email:    customer.email_address,
-        fulfillment_type:  'Pickup',
-        fulfillment_date:  order.reference_id?.split('_')[0],
-        fulfillment_time:  fulfillmentTime,
-        pickup_address:    '100 Enterprise Way, Scotts Valley, CA 95066',
-        voucher_number:    meta.voucher || 'none',
-        order_items:       lineItems,
-        order_total:       `$${(Number(order.total_money?.amount || 0) / 100).toFixed(2)}`,
-        square_order_id:   order.id,
-        square_payment_id: payment.id,
-      };
-
-      console.log('[inoa] Sending confirmation email for:', customer.display_name);
-      const fsRes = await fetch(`https://formspree.io/f/${formspreeId}`, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body:    JSON.stringify(emailPayload),
-      });
-      const fsBody = await fsRes.json().catch(() => ({}));
-      if (!fsRes.ok) {
-        console.error('[inoa] Formspree error:', fsRes.status, JSON.stringify(fsBody));
-      } else {
-        console.log('[inoa] Confirmation email sent OK');
+    let emailSent = false;
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        console.log(`[inoa] Email attempt ${attempt} for:`, customer.display_name);
+        const fsRes  = await fetch(`https://formspree.io/f/${formspreeId}`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body:    JSON.stringify(emailPayload),
+        });
+        const fsBody = await fsRes.json().catch(() => ({}));
+        if (fsRes.ok) {
+          emailSent = true;
+          console.log('[inoa] Confirmation email sent OK on attempt', attempt);
+          break;
+        }
+        console.error(`[inoa] Formspree attempt ${attempt} failed:`, fsRes.status, JSON.stringify(fsBody));
+      } catch (emailErr) {
+        console.error(`[inoa] Email attempt ${attempt} threw:`, emailErr?.message);
       }
-    } catch (emailErr) {
-      console.error('[inoa] Email send failed (non-fatal):', emailErr?.message);
+    }
+
+    // Update Firestore order record with email status
+    try {
+      const orderDocUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/orders/${encodeURIComponent(order.id)}`
+        + `?key=${FIREBASE_API_KEY}&updateMask.fieldPaths=emailSent`;
+      await fetch(orderDocUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fields: { emailSent: { booleanValue: emailSent } } }),
+      });
+    } catch (_) {}
+
+    if (!emailSent) {
+      console.error('[inoa] EMAIL FAILED FOR ORDER:', order.id, '| customer:', customer.display_name, '| total:', orderTotalStr);
     }
 
     return res.status(200).json({
