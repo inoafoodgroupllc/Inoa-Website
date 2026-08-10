@@ -346,6 +346,7 @@ export default async function handler(req, res) {
       fulfillment_time:  fulfillmentTime,
       pickup_address:    '100 Enterprise Way, Scotts Valley, CA 95066',
       voucher_number:    meta.voucher || 'none',
+      special_instructions: details.notes || 'none',
       order_items:       lineItemsText,
       order_total:       orderTotalStr,
       square_order_id:   order.id,
