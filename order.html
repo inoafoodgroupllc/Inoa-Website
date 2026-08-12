@@ -746,7 +746,7 @@
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
       if (key < '2026-08-05') return false;
       const d = now.getDay();
-      return d === 0 || d === 3;
+      return d === 0 || d === 3 || key === '2026-08-13'; // Thu Aug 13 also open this cycle
     }
 
     function getNextOpening() {
@@ -777,7 +777,8 @@
       const anchorKey = `${anchor.getFullYear()}-${String(anchor.getMonth()+1).padStart(2,'0')}-${String(anchor.getDate()).padStart(2,'0')}`;
       const openDay = anchor.getDay();
       let offsets = openDay === 0 ? [1,2] : [1,2,3];
-      if (anchorKey === '2026-08-09') offsets = [1]; // Mon only — Tue removed this cycle
+      if (anchorKey === '2026-08-09') offsets = [1];    // Mon only — Tue removed
+      if (anchorKey === '2026-08-12') offsets = [2,3];  // Thu removed — Fri+Sat only
       return offsets.map(off => {
         const d = new Date(anchor);
         d.setDate(anchor.getDate() + off);
