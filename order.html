@@ -744,15 +744,15 @@
     function isFormOpen() {
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key < '2026-08-05') return false;
+      if (key < '2026-08-23') return false; // closed through Aug 22; reopens Sun Aug 23
       const d = now.getDay();
-      return d === 0 || d === 3 || key === '2026-08-13'; // Thu Aug 13 also open this cycle
+      return d === 0 || d === 3;
     }
 
     function getNextOpening() {
       const now = new Date();
       const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key < '2026-08-05') return new Date('2026-08-05T00:00:00');
+      if (key < '2026-08-23') return new Date('2026-08-23T00:00:00');
       const day  = now.getDay();
       const toSun = (7 - day) % 7 || 7;
       const toWed = (3 - day + 7) % 7 || 7;
