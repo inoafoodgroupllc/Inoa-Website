@@ -125,6 +125,7 @@
     .item-card.has-qty { border-color: var(--driftwood); background: rgba(139,115,85,0.025); }
     .item-card.sold-out { opacity: 0.38; pointer-events: none; cursor: not-allowed; }
     .item-card-sold-out { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--err); }
+    .mod-opt.sold-out { opacity: 0.38; pointer-events: none; cursor: not-allowed; }
     .item-card-badge {
       position: absolute; top: 12px; right: 12px;
       width: 20px; height: 20px; border-radius: 50%;
@@ -657,6 +658,7 @@
       'Spicy Salmon','Sweet Unagi Salmon','Chili Garlic Salmon',
       'Kimchi Tako','Garlic Shrimp','Tobiko Scallop',
     ];
+    const SOLD_OUT_FLAVORS = new Set(['Tobiko Scallop']);
     const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
     const ADDON_OPTS = [
       { name:'Sliced Avocado',     price:2.00 },
@@ -951,12 +953,14 @@
                     {FLAVOR_OPTS.map(name => {
                       const sel = (mods.flavors||[]).includes(name);
                       const isRadio = cfg.flavors.max === 1;
+                      const soldOut = SOLD_OUT_FLAVORS.has(name);
                       return (
-                        <div key={name} className={`mod-opt${sel?' sel':''}`} onClick={() => toggleFlavor(name)}>
+                        <div key={name} className={`mod-opt${sel?' sel':''}${soldOut?' sold-out':''}`} onClick={() => { if (!soldOut) toggleFlavor(name); }}>
                           <div className={`mod-indicator${isRadio?'':' sq'}`}>
                             <div className="mod-indicator-dot" />
                           </div>
                           <span className="mod-opt-name">{name}</span>
+                          {soldOut && <span className="item-card-sold-out">sold out</span>}
                         </div>
                       );
                     })}
