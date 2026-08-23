@@ -27,6 +27,7 @@ const CATALOG = {
   // SPECIALS
   401: { name: 'Poke Nachos',             cents: 1650 },
   402: { name: 'Poke Bombs',              cents: 1500 },
+  403: { name: 'Spicy Tuna Bowl',         cents: 1200 },
   // SIDES
   501: { name: 'Crab Mac Salad',          cents:  600 },
   502: { name: 'Seaweed Salad',           cents:  500 },
