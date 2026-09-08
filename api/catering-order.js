@@ -370,7 +370,7 @@ export default async function handler(req, res) {
         customer_phone:   phone,
         event_date:       eventDate,
         fulfillment_type: fulfillment || 'pickup',
-        delivery_city:    deliveryCity || '',
+        ...(deliveryCity ? { delivery_city: deliveryCity } : {}),
       },
     },
     checkout_options: {

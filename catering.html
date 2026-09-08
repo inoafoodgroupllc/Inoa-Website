@@ -465,7 +465,18 @@
       display: flex; align-items: center; gap: 6px;
       font-size: 12.5px; cursor: pointer; color: var(--ink);
     }
-    .ct-fulfillment-opts input[type=radio] { accent-color: var(--ogo); }
+    .ct-fulfillment-opts input[type=radio] {
+      appearance: none; -webkit-appearance: none;
+      width: 15px; height: 15px; border-radius: 50%;
+      border: 1.5px solid rgba(26,26,26,0.28);
+      cursor: pointer; flex-shrink: 0;
+      transition: border-color 0.15s;
+    }
+    .ct-fulfillment-opts input[type=radio]:checked {
+      border-color: var(--ogo);
+      background: var(--ogo);
+      box-shadow: inset 0 0 0 3px var(--cream);
+    }
     .ct-city-wrap { margin-bottom: 4px; }
     .ct-city-wrap label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; display: block; margin-bottom: 5px; }
     .ct-city-select {
@@ -874,11 +885,13 @@
   const D = window.CATERING_DATA;
 
   // ── Cart state ──────────────────────────────────────────────────────
-  let cart              = loadCart();
-  let activePicker      = null;
-  let currentStep       = 'cart'; // 'cart' | 'checkout'
-  let blackoutDates     = [];
+  let cart               = loadCart();
+  let activePicker       = null;
+  let currentStep        = 'cart'; // 'cart' | 'checkout'
+  let blackoutDates      = [];
   let blackoutLoadFailed = false;
+  let selectedFulfillment = 'pickup';
+  let selectedCity        = '';
 
   function loadCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
@@ -903,8 +916,8 @@
     const totalTrays = cart.filter(i => i.category === 'tray').reduce((s, i) => s + i.qty, 0);
     const subtotal   = cart.reduce((s, i) => s + i.cents * i.qty, 0);
 
-    const fulfillment = document.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
-    const city        = document.getElementById('delivery-city')?.value || '';
+    const fulfillment = selectedFulfillment;
+    const city        = selectedCity;
 
     let deliveryFee = 0;
     let zoneMin     = C.PICKUP_MIN * 100; // 200 → 20000 cents
@@ -1217,7 +1230,7 @@
         </div>
         <div class="ct-city-wrap" id="city-wrap" ${fulfillment !== 'delivery' ? 'hidden' : ''}>
           <label for="delivery-city">Delivery city</label>
-          <select class="ct-city-select" id="delivery-city" onchange="renderAll()" aria-required="true">
+          <select class="ct-city-select" id="delivery-city" onchange="onCityChange()" aria-required="true">
             <option value="">Select city</option>
             ${cityOptions}
           </select>
@@ -1293,7 +1306,14 @@
   }
 
   function onFulfillmentChange() {
-    renderCart();
+    selectedFulfillment = document.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
+    if (selectedFulfillment !== 'delivery') selectedCity = '';
+    renderAll();
+  }
+
+  function onCityChange() {
+    selectedCity = document.getElementById('delivery-city')?.value || '';
+    renderAll();
   }
 
   // ── Render all ─────────────────────────────────────────────────────
