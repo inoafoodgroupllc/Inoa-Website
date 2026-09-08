@@ -16,6 +16,7 @@
     { "source": "/privacy", "destination": "/privacy.html" },
     { "source": "/refund", "destination": "/refund.html" },
     { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/catering", "destination": "/catering.html" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "redirects": [

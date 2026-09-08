@@ -75,7 +75,8 @@ http.createServer(async (req, res) => {
   else if (url === '/menu'    || url === '/menu.html')    url = '/menu.html';
   else if (url === '/privacy' || url === '/privacy.html') url = '/privacy.html';
   else if (url === '/refund'  || url === '/refund.html')  url = '/refund.html';
-  else if (url === '/terms'   || url === '/terms.html')   url = '/terms.html';
+  else if (url === '/terms'      || url === '/terms.html')      url = '/terms.html';
+  else if (url === '/catering'  || url === '/catering.html')  url = '/catering.html';
 
   const filePath = path.join(__dirname, decodeURIComponent(url));
   const ext = path.extname(filePath).toLowerCase();
