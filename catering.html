@@ -874,10 +874,11 @@
   const D = window.CATERING_DATA;
 
   // ── Cart state ──────────────────────────────────────────────────────
-  let cart          = loadCart();
-  let activePicker  = null;
-  let currentStep   = 'cart'; // 'cart' | 'checkout'
-  let blackoutDates = [];
+  let cart              = loadCart();
+  let activePicker      = null;
+  let currentStep       = 'cart'; // 'cart' | 'checkout'
+  let blackoutDates     = [];
+  let blackoutLoadFailed = false;
 
   function loadCart() {
     try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
@@ -1133,6 +1134,7 @@
             min="${minDate}" required aria-required="true" aria-describedby="ct-date-warn"
             onchange="onDateChange(this.value)">
           <div class="ct-blackout-warn" id="ct-date-warn" hidden>That date is unavailable. Please choose another.</div>
+          ${blackoutLoadFailed ? `<div class="ct-blackout-warn" style="display:block">Couldn't load date availability — please text (925) 391-6589 to confirm your date is open before ordering.</div>` : ''}
         </div>
         <div class="ct-form-two">
           <div class="ct-form-group">
@@ -1339,11 +1341,20 @@
       const FB_KEY     = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
       const url = `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents/cateringConfig/blackouts?key=${FB_KEY}`;
       const res = await fetch(url);
-      if (!res.ok) return;
+      if (res.status === 404) return; // doc doesn't exist yet — no blackouts configured
+      if (!res.ok) {
+        console.error('[inoa catering] fetchBlackoutDates: Firestore returned', res.status, '— check Firestore security rules for cateringConfig');
+        blackoutLoadFailed = true;
+        renderAll(); // re-render checkout form to show the warning
+        return;
+      }
       const doc = await res.json();
       const arr = doc.fields?.dates?.arrayValue?.values || [];
       blackoutDates = arr.map(v => v.stringValue).filter(Boolean);
-    } catch { /* offline or doc missing — no blackouts */ }
+    } catch (err) {
+      console.error('[inoa catering] fetchBlackoutDates network error:', err.message);
+      // network failure — don't block the UI, but don't claim all dates are clear
+    }
   }
 
   function isBlackout(dateStr) {

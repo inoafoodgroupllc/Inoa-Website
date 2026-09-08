@@ -246,7 +246,8 @@ export default async function handler(req, res) {
       }
     }
   } catch (err) {
-    console.warn('[inoa catering] Could not fetch blackouts:', err.message);
+    console.error('[inoa catering] Blackout check failed — refusing order:', err.message);
+    return res.status(503).json({ error: 'Could not verify date availability. Please try again in a moment.' });
   }
 
   // ── 3. Price validation + cart counts ────────────────────────────────────
