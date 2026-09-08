@@ -67,6 +67,70 @@ async function markSlotPaid(slotDocId, paymentId) {
   }
 }
 
+async function markCateringOrderPaid(referenceId, paymentId, squareOrderId) {
+  const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/cateringOrders/${encodeURIComponent(referenceId)}`
+    + `?key=${FIREBASE_API_KEY}`
+    + `&updateMask.fieldPaths=status&updateMask.fieldPaths=paidAt&updateMask.fieldPaths=squarePaymentId&updateMask.fieldPaths=squareOrderId`;
+
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      fields: {
+        status:          { stringValue: 'paid' },
+        paidAt:          { timestampValue: new Date().toISOString() },
+        squarePaymentId: { stringValue: paymentId },
+        squareOrderId:   { stringValue: squareOrderId },
+      },
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('[inoa catering] Firestore update failed:', err);
+  } else {
+    console.log('[inoa catering] Firestore catering order marked paid:', referenceId);
+  }
+}
+
+async function sendCateringConfirmation(order, payment) {
+  const formspreeId = process.env.FORMSPREE_CATERING_ORDER_ID || 'maeyllwj';
+  const meta = order.metadata || {};
+
+  const lineItems = (order.line_items || [])
+    .map(li => `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
+    .join('\n');
+
+  const totalCents = Number(order.total_money?.amount || payment.total_money?.amount || 0);
+
+  const payload = {
+    _subject:          `✅ Paid inoa Catering Order — ${meta.customer_email}`,
+    customer_name:     meta.customer_name || meta.customer_email,
+    customer_phone:    meta.customer_phone || '',
+    customer_email:    meta.customer_email || '',
+    event_date:        meta.event_date || '',
+    fulfillment_type:  meta.fulfillment_type || '',
+    delivery_city:     meta.delivery_city || '',
+    order_items:       lineItems,
+    order_total:       `$${(totalCents / 100).toFixed(2)}`,
+    reference_id:      order.reference_id,
+    square_order_id:   order.id,
+    square_payment_id: payment.id,
+  };
+
+  console.log('[inoa catering] Sending confirmation to Formspree:', formspreeId, '| ref:', order.reference_id);
+  const fsRes = await fetch(`https://formspree.io/f/${formspreeId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const fsBody = await fsRes.json().catch(() => ({}));
+  if (!fsRes.ok) {
+    console.error('[inoa catering] Formspree error:', fsRes.status, JSON.stringify(fsBody));
+  } else {
+    console.log('[inoa catering] Formspree confirmation sent OK:', JSON.stringify(fsBody));
+  }
+}
+
 async function sendOrderConfirmation(order, payment) {
   const formspreeId = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
   const meta = order.metadata || {};
@@ -153,10 +217,13 @@ export default async function handler(req, res) {
         const order = await fetchSquareOrder(orderId);
         console.log('[inoa] Order fetched:', order.id, '| reference_id:', order.reference_id);
         const slotDocId = order.reference_id;
-        if (slotDocId) {
-          await markSlotPaid(slotDocId, payment.id);
+        if (slotDocId?.startsWith('catering_')) {
+          await markCateringOrderPaid(slotDocId, payment.id, order.id);
+          await sendCateringConfirmation(order, payment);
+        } else {
+          if (slotDocId) await markSlotPaid(slotDocId, payment.id);
+          await sendOrderConfirmation(order, payment);
         }
-        await sendOrderConfirmation(order, payment);
       } catch (err) {
         console.error('[inoa] webhook handler error:', err.message);
       }

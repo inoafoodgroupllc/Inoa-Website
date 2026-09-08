@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>inoa catering — poke &amp; sushi for events in Santa Cruz County</title>
-  <meta name="description" content="Hawaiian-inspired poke catering for corporate events, office lunches, and gatherings in Scotts Valley, Santa Cruz, and the South Bay. Packages from $19 per person.">
+  <meta name="description" content="Hawaiian-inspired poke catering for corporate events and gatherings in Scotts Valley, Santa Cruz, and the South Bay. Order online. Three days' notice.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
@@ -14,7 +14,7 @@
 
   <!-- Open Graph -->
   <meta property="og:title" content="inoa catering — poke &amp; sushi for events in Santa Cruz County">
-  <meta property="og:description" content="Hawaiian-inspired poke catering for corporate events and gatherings. Scotts Valley, Santa Cruz, and the South Bay. Packages from $19 per person.">
+  <meta property="og:description" content="Hawaiian-inspired poke catering for corporate events, office lunches, and gatherings. Order online in a few minutes. Santa Cruz County and the South Bay.">
   <meta property="og:image" content="https://inoa.kitchen/og-image.png">
   <meta property="og:url" content="https://inoa.kitchen/catering">
   <meta property="og:type" content="website">
@@ -38,6 +38,12 @@
       "postalCode": "95066",
       "addressCountry": "US"
     },
+    "areaServed": [
+      "Santa Cruz County, CA",
+      "Los Gatos, CA",
+      "San Jose, CA",
+      "Santa Clara, CA"
+    ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
       "name": "Catering Services",
@@ -45,863 +51,1426 @@
         "@type": "Offer",
         "itemOffered": {
           "@type": "Service",
-          "name": "Poke Catering",
-          "description": "Hawaiian-inspired poke and sushi catering for corporate events, office lunches, and private gatherings."
+          "name": "Hawaiian Poke Catering",
+          "description": "Individually packaged boxes and à la carte trays for corporate events, office lunches, and private gatherings."
         }
       }]
-    },
-    "areaServed": [
-      {"@type": "City", "name": "Scotts Valley"},
-      {"@type": "City", "name": "Santa Cruz"},
-      {"@type": "City", "name": "Capitola"},
-      {"@type": "City", "name": "Aptos"},
-      {"@type": "City", "name": "Los Gatos"},
-      {"@type": "City", "name": "San Jose"},
-      {"@type": "City", "name": "Santa Clara"}
-    ]
+    }
   }
   </script>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            ink: '#1a1a1a', cream: '#f5f0e8', sand: '#e8e0d0',
-            driftwood: '#8b7355', ogo: '#4a7c6f',
-          },
-          fontFamily: {
-            serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-            sans:  ['"DM Sans"', 'system-ui', 'sans-serif'],
-          },
-        }
-      }
-    }
-  </script>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --ink: #1a1a1a; --cream: #f5f0e8; --sand: #e8e0d0;
-      --driftwood: #8b7355; --ogo: #4a7c6f; --err: #b87a5a; --white: #ffffff;
-    }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--cream); color: var(--ink); -webkit-font-smoothing: antialiased; }
 
-    /* ── NAV (exact from index.html) ── */
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8e0d0;
+      --driftwood: #8b7355;
+      --ogo:       #4a7c6f;
+      --err:       #b87a5a;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; }
+
+    /* Utility */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    /* ── Nav ── */
     .nav {
-      position: fixed; inset: 0 0 auto 0; z-index: 100;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 32px 64px;
-      transition: background 0.5s ease, padding 0.5s ease, box-shadow 0.5s ease;
+      padding: 18px 40px;
+      background: transparent;
+      transition: background 0.3s, border-color 0.3s;
+      border-bottom: 1px solid transparent;
     }
     .nav.scrolled {
-      background: rgba(245,240,232,0.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      padding: 18px 64px; box-shadow: 0 1px 0 rgba(26,26,26,0.07);
+      background: var(--cream);
+      border-bottom: 1px solid rgba(26,26,26,0.08);
     }
-    .nav-logo { height: 28px; width: auto; display: block; filter: invert(1); transition: filter 0.4s ease; }
-    .nav.scrolled .nav-logo { filter: none; }
-    .nav-links { display: flex; align-items: center; gap: 48px; list-style: none; }
+    .nav-logo { height: 26px; }
+    .nav-links { display: flex; gap: 32px; list-style: none; padding: 0; margin: 0; }
     .nav-links a {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 400;
-      letter-spacing: 0.18em; text-transform: uppercase; color: rgba(245,240,232,0.7);
-      text-decoration: none; transition: color 0.3s ease;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; text-decoration: none; color: var(--ink); opacity: 0.6;
+      transition: opacity 0.2s;
     }
-    .nav-links a:hover { color: var(--cream); }
-    .nav-links a:focus-visible { outline: 2px solid var(--ogo); outline-offset: 4px; border-radius: 2px; }
-    .nav.scrolled .nav-links a { color: rgba(26,26,26,0.55); }
-    .nav.scrolled .nav-links a:hover { color: var(--ink); }
-    .nav.scrolled .nav-links a[aria-current="page"] { color: var(--ink); opacity: 1; }
+    .nav-links a:hover,
+    .nav-links a[aria-current="page"] { opacity: 1; }
+    .nav-links a:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; border-radius: 2px; }
     .btn-nav {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--ink); background: rgba(245,240,232,0.9);
-      padding: 11px 24px; text-decoration: none; display: inline-block;
-      transition: background 0.25s ease, transform 0.15s ease;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; text-decoration: none;
+      background: var(--ink); color: var(--cream);
+      padding: 9px 18px; border-radius: 2px;
+      transition: opacity 0.2s;
     }
-    .btn-nav:hover { background: var(--cream); }
-    .btn-nav:active { transform: scale(0.98); }
-    .btn-nav:focus-visible { outline: 2px solid var(--ogo); outline-offset: 4px; }
-    .nav.scrolled .btn-nav { background: var(--ink); color: var(--cream); }
-    .nav.scrolled .btn-nav:hover { background: var(--driftwood); }
+    .btn-nav:hover { opacity: 0.8; }
+    .btn-nav:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
 
-    /* ── HERO ── */
-    .ct-hero { background: linear-gradient(150deg, var(--sand) 0%, var(--cream) 65%); padding: 160px 64px 96px; }
-    .ct-hero-inner { max-width: 1100px; margin: 0 auto; }
+    /* ── Footer ── */
+    .footer {
+      background: var(--ink); color: var(--cream);
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;
+      padding: 40px; gap: 24px;
+    }
+    .footer-logo { height: 22px; filter: invert(1); opacity: 0.8; }
+    .footer-links { display: flex; gap: 28px; list-style: none; padding: 0; margin: 0; }
+    .footer-links a {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--cream); opacity: 0.6; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .footer-links a:hover { opacity: 1; }
+    .footer-copy { font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.08em; color: var(--cream); opacity: 0.4; }
+    .legal-footer {
+      background: var(--ink); border-top: 1px solid rgba(255,255,255,0.08);
+      padding: 16px 40px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .legal-footer-links { display: flex; gap: 24px; }
+    .legal-footer-links a {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--cream); opacity: 0.35; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .legal-footer-links a:hover { opacity: 0.7; }
+    .legal-footer-copy { font-family: 'DM Sans', sans-serif; font-size: 10px; color: var(--cream); opacity: 0.25; }
+
+    /* ── Hero ── */
+    .ct-hero {
+      padding: 140px 40px 88px;
+      background: linear-gradient(160deg, var(--cream) 60%, var(--sand) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .ct-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse at 80% 20%, rgba(74,124,111,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 80%, rgba(139,115,85,0.05) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .ct-hero-inner { max-width: 720px; position: relative; }
     .ct-eyebrow {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 400;
-      letter-spacing: 0.22em; text-transform: uppercase; color: var(--driftwood); margin-bottom: 20px;
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--ogo); margin-bottom: 20px;
+      display: block;
     }
     .ct-hero h1 {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(56px, 9vw, 96px); font-weight: 300;
-      letter-spacing: -0.03em; line-height: 0.95; color: var(--ink); margin-bottom: 28px;
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(52px, 8vw, 88px); line-height: 1; letter-spacing: -0.03em;
+      color: var(--ink); margin-bottom: 20px;
     }
     .ct-hero-sub {
-      font-family: 'DM Sans', sans-serif; font-size: 16px; font-weight: 300;
-      line-height: 1.7; color: var(--ink); opacity: 0.7; max-width: 520px; margin-bottom: 10px;
+      font-size: 17px; line-height: 1.65; color: var(--ink); opacity: 0.72;
+      max-width: 480px; margin-bottom: 10px;
     }
-    .ct-hero-meta {
-      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 400;
-      letter-spacing: 0.05em; color: var(--driftwood); margin-bottom: 40px;
+    .ct-hero-support {
+      font-size: 13px; color: var(--ink); opacity: 0.5; letter-spacing: 0.01em;
+      max-width: 440px; margin-bottom: 36px;
     }
-    .ct-btn-cta {
-      display: inline-block; padding: 16px 36px;
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--cream); background: var(--ink); text-decoration: none;
-      transition: background 0.25s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    .ct-hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .ct-btn-primary {
+      display: inline-flex; align-items: center;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; text-decoration: none;
+      background: var(--ink); color: var(--cream);
+      padding: 12px 24px; border-radius: 2px;
+      transition: opacity 0.2s, transform 0.15s;
     }
-    .ct-btn-cta:hover { background: var(--driftwood); transform: scale(1.02); }
-    .ct-btn-cta:active { transform: scale(0.98); }
-    .ct-btn-cta:focus-visible { outline: 2px solid var(--ogo); outline-offset: 4px; }
+    .ct-btn-primary:hover { opacity: 0.82; }
+    .ct-btn-primary:active { transform: scale(0.98); }
+    .ct-btn-primary:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
+    .ct-btn-ghost {
+      display: inline-flex; align-items: center;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; text-decoration: none;
+      border: 1px solid rgba(26,26,26,0.2); color: var(--ink);
+      padding: 12px 24px; border-radius: 2px;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .ct-btn-ghost:hover { background: var(--sand); border-color: var(--sand); }
+    .ct-btn-ghost:active { transform: scale(0.98); }
+    .ct-btn-ghost:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
 
-    /* ── SECTION SHELL ── */
-    .ct-section { padding: 80px 64px; }
+    /* ── Info sections ── */
+    .ct-section { padding: 72px 40px; }
     .ct-section.alt { background: var(--sand); }
     .ct-inner { max-width: 1100px; margin: 0 auto; }
     .ct-section-label {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 400;
-      letter-spacing: 0.22em; text-transform: uppercase; color: var(--driftwood); margin-bottom: 10px;
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--ogo); margin-bottom: 12px; display: block;
     }
     .ct-section-heading {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: clamp(30px, 4vw, 46px); font-weight: 300;
-      letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); margin-bottom: 40px;
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: clamp(28px, 4vw, 42px); letter-spacing: -0.02em; color: var(--ink);
+      margin-bottom: 40px; line-height: 1.15;
     }
 
-    /* ── FORMAT CARDS ── */
-    .ct-formats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    /* Formats */
+    .ct-formats { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
     .ct-format-card {
-      background: var(--white); border: 1px solid rgba(26,26,26,0.08);
-      padding: 32px; display: flex; flex-direction: column; gap: 14px;
+      background: var(--cream); border: 1px solid rgba(26,26,26,0.08);
+      border-radius: 3px; padding: 32px;
     }
+    .ct-section.alt .ct-format-card { background: var(--cream); }
     .ct-format-name {
-      font-family: 'Cormorant Garamond', Georgia, serif;
-      font-size: 22px; font-weight: 400; letter-spacing: -0.01em; color: var(--ink);
+      font-family: 'Cormorant Garamond', serif; font-weight: 400;
+      font-size: 22px; color: var(--ink); margin-bottom: 12px;
     }
-    .ct-format-desc {
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300;
-      line-height: 1.7; color: var(--ink); opacity: 0.62; flex: 1;
-    }
-    .ct-format-footer {
-      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 400;
-      letter-spacing: 0.04em; color: var(--driftwood);
-      border-top: 1px solid rgba(26,26,26,0.08); padding-top: 14px; line-height: 1.6;
-    }
+    .ct-format-desc { font-size: 14px; line-height: 1.75; color: var(--ink); opacity: 0.65; margin-bottom: 20px; }
+    .ct-format-footer { font-size: 11px; letter-spacing: 0.06em; color: var(--driftwood); opacity: 0.8; }
 
-    /* ── FLAVORS TABLE ── */
+    /* Prefill */
+    .ct-prefill-note { font-size: 14px; line-height: 1.7; color: var(--ink); opacity: 0.6; margin-bottom: 24px; max-width: 520px; }
+    .ct-prefill-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .ct-prefill-btn {
+      font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 0.08em;
+      padding: 10px 20px; border: 1px solid rgba(26,26,26,0.2); border-radius: 2px;
+      background: transparent; color: var(--ink); cursor: pointer;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+    .ct-prefill-btn:hover { background: var(--sand); border-color: var(--sand); }
+    .ct-prefill-btn:active { transform: scale(0.98); }
+    .ct-prefill-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
+
+    /* Flavor table */
     .ct-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .ct-table { width: 100%; min-width: 560px; border-collapse: collapse; }
+    .ct-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+      min-width: 560px;
+    }
     .ct-table th {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); opacity: 0.38;
-      text-align: left; padding: 0 24px 14px 0; border-bottom: 1px solid rgba(26,26,26,0.1);
-    }
-    .ct-table th:last-child { text-align: right; padding-right: 0; }
-    .ct-table td {
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300;
-      color: var(--ink); padding: 14px 24px 14px 0;
-      border-bottom: 1px solid rgba(26,26,26,0.06); vertical-align: top; line-height: 1.55;
-    }
-    .ct-table td:first-child { font-weight: 400; white-space: nowrap; }
-    .ct-table td:nth-child(2) { opacity: 0.6; }
-    .ct-table td:last-child { text-align: right; white-space: nowrap; padding-right: 0; }
-    .ct-badge {
-      display: inline-flex; align-items: center;
-      padding: 2px 7px; border-radius: 2px;
-      font-family: 'DM Sans', sans-serif; font-size: 9px; font-weight: 500;
-      letter-spacing: 0.1em; text-transform: uppercase; margin-left: 4px;
-    }
-    .ct-badge:first-child { margin-left: 0; }
-    .ct-badge.gf { background: rgba(74,124,111,0.12); color: var(--ogo); }
-    .ct-badge.cooked { background: rgba(139,115,85,0.14); color: var(--driftwood); }
-    .ct-table-note {
-      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300;
-      color: var(--ink); opacity: 0.5; margin-top: 18px; line-height: 1.65;
-    }
-
-    /* ── DIETARY ── */
-    .ct-dietary-list { list-style: none; }
-    .ct-dietary-item {
-      display: flex; gap: 20px; padding: 14px 0;
-      border-bottom: 1px solid rgba(26,26,26,0.07); align-items: baseline;
-    }
-    .ct-dietary-list li:first-child { border-top: 1px solid rgba(26,26,26,0.07); }
-    .ct-dietary-tag {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--driftwood); min-width: 130px; flex-shrink: 0;
-    }
-    .ct-dietary-desc {
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300;
-      color: var(--ink); opacity: 0.65; line-height: 1.6;
-    }
-    .ct-dietary-note {
-      font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 300;
-      color: var(--ink); opacity: 0.45; margin-top: 20px; line-height: 1.6;
-    }
-
-    /* ── HOW IT WORKS ── */
-    .ct-steps { list-style: none; max-width: 620px; }
-    .ct-step {
-      display: flex; gap: 24px; padding: 18px 0;
-      border-bottom: 1px solid rgba(26,26,26,0.07); align-items: baseline;
-    }
-    .ct-steps li:first-child { border-top: 1px solid rgba(26,26,26,0.07); }
-    .ct-step-num {
-      font-family: 'Cormorant Garamond', Georgia, serif; font-size: 18px; font-weight: 300;
-      color: var(--driftwood); opacity: 0.7; min-width: 24px; flex-shrink: 0;
-    }
-    .ct-step-text {
-      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
-      color: var(--ink); line-height: 1.65; opacity: 0.8;
-    }
-
-    /* ── GOOD TO KNOW ── */
-    .ct-know-list { max-width: 720px; }
-    .ct-know-item {
-      display: grid; grid-template-columns: 150px 1fr; gap: 16px;
-      padding: 16px 0; border-bottom: 1px solid rgba(26,26,26,0.07); align-items: baseline;
-    }
-    .ct-know-list > div:first-child { border-top: 1px solid rgba(26,26,26,0.07); }
-    .ct-know-term {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.42;
-    }
-    .ct-know-desc {
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300;
-      color: var(--ink); opacity: 0.72; line-height: 1.65;
-    }
-
-    /* ── FORM ── */
-    .ct-form-wrap { max-width: 660px; }
-    .ct-form { display: flex; flex-direction: column; gap: 22px; }
-    .ct-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .ct-field { display: flex; flex-direction: column; gap: 6px; }
-    .ct-label {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); opacity: 0.52;
-    }
-    .ct-label-opt { font-weight: 300; opacity: 0.6; margin-left: 3px; }
-    .ct-input, .ct-textarea {
-      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
-      color: var(--ink); background: var(--white); border: 1px solid rgba(26,26,26,0.14);
-      padding: 11px 14px; outline: none; width: 100%;
-      transition: border-color 0.2s ease; border-radius: 0; -webkit-appearance: none;
-    }
-    .ct-input:focus, .ct-textarea:focus { border-color: var(--ink); }
-    .ct-input:focus-visible, .ct-textarea:focus-visible { outline: 2px solid var(--ogo); outline-offset: 2px; }
-    .ct-input.err, .ct-textarea.err { border-color: var(--err); }
-    .ct-form-err { font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--err); min-height: 16px; }
-    .ct-textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
-
-    /* Custom checkboxes / radios */
-    .ct-check-group { display: flex; flex-direction: column; gap: 10px; }
-    .ct-check-label {
-      display: flex; align-items: center; gap: 10px; cursor: pointer;
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300; color: var(--ink); line-height: 1.4;
-    }
-    .ct-check-label input[type="checkbox"],
-    .ct-check-label input[type="radio"] {
-      width: 16px; height: 16px; flex-shrink: 0;
-      border: 1px solid rgba(26,26,26,0.28); border-radius: 0;
-      appearance: none; -webkit-appearance: none;
-      background: var(--white); cursor: pointer;
-      transition: background 0.15s ease, border-color 0.15s ease; position: relative;
-    }
-    .ct-check-label input[type="radio"] { border-radius: 50%; }
-    .ct-check-label input[type="checkbox"]:checked { background: var(--ink); border-color: var(--ink); }
-    .ct-check-label input[type="checkbox"]:checked::after {
-      content: ''; position: absolute; left: 3px; top: 1px;
-      width: 8px; height: 5px;
-      border-left: 1.5px solid var(--cream); border-bottom: 1.5px solid var(--cream);
-      transform: rotate(-45deg);
-    }
-    .ct-check-label input[type="radio"]:checked { background: var(--ink); border-color: var(--ink); box-shadow: inset 0 0 0 3px var(--white); }
-    .ct-check-label input:focus-visible { outline: 2px solid var(--ogo); outline-offset: 2px; }
-
-    /* Short notice note */
-    .ct-short-notice {
-      font-family: 'DM Sans', sans-serif; font-size: 11px; font-style: italic;
-      color: var(--driftwood); margin-top: 4px;
-    }
-
-    /* Delivery city toggle */
-    .ct-city-wrap { display: none; flex-direction: column; gap: 6px; }
-    .ct-city-wrap.visible { display: flex; }
-
-    /* Submit button */
-    .ct-submit {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 16px 36px; align-self: flex-start;
-      font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 500;
-      letter-spacing: 0.18em; text-transform: uppercase;
-      color: var(--cream); background: var(--ink); border: none; cursor: pointer;
-      transition: background 0.25s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
-    }
-    .ct-submit:hover:not(:disabled) { background: var(--driftwood); transform: scale(1.02); }
-    .ct-submit:active:not(:disabled) { transform: scale(0.98); }
-    .ct-submit:focus-visible { outline: 2px solid var(--ogo); outline-offset: 4px; }
-    .ct-submit:disabled { opacity: 0.38; cursor: not-allowed; }
-    .ct-spinner {
-      width: 12px; height: 12px;
-      border: 1.5px solid rgba(245,240,232,0.35); border-top-color: var(--cream);
-      border-radius: 50%; animation: ct-spin 0.7s linear infinite;
-    }
-    @keyframes ct-spin { to { transform: rotate(360deg); } }
-
-    /* Success / Error */
-    .ct-success, .ct-form-error { display: none; }
-    .ct-success.visible, .ct-form-error.visible { display: block; }
-    .ct-success { padding: 40px 0; }
-    .ct-success-check {
-      width: 40px; height: 40px; border-radius: 50%; background: var(--ogo);
-      display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
-    }
-    .ct-success h3 {
-      font-family: 'Cormorant Garamond', Georgia, serif; font-size: 30px;
-      font-weight: 300; color: var(--ink); margin-bottom: 8px;
-    }
-    .ct-success p {
-      font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 300;
-      color: var(--ink); opacity: 0.65; line-height: 1.7;
-    }
-    .ct-form-error {
-      padding: 16px 20px; background: rgba(184,122,90,0.08); border-left: 2px solid var(--err);
-      font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 300;
-      color: var(--ink); line-height: 1.6; margin-bottom: 16px;
-    }
-    .ct-form-error a { color: var(--err); }
-
-    /* ── FOOTER (exact from index.html) ── */
-    .footer {
-      background: var(--ink); border-top: 1px solid rgba(245,240,232,0.07);
-      padding: 44px 80px; display: flex; align-items: center; justify-content: space-between;
-    }
-    .footer-logo { height: 22px; width: auto; filter: invert(1); opacity: 0.5; }
-    .footer-links { display: flex; gap: 36px; list-style: none; }
-    .footer-links a {
       font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.16em;
-      text-transform: uppercase; color: var(--cream); text-decoration: none;
-      opacity: 0.35; transition: opacity 0.2s ease;
+      text-transform: uppercase; color: var(--ink); opacity: 0.45;
+      text-align: left; padding: 0 16px 14px 0; border-bottom: 1px solid rgba(26,26,26,0.1);
+      white-space: nowrap;
     }
-    .footer-links a:hover { opacity: 0.75; }
-    .footer-links a:focus-visible { outline: 2px solid var(--ogo); outline-offset: 4px; border-radius: 2px; }
-    .footer-copy { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em; color: var(--cream); opacity: 0.2; }
-    .legal-footer {
-      background: var(--ink); border-top: 1px solid rgba(245,240,232,0.05);
-      padding: 18px 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    .ct-table td {
+      padding: 12px 16px 12px 0; border-bottom: 1px solid rgba(26,26,26,0.06);
+      color: var(--ink); vertical-align: top; line-height: 1.55;
     }
-    .legal-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
-    .legal-footer-links a {
-      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--cream); text-decoration: none;
-      opacity: 0.28; transition: opacity 0.2s ease;
+    .ct-table td:first-child { font-weight: 500; white-space: nowrap; }
+    .ct-table td:nth-child(2) { opacity: 0.6; font-size: 12.5px; }
+    .ct-table td:last-child { white-space: nowrap; }
+    .ct-badge {
+      display: inline-block; font-size: 9px; letter-spacing: 0.12em;
+      text-transform: uppercase; font-weight: 500; padding: 2px 6px;
+      border-radius: 2px; margin-right: 4px;
     }
-    .legal-footer-links a:hover { opacity: 0.6; }
-    .legal-footer-copy { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.08em; color: var(--cream); opacity: 0.16; white-space: nowrap; }
+    .ct-badge.gf { background: rgba(74,124,111,0.12); color: var(--ogo); }
+    .ct-badge.cooked { background: rgba(139,115,85,0.12); color: var(--driftwood); }
 
-    /* ── RESPONSIVE ── */
+    /* Dietary */
+    .ct-dietary-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+    .ct-dietary-item {
+      display: flex; align-items: baseline; gap: 12px;
+      padding: 16px 0; border-bottom: 1px solid rgba(26,26,26,0.07);
+    }
+    .ct-dietary-item:nth-last-child(-n+2) { border-bottom: none; }
+    .ct-dietary-tag {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--ogo); min-width: 100px; flex-shrink: 0;
+    }
+    .ct-dietary-desc { font-size: 13px; line-height: 1.65; color: var(--ink); opacity: 0.65; }
+
+    /* Good to know */
+    .ct-know-list { list-style: none; max-width: 760px; }
+    .ct-know-item {
+      display: grid; grid-template-columns: 160px 1fr;
+      gap: 16px; padding: 14px 0; border-bottom: 1px solid rgba(26,26,26,0.07);
+    }
+    .ct-know-item:last-child { border-bottom: none; }
+    .ct-know-label {
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--ink); opacity: 0.45; padding-top: 2px;
+    }
+    .ct-know-val { font-size: 13.5px; line-height: 1.7; color: var(--ink); opacity: 0.75; }
+
+    /* ── Ordering section ── */
+    .ct-order-section {
+      padding: 64px 0 96px;
+      background: var(--cream);
+      border-top: 1px solid rgba(26,26,26,0.07);
+    }
+    .ct-order-header {
+      max-width: 1200px; margin: 0 auto; padding: 0 40px 40px;
+    }
+    .ct-order-layout {
+      max-width: 1200px; margin: 0 auto; padding: 0 40px;
+      display: grid; grid-template-columns: 1fr 340px; gap: 48px; align-items: start;
+    }
+
+    /* Menu column */
+    .ct-menu-col { min-width: 0; }
+    .ct-menu-section { margin-bottom: 48px; }
+    .ct-menu-section-header { margin-bottom: 4px; }
+    .ct-menu-section-title {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300;
+      font-size: 26px; color: var(--ink); letter-spacing: -0.01em;
+    }
+    .ct-menu-section-note { font-size: 12px; color: var(--ink); opacity: 0.45; margin-bottom: 16px; padding-top: 4px; }
+    .ct-item-list { list-style: none; border-top: 1px solid rgba(26,26,26,0.08); }
+    .ct-item-card {
+      border-bottom: 1px solid rgba(26,26,26,0.08);
+      padding: 14px 0;
+    }
+    .ct-item-row {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    }
+    .ct-item-info { flex: 1; min-width: 0; }
+    .ct-item-name {
+      font-size: 14px; color: var(--ink); line-height: 1.4;
+      display: block; margin-bottom: 2px;
+    }
+    .ct-item-note { font-size: 11.5px; color: var(--ink); opacity: 0.45; }
+    .ct-item-price {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink);
+      opacity: 0.7; white-space: nowrap; flex-shrink: 0;
+    }
+    .ct-add-btn {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase; padding: 6px 14px; border-radius: 2px;
+      border: 1px solid rgba(26,26,26,0.22); background: transparent;
+      color: var(--ink); cursor: pointer; flex-shrink: 0;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+    }
+    .ct-add-btn:hover { background: var(--sand); border-color: rgba(26,26,26,0.3); }
+    .ct-add-btn:active { transform: scale(0.97); }
+    .ct-add-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
+
+    /* Flavor picker (inline expand) */
+    .ct-picker {
+      margin-top: 12px; padding: 14px; background: rgba(26,26,26,0.03);
+      border-radius: 3px; border: 1px solid rgba(26,26,26,0.08);
+    }
+    .ct-picker-selects { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+    .ct-picker-select-wrap { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+    .ct-picker label { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.5; }
+    .ct-picker select {
+      font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--ink);
+      background: var(--cream); border: 1px solid rgba(26,26,26,0.2);
+      padding: 7px 10px; border-radius: 2px; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(26,26,26,0.35)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      padding-right: 28px; cursor: pointer;
+    }
+    .ct-picker select:focus { outline: 2px solid var(--ogo); outline-offset: 2px; }
+    .ct-picker-actions { display: flex; gap: 8px; align-items: center; }
+    .ct-picker-confirm {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 7px 16px; border-radius: 2px;
+      background: var(--ink); color: var(--cream); border: none; cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .ct-picker-confirm:hover { opacity: 0.8; }
+    .ct-picker-confirm:active { transform: scale(0.98); }
+    .ct-picker-confirm:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
+    .ct-picker-cancel {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 7px 12px; border-radius: 2px;
+      background: transparent; color: var(--ink); border: none; cursor: pointer;
+      opacity: 0.45; transition: opacity 0.15s;
+    }
+    .ct-picker-cancel:hover { opacity: 0.8; }
+
+    /* ── Cart sidebar ── */
+    .ct-cart-col {
+      position: sticky; top: 76px;
+      max-height: calc(100vh - 100px); overflow-y: auto;
+    }
+    .ct-cart-panel {
+      background: white; border: 1px solid rgba(26,26,26,0.1);
+      border-radius: 3px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.06);
+    }
+    .ct-cart-empty {
+      padding: 40px 24px; text-align: center;
+    }
+    .ct-cart-empty-icon { font-size: 28px; margin-bottom: 12px; opacity: 0.35; }
+    .ct-cart-empty p:first-of-type { font-size: 14px; color: var(--ink); opacity: 0.7; margin-bottom: 4px; }
+    .ct-cart-empty p:last-of-type { font-size: 12px; color: var(--ink); opacity: 0.4; }
+
+    .ct-cart-body { padding: 0 20px 20px; }
+    .ct-cart-top {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 14px; border-bottom: 1px solid rgba(26,26,26,0.08);
+    }
+    .ct-cart-heading { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.6; }
+    .ct-cart-clear-btn {
+      font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em;
+      text-transform: uppercase; opacity: 0.35; background: none; border: none;
+      cursor: pointer; transition: opacity 0.15s; padding: 0;
+    }
+    .ct-cart-clear-btn:hover { opacity: 0.7; }
+
+    /* Box minimum banner */
+    .ct-box-min-banner {
+      margin: 12px 20px 0; padding: 10px 12px; font-size: 12px;
+      background: rgba(184,122,90,0.1); border: 1px solid rgba(184,122,90,0.2);
+      border-radius: 2px; color: var(--err); line-height: 1.5;
+    }
+
+    /* Cart items */
+    .ct-cart-items { padding: 0 20px; }
+    .ct-cart-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 0; border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .ct-cart-item:last-child { border-bottom: none; }
+    .ct-cart-item-info { flex: 1; min-width: 0; }
+    .ct-cart-item-name { font-size: 13px; color: var(--ink); line-height: 1.35; margin-bottom: 2px; }
+    .ct-cart-item-flavor { font-size: 11px; color: var(--ink); opacity: 0.5; }
+    .ct-cart-item-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+    .ct-cart-item-price { font-size: 13px; color: var(--ink); }
+    .ct-qty-ctrl { display: flex; align-items: center; gap: 0; }
+    .ct-qty-btn {
+      width: 22px; height: 22px; border: 1px solid rgba(26,26,26,0.18);
+      background: transparent; cursor: pointer; font-size: 14px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink); transition: background 0.1s;
+    }
+    .ct-qty-btn:first-child { border-radius: 2px 0 0 2px; }
+    .ct-qty-btn:last-child { border-radius: 0 2px 2px 0; border-left: none; }
+    .ct-qty-btn:hover { background: var(--sand); }
+    .ct-qty-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 1px; }
+    .ct-qty-val {
+      width: 28px; height: 22px; border-top: 1px solid rgba(26,26,26,0.18);
+      border-bottom: 1px solid rgba(26,26,26,0.18);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--ink);
+    }
+    .ct-item-remove {
+      background: none; border: none; cursor: pointer; opacity: 0.25;
+      font-size: 16px; line-height: 1; transition: opacity 0.15s; padding: 2px;
+    }
+    .ct-item-remove:hover { opacity: 0.6; }
+    .ct-item-remove:focus-visible { outline: 2px solid var(--ogo); outline-offset: 2px; }
+
+    /* Cart fulfillment */
+    .ct-fulfillment { padding: 14px 20px 0; border-top: 1px solid rgba(26,26,26,0.08); margin-top: 4px; }
+    .ct-fulfillment-opts { display: flex; gap: 16px; margin-bottom: 10px; }
+    .ct-fulfillment-opts label {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12.5px; cursor: pointer; color: var(--ink);
+    }
+    .ct-fulfillment-opts input[type=radio] { accent-color: var(--ogo); }
+    .ct-city-wrap { margin-bottom: 4px; }
+    .ct-city-wrap label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; display: block; margin-bottom: 5px; }
+    .ct-city-select {
+      width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px;
+      border: 1px solid rgba(26,26,26,0.2); background: var(--cream);
+      padding: 8px 10px; border-radius: 2px; color: var(--ink); appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(26,26,26,0.35)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 10px center;
+      padding-right: 28px; cursor: pointer;
+    }
+    .ct-city-select:focus { outline: 2px solid var(--ogo); outline-offset: 2px; }
+
+    /* Cart summary */
+    .ct-summary { padding: 12px 20px 0; }
+    .ct-summary-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 12.5px; color: var(--ink); padding: 4px 0;
+    }
+    .ct-summary-row.total { font-weight: 500; font-size: 14px; padding-top: 8px; border-top: 1px solid rgba(26,26,26,0.1); margin-top: 4px; }
+    .ct-min-gap {
+      font-size: 11.5px; color: var(--err); line-height: 1.5; padding: 6px 0 0;
+    }
+
+    /* Checkout button */
+    .ct-cart-actions { padding: 14px 20px 20px; }
+    .ct-checkout-btn {
+      width: 100%; padding: 13px; border-radius: 2px; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; cursor: pointer;
+      background: var(--ink); color: var(--cream);
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .ct-checkout-btn:hover:not(:disabled) { opacity: 0.82; }
+    .ct-checkout-btn:active:not(:disabled) { transform: scale(0.99); }
+    .ct-checkout-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .ct-checkout-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
+    .ct-inquiry-link {
+      display: block; width: 100%; padding: 13px; border-radius: 2px;
+      font-family: 'DM Sans', sans-serif; font-size: 10.5px; letter-spacing: 0.08em;
+      text-transform: uppercase; text-align: center; text-decoration: none;
+      border: 1px solid rgba(26,26,26,0.2); color: var(--ink);
+      background: transparent;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .ct-inquiry-link:hover { background: var(--sand); border-color: var(--sand); }
+    .ct-inquiry-link:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
+    .ct-tax-note { font-size: 10px; color: var(--ink); opacity: 0.35; text-align: center; padding-top: 8px; }
+
+    /* ── Checkout form (cart step 2) ── */
+    .ct-checkout-form { padding: 0 20px 20px; }
+    .ct-checkout-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+      opacity: 0.45; background: none; border: none; cursor: pointer;
+      color: var(--ink); padding: 14px 20px; transition: opacity 0.15s;
+    }
+    .ct-checkout-back:hover { opacity: 0.8; }
+    .ct-checkout-summary {
+      background: rgba(26,26,26,0.03); border-radius: 2px;
+      padding: 12px 14px; margin: 0 20px 16px; font-size: 12px;
+      border: 1px solid rgba(26,26,26,0.07);
+    }
+    .ct-checkout-summary-row {
+      display: flex; justify-content: space-between; color: var(--ink);
+      padding: 2px 0; opacity: 0.7;
+    }
+    .ct-checkout-summary-row.strong { font-weight: 500; opacity: 1; }
+    .ct-form-group { margin-bottom: 14px; }
+    .ct-form-label {
+      display: block; font-size: 10px; letter-spacing: 0.12em;
+      text-transform: uppercase; opacity: 0.45; margin-bottom: 5px;
+    }
+    .ct-form-label span { opacity: 0.6; font-size: 9px; letter-spacing: 0.08em; }
+    .ct-form-input, .ct-form-textarea {
+      width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px;
+      color: var(--ink); background: var(--cream);
+      border: 1px solid rgba(26,26,26,0.2); border-radius: 2px;
+      padding: 8px 10px; transition: border-color 0.15s;
+    }
+    .ct-form-input:focus, .ct-form-textarea:focus {
+      outline: 2px solid var(--ogo); outline-offset: 2px; border-color: var(--ogo);
+    }
+    .ct-form-input.err { border-color: var(--err); }
+    .ct-form-textarea { resize: vertical; min-height: 72px; }
+    .ct-form-err { font-size: 10.5px; color: var(--err); margin-top: 4px; display: block; }
+    .ct-form-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ct-blackout-warn {
+      font-size: 11px; color: var(--err); background: rgba(184,122,90,0.08);
+      border: 1px solid rgba(184,122,90,0.2); border-radius: 2px;
+      padding: 8px 10px; margin-top: 6px; line-height: 1.5;
+    }
+    .ct-checkout-err {
+      font-size: 12px; color: var(--err); background: rgba(184,122,90,0.08);
+      border: 1px solid rgba(184,122,90,0.2); border-radius: 2px;
+      padding: 10px 12px; margin-bottom: 12px; line-height: 1.5;
+    }
+    .ct-place-btn {
+      width: 100%; padding: 13px; border-radius: 2px; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; cursor: pointer;
+      background: var(--ogo); color: white;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .ct-place-btn:hover:not(:disabled) { opacity: 0.88; }
+    .ct-place-btn:active:not(:disabled) { transform: scale(0.99); }
+    .ct-place-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .ct-place-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+    /* ── Mobile cart bar ── */
+    .ct-mobile-bar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: var(--ink); color: var(--cream);
+      padding: 14px 20px; align-items: center; justify-content: space-between;
+      cursor: pointer; border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .ct-mobile-bar-left { font-size: 12px; opacity: 0.75; }
+    .ct-mobile-bar-right { display: flex; align-items: center; gap: 10px; }
+    .ct-mobile-bar-total { font-size: 15px; font-weight: 500; }
+    .ct-mobile-bar-caret { opacity: 0.6; font-size: 12px; }
+    .ct-mobile-bar.has-items { display: flex; }
+
+    /* ── Mobile cart drawer ── */
+    .ct-drawer-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200;
+    }
+    .ct-drawer-overlay.open { display: block; }
+    .ct-mobile-drawer {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 201;
+      height: 85vh; background: var(--cream);
+      border-radius: 12px 12px 0 0;
+      transform: translateY(100%);
+      transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .ct-mobile-drawer.open { transform: translateY(0); }
+    .ct-drawer-handle { width: 36px; height: 4px; background: rgba(26,26,26,0.18); border-radius: 2px; margin: 12px auto 8px; flex-shrink: 0; }
+    .ct-drawer-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 20px 14px; border-bottom: 1px solid rgba(26,26,26,0.08); flex-shrink: 0;
+    }
+    .ct-drawer-title { font-size: 14px; letter-spacing: 0.08em; opacity: 0.7; }
+    .ct-drawer-close {
+      background: none; border: none; font-size: 20px; cursor: pointer; opacity: 0.4;
+      line-height: 1; padding: 4px; transition: opacity 0.15s;
+    }
+    .ct-drawer-close:hover { opacity: 0.8; }
+    .ct-drawer-content { flex: 1; overflow-y: auto; padding: 8px 0 env(safe-area-inset-bottom); }
+
+    /* ── Media queries ── */
+    @media (max-width: 960px) {
+      .ct-order-layout { grid-template-columns: 1fr; }
+      .ct-cart-col { display: none; }
+    }
+    @media (max-width: 960px) and (min-width: 1px) {
+      body.has-cart-items { padding-bottom: 68px; }
+    }
     @media (max-width: 768px) {
-      .nav.scrolled { padding: 14px 24px; }
+      .nav { padding: 14px 20px; }
       .nav-links { display: none; }
-      .ct-hero { padding: 120px 24px 64px; }
-      .ct-section { padding: 56px 24px; }
-      .ct-formats { grid-template-columns: 1fr; gap: 16px; }
-      .ct-form-row { grid-template-columns: 1fr; }
+      .ct-hero { padding: 110px 20px 64px; }
+      .ct-section { padding: 52px 20px; }
+      .ct-formats { grid-template-columns: 1fr; }
+      .ct-dietary-list { grid-template-columns: 1fr; }
+      .ct-dietary-item:nth-last-child(-n+2) { border-bottom: 1px solid rgba(26,26,26,0.07); }
+      .ct-dietary-item:last-child { border-bottom: none; }
       .ct-know-item { grid-template-columns: 1fr; gap: 4px; }
-      .ct-dietary-item { flex-direction: column; gap: 4px; }
-      .ct-dietary-tag { min-width: unset; }
-      .footer { flex-direction: column; gap: 24px; text-align: center; padding: 40px 24px; }
+      .ct-order-header { padding: 0 20px 32px; }
+      .ct-order-layout { padding: 0 20px; }
+      .footer { flex-direction: column; gap: 20px; padding: 32px 20px; text-align: center; }
       .footer-links { flex-wrap: wrap; justify-content: center; gap: 20px; }
-      .legal-footer { padding: 18px 24px; justify-content: center; text-align: center; }
-      .legal-footer-links { justify-content: center; gap: 18px; }
+      .legal-footer { padding: 14px 20px; flex-direction: column; gap: 10px; text-align: center; }
+      .legal-footer-links { flex-wrap: wrap; justify-content: center; gap: 16px; }
+      .ct-btn-nav-mobile { display: none; }
+    }
+    @media (max-width: 480px) {
+      .ct-hero-btns { flex-direction: column; }
+      .ct-hero-btns > * { text-align: center; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- ─── NAV ─── -->
-  <nav class="nav scrolled" id="nav">
-    <a href="/" aria-label="inoa home">
-      <img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="nav-logo">
-    </a>
-    <ul class="nav-links" role="list">
-      <li><a href="/menu">menu</a></li>
-      <li><a href="/catering" aria-current="page">catering</a></li>
-      <li><a href="/#story">about</a></li>
-      <li><a href="/#find-us">find us</a></li>
+<!-- Grain texture -->
+<svg style="position:fixed;top:-50%;left:-50%;width:200%;height:200%;opacity:0.025;pointer-events:none;z-index:9999" aria-hidden="true">
+  <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+  <rect width="100%" height="100%" filter="url(#noise)"/>
+</svg>
+
+<!-- Nav -->
+<nav class="nav scrolled" id="nav" aria-label="Site navigation">
+  <a href="/" aria-label="inoa home">
+    <img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="nav-logo">
+  </a>
+  <ul class="nav-links" role="list">
+    <li><a href="/menu">menu</a></li>
+    <li><a href="/catering" aria-current="page">catering</a></li>
+    <li><a href="/#story">about</a></li>
+    <li><a href="/#find-us">find us</a></li>
+  </ul>
+  <a href="/order" class="btn-nav">order now</a>
+</nav>
+
+<!-- Cart live region -->
+<div role="status" aria-live="polite" aria-atomic="true" id="cart-announce" class="sr-only"></div>
+
+<!-- ── Hero ── -->
+<section class="ct-hero" aria-labelledby="hero-heading">
+  <div class="ct-hero-inner">
+    <span class="ct-eyebrow">inoa · catering</span>
+    <h1 id="hero-heading">Catering</h1>
+    <p class="ct-hero-sub">Hawaiian-inspired poke, cut and mixed the morning of your event.</p>
+    <p class="ct-hero-support">Order online in a few minutes. Three days' notice, Santa Cruz County and the South Bay.</p>
+    <div class="ct-hero-btns">
+      <a href="#order" class="ct-btn-primary">Start ordering</a>
+      <a href="/catering/inquiry" class="ct-btn-ghost">Send an inquiry</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Two formats ── -->
+<section class="ct-section" aria-labelledby="formats-heading">
+  <div class="ct-inner">
+    <span class="ct-section-label">formats</span>
+    <h2 class="ct-section-heading" id="formats-heading">Two formats</h2>
+    <div class="ct-formats">
+      <div class="ct-format-card">
+        <div class="ct-format-name">Individually packaged</div>
+        <p class="ct-format-desc">Sealed, labeled single-serve boxes. No setup, no serving line, nothing to manage.</p>
+        <div class="ct-format-footer">10 box minimum</div>
+      </div>
+      <div class="ct-format-card">
+        <div class="ct-format-name">À la carte trays</div>
+        <p class="ct-format-desc">Order exactly what you need. Poke by the tray, rice and greens, sides, musubi, sushi bake, and sashimi platters.</p>
+        <div class="ct-format-footer">Trays serve 10 or 20</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── How much to order ── -->
+<section class="ct-section alt" aria-labelledby="howmuch-heading">
+  <div class="ct-inner">
+    <span class="ct-section-label">starter sets</span>
+    <h2 class="ct-section-heading" id="howmuch-heading">How much to order</h2>
+    <p class="ct-prefill-note">Not sure how much you need? These are our standard proportions. Adjust anything after it's in your cart.</p>
+    <div class="ct-prefill-btns">
+      <button class="ct-prefill-btn" onclick="prefillCart(10)" aria-label="Prefill cart for 10 guests: one small poke tray, rice, greens, two small sides">
+        Feeding 10
+      </button>
+      <button class="ct-prefill-btn" onclick="prefillCart(20)" aria-label="Prefill cart for 20 guests: one large poke tray, rice, greens, two large sides">
+        Feeding 20
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ── Flavor reference ── -->
+<section class="ct-section" aria-labelledby="flavors-heading">
+  <div class="ct-inner">
+    <span class="ct-section-label">the flavors</span>
+    <h2 class="ct-section-heading" id="flavors-heading">Poke flavors</h2>
+    <div class="ct-table-wrap">
+      <table class="ct-table" id="flavor-table" aria-label="Poke flavor options with builds and dietary marks">
+        <thead>
+          <tr>
+            <th scope="col">Flavor</th>
+            <th scope="col">Build</th>
+            <th scope="col">Marks</th>
+          </tr>
+        </thead>
+        <tbody id="flavor-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ── Dietary ── -->
+<section class="ct-section alt" aria-labelledby="dietary-heading">
+  <div class="ct-inner">
+    <span class="ct-section-label">dietary</span>
+    <h2 class="ct-section-heading" id="dietary-heading">What we can accommodate</h2>
+    <ul class="ct-dietary-list" role="list">
+      <li class="ct-dietary-item">
+        <span class="ct-dietary-tag">Gluten free</span>
+        <span class="ct-dietary-desc">Six of our eight poke flavors, plus the tofu, rice, and most sides.</span>
+      </li>
+      <li class="ct-dietary-item">
+        <span class="ct-dietary-tag">Vegan</span>
+        <span class="ct-dietary-desc">Hawaiian tofu, kimchi cucumber, roasted sweet potato, rice and greens.</span>
+      </li>
+      <li class="ct-dietary-item">
+        <span class="ct-dietary-tag">No raw fish</span>
+        <span class="ct-dietary-desc">Kimchi tako, garlic shrimp, teriyaki beef, shoyu ginger chicken, sushi bake.</span>
+      </li>
+      <li class="ct-dietary-item">
+        <span class="ct-dietary-tag">Contains pork</span>
+        <span class="ct-dietary-desc">Spam musubi.</span>
+      </li>
     </ul>
-    <a href="/order" class="btn-nav">order now</a>
-  </nav>
+    <p style="font-size:12px;color:var(--ink);opacity:0.45;margin-top:20px;">Every tray and box is labeled with contents and allergens.</p>
+  </div>
+</section>
 
-  <!-- ─── HERO ─── -->
-  <section class="ct-hero">
-    <div class="ct-hero-inner">
-      <p class="ct-eyebrow">inoa &middot; catering</p>
-      <h1>Catering</h1>
-      <p class="ct-hero-sub">Hawaiian-inspired poke, cut and mixed the morning of your event.</p>
-      <p class="ct-hero-meta">Packages from $19 per person. Serving Santa Cruz County and the South Bay.</p>
-      <a href="#inquiry" class="ct-btn-cta">Start an inquiry</a>
-    </div>
-  </section>
-
-  <!-- ─── FORMATS ─── -->
-  <section class="ct-section">
-    <div class="ct-inner">
-      <p class="ct-section-label">formats</p>
-      <h2 class="ct-section-heading">How we can set it up</h2>
-      <div class="ct-formats">
-        <div class="ct-format-card">
-          <div class="ct-format-name">Buffet packages</div>
-          <p class="ct-format-desc">Guests build their own bowls from trays of poke, rice, greens, and toppings. Three tiers depending on how much you want on the table. Non-fish options are included at no extra cost — just tell us the count.</p>
-          <div class="ct-format-footer">From $19 per person &middot; 12 guest minimum</div>
-        </div>
-        <div class="ct-format-card">
-          <div class="ct-format-name">À la carte trays</div>
-          <p class="ct-format-desc">Order exactly what you need. Poke by the tray, rice and greens, sides, musubi, sushi bake, and sashimi platters.</p>
-          <div class="ct-format-footer">Trays serve 10 or 20</div>
-        </div>
-        <div class="ct-format-card">
-          <div class="ct-format-name">Individually packaged</div>
-          <p class="ct-format-desc">Sealed, labeled single-serve boxes. No setup, no serving line, nothing to manage. Poke boxes, musubi combo boxes, and personal sushi bakes.</p>
-          <div class="ct-format-footer">10 box minimum</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── POKE FLAVORS ─── -->
-  <section class="ct-section alt">
-    <div class="ct-inner">
-      <p class="ct-section-label">the menu</p>
-      <h2 class="ct-section-heading">Poke flavors</h2>
-      <div class="ct-table-wrap">
-        <table class="ct-table" aria-label="Poke flavor options with builds and dietary marks">
-          <thead>
-            <tr>
-              <th scope="col">Flavor</th>
-              <th scope="col">Build</th>
-              <th scope="col">Marks</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Shoyu ahi</td>
-              <td>housemade shoyu blend, sesame oil, ogo, alaea salt, sweet onion, green onion</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>Hawaiian ahi</td>
-              <td>sesame oil, ogo, alaea sea salt, sweet onion, green onion</td>
-              <td><span class="ct-badge gf">GF</span></td>
-            </tr>
-            <tr>
-              <td>Spicy ahi / salmon</td>
-              <td>housemade spicy mayo blend, sesame oil, masago, togarashi, sweet onion, green onion</td>
-              <td><span class="ct-badge gf">GF</span></td>
-            </tr>
-            <tr>
-              <td>Sweet unagi salmon</td>
-              <td>housemade sweet unagi sauce, sesame oil, sweet onion, green onion</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>Chili garlic salmon</td>
-              <td>housemade chili crunch, fried garlic, shoyu, sesame oil, tobiko, sweet onion, green onion</td>
-              <td>—</td>
-            </tr>
-            <tr>
-              <td>Kimchi tako</td>
-              <td>kimchi base, sesame oil, sweet onion, green onion</td>
-              <td><span class="ct-badge gf">GF</span> <span class="ct-badge cooked">Cooked</span></td>
-            </tr>
-            <tr>
-              <td>Garlic shrimp</td>
-              <td>housemade fried garlic, minced garlic, sesame oil, alaea salt, sweet onion, green onion</td>
-              <td><span class="ct-badge gf">GF</span> <span class="ct-badge cooked">Cooked</span></td>
-            </tr>
-            <tr>
-              <td>Tobiko scallop</td>
-              <td>mayo, tobiko, sesame oil, togarashi, green onion</td>
-              <td><span class="ct-badge gf">GF</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <p class="ct-table-note">Kimchi tako and garlic shrimp are fully cooked, so guests who don't eat raw fish can stay on the seafood menu.</p>
-    </div>
-  </section>
-
-  <!-- ─── DIETARY ─── -->
-  <section class="ct-section">
-    <div class="ct-inner">
-      <p class="ct-section-label">dietary</p>
-      <h2 class="ct-section-heading">What we can accommodate</h2>
-      <ul class="ct-dietary-list">
-        <li class="ct-dietary-item">
-          <span class="ct-dietary-tag">Gluten free</span>
-          <span class="ct-dietary-desc">six of our eight poke flavors, plus the tofu, rice, and most sides</span>
-        </li>
-        <li class="ct-dietary-item">
-          <span class="ct-dietary-tag">Vegan</span>
-          <span class="ct-dietary-desc">Hawaiian tofu, kimchi cucumber, roasted sweet potato, rice and greens</span>
-        </li>
-        <li class="ct-dietary-item">
-          <span class="ct-dietary-tag">No raw fish</span>
-          <span class="ct-dietary-desc">kimchi tako, garlic shrimp, teriyaki beef, shoyu ginger chicken, sushi bake</span>
-        </li>
-        <li class="ct-dietary-item">
-          <span class="ct-dietary-tag">Contains pork</span>
-          <span class="ct-dietary-desc">spam musubi</span>
-        </li>
-      </ul>
-      <p class="ct-dietary-note">Every tray is labeled with contents and allergens.</p>
-    </div>
-  </section>
-
-  <!-- ─── HOW IT WORKS ─── -->
-  <section class="ct-section alt">
-    <div class="ct-inner">
-      <p class="ct-section-label">process</p>
-      <h2 class="ct-section-heading">How it works</h2>
-      <ol class="ct-steps">
-        <li class="ct-step"><span class="ct-step-num">1</span><span class="ct-step-text">Send us an inquiry with your date and headcount.</span></li>
-        <li class="ct-step"><span class="ct-step-num">2</span><span class="ct-step-text">We'll send a menu and a quote within one business day.</span></li>
-        <li class="ct-step"><span class="ct-step-num">3</span><span class="ct-step-text">A 50% deposit holds your date.</span></li>
-        <li class="ct-step"><span class="ct-step-num">4</span><span class="ct-step-text">Balance is due three business days before your event.</span></li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- ─── GOOD TO KNOW ─── -->
-  <section class="ct-section">
-    <div class="ct-inner">
-      <p class="ct-section-label">details</p>
-      <h2 class="ct-section-heading">Good to know</h2>
-      <dl class="ct-know-list">
-        <div class="ct-know-item">
-          <dt class="ct-know-term">Lead time</dt>
-          <dd class="ct-know-desc">72 hours for anything with ahi, 48 hours for everything else. Fish is ordered to spec, not pulled from a case.</dd>
-        </div>
-        <div class="ct-know-item">
-          <dt class="ct-know-term">Minimums</dt>
-          <dd class="ct-know-desc">$200 pickup &middot; $350 delivered in Santa Cruz County &middot; $500 delivered over the hill</dd>
-        </div>
-        <div class="ct-know-item">
-          <dt class="ct-know-term">Service area</dt>
-          <dd class="ct-know-desc">Scotts Valley, Santa Cruz, Capitola, and Aptos. Los Gatos, San Jose, and Santa Clara by arrangement.</dd>
-        </div>
-        <div class="ct-know-item">
-          <dt class="ct-know-term">Serving window</dt>
-          <dd class="ct-know-desc">Poke trays arrive on ice and should be served within two hours.</dd>
-        </div>
-        <div class="ct-know-item">
-          <dt class="ct-know-term">Payment</dt>
-          <dd class="ct-know-desc">Card or ACH by invoice.</dd>
-        </div>
-      </dl>
-    </div>
-  </section>
-
-  <!-- ─── INQUIRY FORM ─── -->
-  <section class="ct-section alt" id="inquiry">
-    <div class="ct-inner">
-      <p class="ct-section-label">get in touch</p>
-      <h2 class="ct-section-heading">Start an inquiry</h2>
-      <div class="ct-form-wrap">
-
-        <div class="ct-success" id="ct-success" role="status" aria-live="polite">
-          <div class="ct-success-check" aria-hidden="true">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          </div>
-          <h3>Got it.</h3>
-          <p>We'll be in touch within one business day.</p>
-        </div>
-
-        <div class="ct-form-error" id="ct-form-error" role="alert" aria-live="polite">
-          Something went wrong sending your inquiry. Email us at <a href="mailto:clyde.ccollado@gmail.com">clyde.ccollado@gmail.com</a> and we'll get back to you.
-        </div>
-
-        <form class="ct-form" id="ct-form" novalidate>
-          <!-- Honeypot (spam trap — Formspree ignores _gotcha if filled) -->
-          <input type="text" name="_gotcha" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" tabindex="-1" autocomplete="off" aria-hidden="true">
-
-          <div class="ct-form-row">
-            <div class="ct-field">
-              <label class="ct-label" for="ct-name">Name <span aria-hidden="true">*</span></label>
-              <input class="ct-input" type="text" id="ct-name" name="name" required autocomplete="name" aria-required="true" aria-describedby="ct-name-err">
-              <span class="ct-form-err" id="ct-name-err" role="alert"></span>
-            </div>
-            <div class="ct-field">
-              <label class="ct-label" for="ct-company">Company or organization <span class="ct-label-opt">(optional)</span></label>
-              <input class="ct-input" type="text" id="ct-company" name="company" autocomplete="organization">
-            </div>
-          </div>
-
-          <div class="ct-form-row">
-            <div class="ct-field">
-              <label class="ct-label" for="ct-email">Email <span aria-hidden="true">*</span></label>
-              <input class="ct-input" type="email" id="ct-email" name="email" required autocomplete="email" aria-required="true" aria-describedby="ct-email-err">
-              <span class="ct-form-err" id="ct-email-err" role="alert"></span>
-            </div>
-            <div class="ct-field">
-              <label class="ct-label" for="ct-phone">Phone <span aria-hidden="true">*</span></label>
-              <input class="ct-input" type="tel" id="ct-phone" name="phone" required autocomplete="tel" aria-required="true" aria-describedby="ct-phone-err">
-              <span class="ct-form-err" id="ct-phone-err" role="alert"></span>
-            </div>
-          </div>
-
-          <div class="ct-form-row">
-            <div class="ct-field">
-              <label class="ct-label" for="ct-date">Event date <span aria-hidden="true">*</span></label>
-              <input class="ct-input" type="date" id="ct-date" name="event_date" required aria-required="true" aria-describedby="ct-date-err ct-short-notice">
-              <span class="ct-form-err" id="ct-date-err" role="alert"></span>
-              <span class="ct-short-notice" id="ct-short-notice" hidden>Short notice — we'll confirm availability before quoting.</span>
-            </div>
-            <div class="ct-field">
-              <label class="ct-label" for="ct-time">Event time <span class="ct-label-opt">(optional)</span></label>
-              <input class="ct-input" type="text" id="ct-time" name="event_time" placeholder="e.g. 12:00 PM">
-            </div>
-          </div>
-
-          <div class="ct-field">
-            <label class="ct-label" for="ct-headcount">Estimated headcount <span aria-hidden="true">*</span></label>
-            <input class="ct-input" type="number" id="ct-headcount" name="headcount" min="1" required aria-required="true" aria-describedby="ct-headcount-err" style="max-width:160px;">
-            <span class="ct-form-err" id="ct-headcount-err" role="alert"></span>
-          </div>
-
-          <div class="ct-field">
-            <fieldset style="border:none;padding:0;margin:0;">
-              <legend class="ct-label" style="margin-bottom:10px;">Format interest <span class="ct-label-opt">(optional)</span></legend>
-              <div class="ct-check-group">
-                <label class="ct-check-label"><input type="checkbox" name="format" value="Buffet packages"> Buffet packages</label>
-                <label class="ct-check-label"><input type="checkbox" name="format" value="À la carte trays"> À la carte trays</label>
-                <label class="ct-check-label"><input type="checkbox" name="format" value="Individually packaged"> Individually packaged</label>
-                <label class="ct-check-label"><input type="checkbox" name="format" value="Not sure yet"> Not sure yet</label>
-              </div>
-            </fieldset>
-          </div>
-
-          <div class="ct-field">
-            <fieldset style="border:none;padding:0;margin:0;">
-              <legend class="ct-label" style="margin-bottom:10px;">Pickup or delivery <span aria-hidden="true">*</span></legend>
-              <div class="ct-check-group" aria-describedby="ct-fulfillment-err">
-                <label class="ct-check-label"><input type="radio" name="fulfillment" id="ct-radio-pickup" value="Pickup"> Pickup</label>
-                <label class="ct-check-label"><input type="radio" name="fulfillment" id="ct-radio-delivery" value="Delivery"> Delivery</label>
-              </div>
-              <span class="ct-form-err" id="ct-fulfillment-err" role="alert"></span>
-            </fieldset>
-          </div>
-
-          <div class="ct-city-wrap ct-field" id="ct-city-wrap">
-            <label class="ct-label" for="ct-city">Delivery city <span aria-hidden="true">*</span></label>
-            <input class="ct-input" type="text" id="ct-city" name="delivery_city" autocomplete="address-level2" aria-describedby="ct-city-err" style="max-width:280px;">
-            <span class="ct-form-err" id="ct-city-err" role="alert"></span>
-          </div>
-
-          <div class="ct-field">
-            <fieldset style="border:none;padding:0;margin:0;">
-              <legend class="ct-label" style="margin-bottom:10px;">Any dietary needs? <span class="ct-label-opt">(optional)</span></legend>
-              <div class="ct-check-group">
-                <label class="ct-check-label"><input type="checkbox" name="dietary" value="Gluten free"> Gluten free</label>
-                <label class="ct-check-label"><input type="checkbox" name="dietary" value="Vegan"> Vegan</label>
-                <label class="ct-check-label"><input type="checkbox" name="dietary" value="No raw fish"> No raw fish</label>
-                <label class="ct-check-label"><input type="checkbox" name="dietary" value="Contains pork is an issue"> Contains pork is an issue</label>
-              </div>
-            </fieldset>
-            <div style="margin-top:14px;" class="ct-field">
-              <label class="ct-label" for="ct-dietary-count">Guest counts per need <span class="ct-label-opt">(optional)</span></label>
-              <input class="ct-input" type="text" id="ct-dietary-count" name="dietary_counts" placeholder="e.g. 8 GF, 3 vegan">
-            </div>
-          </div>
-
-          <div class="ct-field">
-            <label class="ct-label" for="ct-notes">Anything else we should know <span class="ct-label-opt">(optional)</span></label>
-            <textarea class="ct-textarea" id="ct-notes" name="notes"></textarea>
-          </div>
-
-          <div>
-            <button type="submit" class="ct-submit" id="ct-submit">
-              <span id="ct-submit-text">Send inquiry</span>
-              <span class="ct-spinner" id="ct-spinner" style="display:none;" aria-hidden="true"></span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── FOOTER ─── -->
-  <footer class="footer">
-    <img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="footer-logo">
-    <ul class="footer-links" role="list">
-      <li><a href="/menu">menu</a></li>
-      <li><a href="/catering">catering</a></li>
-      <li><a href="/#story">about</a></li>
-      <li><a href="/#find-us">find us</a></li>
+<!-- ── Good to know ── -->
+<section class="ct-section" aria-labelledby="goodtoknow-heading">
+  <div class="ct-inner">
+    <span class="ct-section-label">before you order</span>
+    <h2 class="ct-section-heading" id="goodtoknow-heading">Good to know</h2>
+    <ul class="ct-know-list" role="list">
+      <li class="ct-know-item">
+        <span class="ct-know-label">Lead time</span>
+        <span class="ct-know-val">Three days' notice. Fish is ordered to spec, not pulled from a case.</span>
+      </li>
+      <li class="ct-know-item">
+        <span class="ct-know-label">Serving window</span>
+        <span class="ct-know-val">Poke trays arrive on ice and should be served within two hours.</span>
+      </li>
+      <li class="ct-know-item">
+        <span class="ct-know-label">Minimums</span>
+        <span class="ct-know-val">$200 pickup · $250 delivered in Santa Cruz County · $500 delivered over the hill</span>
+      </li>
+      <li class="ct-know-item">
+        <span class="ct-know-label">Larger events</span>
+        <span class="ct-know-val">Over 30 boxes or 6 trays, or want us on site? <a href="/catering/inquiry" style="color:var(--ogo);text-decoration:none;border-bottom:1px solid rgba(74,124,111,0.3);">Send an inquiry</a> and we'll build a quote.</span>
+      </li>
+      <li class="ct-know-item">
+        <span class="ct-know-label">Payment</span>
+        <span class="ct-know-val">Paid in full online via Square. No deposit structure — these orders aren't custom.</span>
+      </li>
     </ul>
-    <p class="footer-copy">© 2026 inoa</p>
-  </footer>
-  <div class="legal-footer">
-    <nav class="legal-footer-links">
-      <a href="/privacy">privacy policy</a>
-      <a href="/refund">refund &amp; cancellation</a>
-      <a href="/terms">terms of service</a>
-    </nav>
-    <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
+  </div>
+</section>
+
+<!-- ── Ordering section ── -->
+<section class="ct-order-section" id="order" aria-labelledby="menu-heading">
+  <div class="ct-order-header">
+    <span class="ct-section-label">order online</span>
+    <h2 class="ct-section-heading" id="menu-heading" style="margin-bottom:0">Build your order</h2>
   </div>
 
-  <script>
-    // ── Formspree endpoint — paste your new Formspree form ID here ──
-    const CATERING_FORMSPREE_ID = 'PASTE_YOUR_FORMSPREE_ID_HERE';
+  <div class="ct-order-layout">
+    <!-- Menu (left column, rendered by JS) -->
+    <div class="ct-menu-col" id="order-menu" aria-label="Menu items">
+      <p style="font-size:13px;opacity:0.4;padding-top:8px;">Loading menu…</p>
+    </div>
 
-    // Nav stays in scrolled (light) state — no dark hero on this page
-    document.getElementById('nav').classList.add('scrolled');
+    <!-- Cart sidebar (right column, sticky) -->
+    <div class="ct-cart-col" aria-label="Your cart">
+      <div class="ct-cart-panel" id="cart-panel">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+</section>
 
-    // ── Date minimum: 72 hours from now ──
-    const dateInput    = document.getElementById('ct-date');
-    const shortNotice  = document.getElementById('ct-short-notice');
-    const minDate      = new Date(Date.now() + 72 * 60 * 60 * 1000);
-    dateInput.min      = minDate.toISOString().slice(0, 10);
-    dateInput.addEventListener('change', () => {
-      if (!dateInput.value) { shortNotice.hidden = true; return; }
-      const chosen     = new Date(dateInput.value + 'T12:00:00');
-      const fiveDaysOut = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
-      shortNotice.hidden = chosen >= fiveDaysOut;
-    });
+<!-- Mobile cart bar -->
+<div class="ct-mobile-bar" id="mobile-cart-bar" role="button" tabindex="0" aria-label="View cart" onclick="openDrawer()" onkeydown="if(event.key==='Enter'||event.key===' ')openDrawer()">
+  <span class="ct-mobile-bar-left" id="mobile-bar-count">0 items</span>
+  <div class="ct-mobile-bar-right">
+    <span class="ct-mobile-bar-total" id="mobile-bar-total">$0.00</span>
+    <span class="ct-mobile-bar-caret">↑</span>
+  </div>
+</div>
 
-    // ── Delivery city toggle ──
-    const radioPickup   = document.getElementById('ct-radio-pickup');
-    const radioDelivery = document.getElementById('ct-radio-delivery');
-    const cityWrap      = document.getElementById('ct-city-wrap');
-    const cityInput     = document.getElementById('ct-city');
-    [radioPickup, radioDelivery].forEach(r => r.addEventListener('change', () => {
-      const isDelivery = radioDelivery.checked;
-      cityWrap.classList.toggle('visible', isDelivery);
-      cityInput.required = isDelivery;
-    }));
+<!-- Mobile drawer overlay -->
+<div class="ct-drawer-overlay" id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
 
-    // ── Validation helpers ──
-    function setErr(inputEl, errEl, msg) {
-      if (msg) { inputEl.classList.add('err'); errEl.textContent = msg; }
-      else      { inputEl.classList.remove('err'); errEl.textContent = ''; }
+<!-- Mobile cart drawer -->
+<div class="ct-mobile-drawer" id="mobile-drawer" role="dialog" aria-modal="true" aria-label="Your cart">
+  <div class="ct-drawer-handle" aria-hidden="true"></div>
+  <div class="ct-drawer-header">
+    <span class="ct-drawer-title">Your order</span>
+    <button class="ct-drawer-close" onclick="closeDrawer()" aria-label="Close cart">×</button>
+  </div>
+  <div class="ct-drawer-content" id="mobile-drawer-content">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- ── Footer ── -->
+<footer class="footer" role="contentinfo">
+  <img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="footer-logo">
+  <ul class="footer-links" role="list">
+    <li><a href="/menu">menu</a></li>
+    <li><a href="/catering">catering</a></li>
+    <li><a href="/#story">about</a></li>
+    <li><a href="/#find-us">find us</a></li>
+  </ul>
+  <p class="footer-copy">© 2026 inoa</p>
+</footer>
+<div class="legal-footer">
+  <nav class="legal-footer-links" aria-label="Legal">
+    <a href="/privacy">privacy policy</a>
+    <a href="/refund">refund &amp; cancellation</a>
+    <a href="/terms">terms of service</a>
+  </nav>
+  <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
+</div>
+
+<!-- Menu data -->
+<script src="/catering-data.js"></script>
+
+<script>
+  const CART_KEY = 'inoa_catering_cart';
+  const C = window.CATERING_CONSTANTS;
+  const D = window.CATERING_DATA;
+
+  // ── Cart state ──────────────────────────────────────────────────────
+  let cart          = loadCart();
+  let activePicker  = null;
+  let currentStep   = 'cart'; // 'cart' | 'checkout'
+  let blackoutDates = [];
+
+  function loadCart() {
+    try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
+    catch { return []; }
+  }
+  function saveCart() {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+  }
+
+  // ── Item lookup ─────────────────────────────────────────────────────
+  function getItemDef(id) {
+    for (const sec of D.sections) {
+      const item = sec.items.find(i => i.id === id);
+      if (item) return { ...item, category: sec.category };
     }
-    const vName = () => {
-      const el = document.getElementById('ct-name'), er = document.getElementById('ct-name-err');
-      setErr(el, er, el.value.trim() ? '' : 'required'); return !er.textContent;
-    };
-    const vEmail = () => {
-      const el = document.getElementById('ct-email'), er = document.getElementById('ct-email-err');
-      const ok = el.value.trim() && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
-      setErr(el, er, ok ? '' : 'valid email required'); return !!ok;
-    };
-    const vPhone = () => {
-      const el = document.getElementById('ct-phone'), er = document.getElementById('ct-phone-err');
-      const ok = el.value.replace(/\D/g,'').length >= 10;
-      setErr(el, er, ok ? '' : 'valid phone required'); return ok;
-    };
-    const vDate = () => {
-      const el = document.getElementById('ct-date'), er = document.getElementById('ct-date-err');
-      setErr(el, er, el.value ? '' : 'required'); return !!el.value;
-    };
-    const vHeadcount = () => {
-      const el = document.getElementById('ct-headcount'), er = document.getElementById('ct-headcount-err');
-      const ok = el.value && parseInt(el.value) >= 1;
-      setErr(el, er, ok ? '' : 'required'); return !!ok;
-    };
-    const vFulfillment = () => {
-      const er = document.getElementById('ct-fulfillment-err');
-      const ok = radioPickup.checked || radioDelivery.checked;
-      er.textContent = ok ? '' : 'please select one'; return ok;
-    };
-    const vCity = () => {
-      if (!radioDelivery.checked) return true;
-      const el = document.getElementById('ct-city'), er = document.getElementById('ct-city-err');
-      setErr(el, er, el.value.trim() ? '' : 'required for delivery'); return !!el.value.trim();
-    };
+    return null;
+  }
 
-    document.getElementById('ct-name').addEventListener('blur', vName);
-    document.getElementById('ct-email').addEventListener('blur', vEmail);
-    document.getElementById('ct-phone').addEventListener('blur', vPhone);
-    document.getElementById('ct-date').addEventListener('blur', vDate);
-    document.getElementById('ct-headcount').addEventListener('blur', vHeadcount);
-    document.getElementById('ct-city').addEventListener('blur', vCity);
-    [radioPickup, radioDelivery].forEach(r => r.addEventListener('change', vFulfillment));
+  // ── Totals ─────────────────────────────────────────────────────────
+  function getCartTotals() {
+    const totalBoxes = cart.filter(i => i.category === 'box').reduce((s, i) => s + i.qty, 0);
+    const totalTrays = cart.filter(i => i.category === 'tray').reduce((s, i) => s + i.qty, 0);
+    const subtotal   = cart.reduce((s, i) => s + i.cents * i.qty, 0);
 
-    function validateAll() {
-      const ok = [vName(), vEmail(), vPhone(), vDate(), vHeadcount(), vFulfillment(), vCity()].every(Boolean);
-      if (!ok) {
-        const first = document.querySelector('.ct-input.err, .ct-textarea.err');
-        if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const fulfillment = document.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
+    const city        = document.getElementById('delivery-city')?.value || '';
+
+    let deliveryFee = 0;
+    let zoneMin     = C.PICKUP_MIN * 100; // 200 → 20000 cents
+    if (fulfillment === 'delivery' && city && C.DELIVERY_ZONES[city]) {
+      deliveryFee = C.DELIVERY_ZONES[city].fee;
+      zoneMin     = C.DELIVERY_ZONES[city].min;
+    } else if (fulfillment === 'pickup') {
+      zoneMin = C.PICKUP_MIN * 100;
+    }
+
+    const total       = subtotal + deliveryFee;
+    const gapCents    = Math.max(0, zoneMin - subtotal);
+    const meetsMin    = subtotal >= zoneMin;
+    const overCeiling = totalBoxes > C.INQUIRY_CEILING_BOXES || totalTrays > C.INQUIRY_CEILING_TRAYS;
+    const boxShortfall = cart.some(i => i.category === 'box') ? Math.max(0, C.BOX_MINIMUM - totalBoxes) : 0;
+
+    return { totalBoxes, totalTrays, subtotal, deliveryFee, total, gapCents, meetsMin, overCeiling, boxShortfall, fulfillment, city };
+  }
+
+  // ── Format helpers ─────────────────────────────────────────────────
+  const fmt = cents => '$' + (cents / 100).toFixed(2).replace(/\.00$/, '');
+
+  function announce(text) {
+    const el = document.getElementById('cart-announce');
+    el.textContent = '';
+    requestAnimationFrame(() => { el.textContent = text; });
+  }
+
+  // ── Cart mutations ─────────────────────────────────────────────────
+  function addToCart(itemId, flavor, flavor2) {
+    const def = getItemDef(itemId);
+    if (!def) return;
+    // Try to merge with existing identical entry
+    const existing = cart.find(i =>
+      i.itemId === itemId &&
+      (i.flavor || null) === (flavor || null) &&
+      (i.flavor2 || null) === (flavor2 || null)
+    );
+    if (existing) {
+      existing.qty++;
+    } else {
+      cart.push({
+        uid:      crypto.randomUUID(),
+        itemId,
+        name:     def.name,
+        flavor:   flavor || null,
+        flavor2:  flavor2 || null,
+        cents:    def.cents,
+        qty:      1,
+        category: def.category,
+      });
+    }
+    saveCart();
+    renderAll();
+    const label = def.name + (flavor ? ` — ${flavor}` : '') + (flavor2 ? ` / ${flavor2}` : '');
+    const total = cart.reduce((s, i) => s + i.qty, 0);
+    announce(`${label} added to cart. ${total} item${total !== 1 ? 's' : ''} in cart.`);
+  }
+
+  function removeFromCart(uid) {
+    cart = cart.filter(i => i.uid !== uid);
+    saveCart();
+    renderAll();
+    announce('Item removed from cart.');
+  }
+
+  function setQty(uid, qty) {
+    if (qty < 1) { removeFromCart(uid); return; }
+    const item = cart.find(i => i.uid === uid);
+    if (item) { item.qty = qty; saveCart(); renderAll(); }
+  }
+
+  function clearCart() {
+    cart = [];
+    saveCart();
+    renderAll();
+    announce('Cart cleared.');
+  }
+
+  function prefillCart(headcount) {
+    const prefill = D.prefills[headcount];
+    if (!prefill) return;
+    cart = [];
+    for (const { id, qty } of prefill) {
+      const def = getItemDef(id);
+      if (!def) continue;
+      cart.push({ uid: crypto.randomUUID(), itemId: id, name: def.name, flavor: null, flavor2: null, cents: def.cents, qty, category: def.category });
+    }
+    saveCart();
+    renderAll();
+    document.getElementById('order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const total = cart.reduce((s, i) => s + i.qty, 0);
+    announce(`Cart set for ${headcount} guests. ${total} items added.`);
+  }
+
+  // ── Flavor picker ──────────────────────────────────────────────────
+  function handleAdd(itemId) {
+    const def = getItemDef(itemId);
+    if (!def) return;
+    const needsFlavor = !!(def.flavorGroup || def.split);
+    if (!needsFlavor) {
+      addToCart(itemId, null, null);
+      return;
+    }
+    // Close any other open picker
+    if (activePicker && activePicker !== itemId) closePicker(activePicker);
+    activePicker = itemId;
+    const pickerEl = document.getElementById('picker-' + itemId);
+    if (pickerEl) { pickerEl.hidden = false; pickerEl.querySelector('select')?.focus(); }
+  }
+
+  function closePicker(itemId) {
+    const pickerEl = document.getElementById('picker-' + itemId);
+    if (pickerEl) pickerEl.hidden = true;
+    if (activePicker === itemId) activePicker = null;
+  }
+
+  function confirmAdd(itemId) {
+    const def = getItemDef(itemId);
+    const sel1 = document.getElementById('sel1-' + itemId);
+    const sel2 = document.getElementById('sel2-' + itemId);
+    const flavor  = sel1?.value || null;
+    const flavor2 = sel2?.value || null;
+    if (!flavor) { sel1?.focus(); sel1?.setCustomValidity('Please choose a flavor.'); sel1?.reportValidity(); return; }
+    if (sel2 && !flavor2) { sel2?.focus(); sel2?.setCustomValidity('Please choose a second flavor.'); sel2?.reportValidity(); return; }
+    sel1?.setCustomValidity('');
+    sel2?.setCustomValidity('');
+    closePicker(itemId);
+    addToCart(itemId, flavor, flavor2);
+  }
+
+  function flavorOptions(groupName) {
+    if (groupName === 'shrimp') return ['Garlic shrimp'];
+    return D.flavorGroups[groupName] || [];
+  }
+
+  function buildPickerHTML(def) {
+    let selects = '';
+    if (def.split) {
+      const [g1, g2] = def.split;
+      const opts1 = flavorOptions(g1).map(f => `<option value="${f}">${f}</option>`).join('');
+      const opts2 = flavorOptions(g2).map(f => `<option value="${f}">${f}</option>`).join('');
+      selects = `
+        <div class="ct-picker-select-wrap">
+          <label for="sel1-${def.id}">First half</label>
+          <select id="sel1-${def.id}" aria-label="First flavor"><option value="">Choose…</option>${opts1}</select>
+        </div>
+        <div class="ct-picker-select-wrap">
+          <label for="sel2-${def.id}">Second half</label>
+          <select id="sel2-${def.id}" aria-label="Second flavor"><option value="">Choose…</option>${opts2}</select>
+        </div>`;
+    } else if (def.flavorGroup) {
+      const opts = flavorOptions(def.flavorGroup).map(f => `<option value="${f}">${f}</option>`).join('');
+      selects = `
+        <div class="ct-picker-select-wrap">
+          <label for="sel1-${def.id}">Flavor</label>
+          <select id="sel1-${def.id}" aria-label="Flavor"><option value="">Choose…</option>${opts}</select>
+        </div>`;
+    }
+    return `
+      <div class="ct-picker" id="picker-${def.id}" hidden>
+        <div class="ct-picker-selects">${selects}</div>
+        <div class="ct-picker-actions">
+          <button class="ct-picker-confirm" onclick="confirmAdd('${def.id}')">Add to cart</button>
+          <button class="ct-picker-cancel" onclick="closePicker('${def.id}')">Cancel</button>
+        </div>
+      </div>`;
+  }
+
+  // ── Menu rendering ─────────────────────────────────────────────────
+  function renderMenu() {
+    const container = document.getElementById('order-menu');
+    if (!container) return;
+    let html = '';
+    for (const section of D.sections) {
+      html += `<div class="ct-menu-section" id="sec-${section.id}">`;
+      html += `<div class="ct-menu-section-header">`;
+      html += `<h3 class="ct-menu-section-title">${section.label}</h3>`;
+      if (section.note) html += `<p class="ct-menu-section-note">${section.note}</p>`;
+      html += `</div>`;
+      html += `<ul class="ct-item-list" aria-label="${section.label}">`;
+      for (const item of section.items) {
+        const needsFlavor = !!(item.flavorGroup || item.split);
+        let metaLine = '';
+        if (item.note) metaLine += `<span class="ct-item-note">${item.note}</span>`;
+        if (item.serves) metaLine += `${item.note ? ' · ' : ''}<span class="ct-item-note">serves ${item.serves}</span>`;
+        html += `<li class="ct-item-card">
+          <div class="ct-item-row">
+            <div class="ct-item-info">
+              <span class="ct-item-name">${item.name}</span>
+              ${metaLine}
+            </div>
+            <span class="ct-item-price">${fmt(item.cents)}</span>
+            <button class="ct-add-btn" onclick="handleAdd('${item.id}')" aria-label="Add ${item.name} to cart">Add</button>
+          </div>
+          ${needsFlavor ? buildPickerHTML(item) : ''}
+        </li>`;
       }
-      return ok;
+      html += `</ul></div>`;
+    }
+    container.innerHTML = html;
+  }
+
+  // ── Cart rendering ─────────────────────────────────────────────────
+  // ── Checkout form HTML (cart step 2) ──────────────────────────────
+  function checkoutFormHTML(totals) {
+    const { subtotal, deliveryFee, total, fulfillment, city } = totals;
+    const minDate = new Date(Date.now() + C.MIN_LEAD_TIME_MS).toISOString().slice(0, 10);
+    const summaryLines = cart.map(i => {
+      const f = [i.flavor, i.flavor2].filter(Boolean).join(' / ');
+      return `<div class="ct-checkout-summary-row"><span>${i.name}${f ? ` — ${f}` : ''} ×${i.qty}</span><span>${fmt(i.cents * i.qty)}</span></div>`;
+    }).join('');
+    const fulfillLabel = fulfillment === 'delivery' && city ? `Delivery to ${city}` : 'Pickup (Scotts Valley)';
+
+    return `
+      <button class="ct-checkout-back" onclick="showCart()" aria-label="Back to cart">← Back</button>
+      <div class="ct-checkout-summary">
+        ${summaryLines}
+        ${deliveryFee > 0 ? `<div class="ct-checkout-summary-row"><span>Delivery</span><span>${fmt(deliveryFee)}</span></div>` : ''}
+        <div class="ct-checkout-summary-row strong"><span>Total</span><span>${fmt(total)}</span></div>
+        <div class="ct-checkout-summary-row" style="opacity:0.45;font-size:11px;padding-top:4px"><span>${fulfillLabel}</span></div>
+      </div>
+      <form class="ct-checkout-form" id="ct-checkout-form" onsubmit="handleSubmitOrder(event)" novalidate>
+        <div class="ct-form-group">
+          <label class="ct-form-label" for="ct-event-date">Event date</label>
+          <input class="ct-form-input" type="date" id="ct-event-date" name="event_date"
+            min="${minDate}" required aria-required="true" aria-describedby="ct-date-warn"
+            onchange="onDateChange(this.value)">
+          <div class="ct-blackout-warn" id="ct-date-warn" hidden>That date is unavailable. Please choose another.</div>
+        </div>
+        <div class="ct-form-two">
+          <div class="ct-form-group">
+            <label class="ct-form-label" for="ct-name">Name</label>
+            <input class="ct-form-input" type="text" id="ct-name" name="name" required aria-required="true" autocomplete="name">
+          </div>
+          <div class="ct-form-group">
+            <label class="ct-form-label" for="ct-company">Company <span>(optional)</span></label>
+            <input class="ct-form-input" type="text" id="ct-company" name="company" autocomplete="organization">
+          </div>
+        </div>
+        <div class="ct-form-two">
+          <div class="ct-form-group">
+            <label class="ct-form-label" for="ct-email">Email</label>
+            <input class="ct-form-input" type="email" id="ct-email" name="email" required aria-required="true" autocomplete="email">
+          </div>
+          <div class="ct-form-group">
+            <label class="ct-form-label" for="ct-phone">Phone</label>
+            <input class="ct-form-input" type="tel" id="ct-phone" name="phone" required aria-required="true" autocomplete="tel">
+          </div>
+        </div>
+        <div class="ct-form-group">
+          <label class="ct-form-label" for="ct-notes">Notes <span>(optional)</span></label>
+          <textarea class="ct-form-textarea" id="ct-notes" name="notes" placeholder="Allergen notes, label requests, timing, anything we should know…"></textarea>
+        </div>
+        <div class="ct-checkout-err" id="ct-checkout-err" hidden></div>
+        <button class="ct-place-btn" id="ct-place-btn" type="submit">Place order — pay via Square</button>
+        <p class="ct-tax-note" style="margin-top:10px">Tax calculated at Square checkout. No card data enters this site.</p>
+      </form>`;
+  }
+
+  function cartPanelHTML(totals) {
+    if (currentStep === 'checkout') {
+      return checkoutFormHTML(totals);
+    }
+    const { subtotal, deliveryFee, total, gapCents, meetsMin, overCeiling, boxShortfall, fulfillment, city } = totals;
+    if (cart.length === 0) {
+      return `<div class="ct-cart-empty">
+        <div class="ct-cart-empty-icon" aria-hidden="true">○</div>
+        <p>Your cart is empty.</p>
+        <p>Add items from the menu above.</p>
+      </div>`;
     }
 
-    // ── Form submission ──
-    document.getElementById('ct-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      if (!validateAll()) return;
+    // Box minimum banner
+    const boxBanner = boxShortfall > 0
+      ? `<div class="ct-box-min-banner" role="alert">Add <strong>${boxShortfall}</strong> more box${boxShortfall !== 1 ? 'es' : ''} to meet the 10-box minimum.</div>`
+      : '';
 
-      const btn     = document.getElementById('ct-submit');
-      const btnText = document.getElementById('ct-submit-text');
-      const spinner = document.getElementById('ct-spinner');
-      const formEl  = document.getElementById('ct-form');
-      const successEl = document.getElementById('ct-success');
-      const errorEl   = document.getElementById('ct-form-error');
+    // Item rows
+    let itemRows = '';
+    for (const item of cart) {
+      const flavorLine = [item.flavor, item.flavor2].filter(Boolean).join(' / ');
+      itemRows += `<div class="ct-cart-item" data-uid="${item.uid}">
+        <div class="ct-cart-item-info">
+          <div class="ct-cart-item-name">${item.name}</div>
+          ${flavorLine ? `<div class="ct-cart-item-flavor">${flavorLine}</div>` : ''}
+        </div>
+        <div class="ct-cart-item-right">
+          <div class="ct-cart-item-price">${fmt(item.cents * item.qty)}</div>
+          <div class="ct-qty-ctrl" role="group" aria-label="Quantity for ${item.name}">
+            <button class="ct-qty-btn" onclick="setQty('${item.uid}', ${item.qty - 1})" aria-label="Decrease quantity">−</button>
+            <span class="ct-qty-val" aria-live="polite">${item.qty}</span>
+            <button class="ct-qty-btn" onclick="setQty('${item.uid}', ${item.qty + 1})" aria-label="Increase quantity">+</button>
+          </div>
+        </div>
+        <button class="ct-item-remove" onclick="removeFromCart('${item.uid}')" aria-label="Remove ${item.name}">×</button>
+      </div>`;
+    }
 
-      btn.disabled = true;
-      btnText.textContent = 'Sending…';
-      spinner.style.display = 'inline-block';
-      errorEl.classList.remove('visible');
+    // Fulfillment toggle
+    const cityOptions = Object.keys(C.DELIVERY_ZONES).map(c =>
+      `<option value="${c}" ${c === city ? 'selected' : ''}>${c}</option>`
+    ).join('');
+    const fulfillHTML = `
+      <div class="ct-fulfillment">
+        <div class="ct-fulfillment-opts">
+          <label><input type="radio" name="fulfillment" value="pickup" ${fulfillment === 'pickup' ? 'checked' : ''} onchange="onFulfillmentChange()"> Pickup (Scotts Valley)</label>
+          <label><input type="radio" name="fulfillment" value="delivery" ${fulfillment === 'delivery' ? 'checked' : ''} onchange="onFulfillmentChange()"> Delivery</label>
+        </div>
+        <div class="ct-city-wrap" id="city-wrap" ${fulfillment !== 'delivery' ? 'hidden' : ''}>
+          <label for="delivery-city">Delivery city</label>
+          <select class="ct-city-select" id="delivery-city" onchange="renderAll()" aria-required="true">
+            <option value="">Select city</option>
+            ${cityOptions}
+          </select>
+        </div>
+      </div>`;
 
-      const formats = [...document.querySelectorAll('input[name="format"]:checked')].map(c => c.value);
-      const dietary = [...document.querySelectorAll('input[name="dietary"]:checked')].map(c => c.value);
+    // Summary
+    const gapMsg = !meetsMin && cart.length > 0 && fulfillment === 'delivery' && city
+      ? `<div class="ct-min-gap" role="alert">Add ${fmt(gapCents)} more for delivery to ${city}.</div>`
+      : (!meetsMin && cart.length > 0 && fulfillment === 'pickup')
+        ? `<div class="ct-min-gap" role="alert">Add ${fmt(gapCents)} more to meet the $200 pickup minimum.</div>`
+        : '';
 
-      const payload = {
-        _subject:        `inoa Catering Inquiry — ${document.getElementById('ct-name').value.trim()}`,
-        name:            document.getElementById('ct-name').value.trim(),
-        company:         document.getElementById('ct-company').value.trim() || '—',
-        email:           document.getElementById('ct-email').value.trim(),
-        phone:           document.getElementById('ct-phone').value.trim(),
-        event_date:      document.getElementById('ct-date').value,
-        event_time:      document.getElementById('ct-time').value.trim() || '—',
-        headcount:       document.getElementById('ct-headcount').value,
-        format_interest: formats.length ? formats.join(', ') : '—',
-        fulfillment:     radioDelivery.checked ? 'Delivery' : 'Pickup',
-        delivery_city:   radioDelivery.checked ? document.getElementById('ct-city').value.trim() : '—',
-        dietary_needs:   dietary.length ? dietary.join(', ') : '—',
-        dietary_counts:  document.getElementById('ct-dietary-count').value.trim() || '—',
-        notes:           document.getElementById('ct-notes').value.trim() || '—',
-      };
+    const summaryHTML = `
+      <div class="ct-summary">
+        <div class="ct-summary-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
+        ${deliveryFee > 0 ? `<div class="ct-summary-row"><span>Delivery</span><span>${fmt(deliveryFee)}</span></div>` : ''}
+        ${gapMsg}
+        <div class="ct-summary-row total"><span>Total</span><span>${fmt(total)}</span></div>
+      </div>`;
 
+    // Checkout action
+    const canCheckout = meetsMin && !overCeiling && boxShortfall === 0 && (fulfillment === 'pickup' || (fulfillment === 'delivery' && city));
+    let actionHTML;
+    if (overCeiling) {
+      actionHTML = `<a class="ct-inquiry-link" href="/catering/inquiry?from=cart">This order needs a quote — send an inquiry ↗</a>`;
+    } else {
+      actionHTML = `<button class="ct-checkout-btn" ${canCheckout ? '' : 'disabled'} onclick="handleCheckoutClick()" aria-disabled="${!canCheckout}">Proceed to checkout</button>`;
+    }
+
+    return `
+      <div class="ct-cart-top">
+        <span class="ct-cart-heading">Your order</span>
+        <button class="ct-cart-clear-btn" onclick="clearCart()">Clear all</button>
+      </div>
+      ${boxBanner}
+      <div class="ct-cart-items">${itemRows}</div>
+      ${fulfillHTML}
+      ${summaryHTML}
+      <div class="ct-cart-actions">
+        ${actionHTML}
+        <p class="ct-tax-note">Tax calculated at checkout</p>
+      </div>`;
+  }
+
+  function renderCart() {
+    const totals = getCartTotals();
+    const panel  = document.getElementById('cart-panel');
+    if (panel) panel.innerHTML = cartPanelHTML(totals);
+
+    // Mobile bar
+    const bar   = document.getElementById('mobile-cart-bar');
+    const count = cart.reduce((s, i) => s + i.qty, 0);
+    const total = totals.total;
+    if (bar) {
+      document.getElementById('mobile-bar-count').textContent = count === 0 ? 'Your cart' : `${count} item${count !== 1 ? 's' : ''}`;
+      document.getElementById('mobile-bar-total').textContent = fmt(total);
+      bar.classList.toggle('has-items', count > 0);
+    }
+
+    // Mobile drawer (same content but different container)
+    const drawer = document.getElementById('mobile-drawer-content');
+    if (drawer) {
+      const inner = document.createElement('div');
+      inner.style.cssText = 'background:white;margin:12px;border-radius:3px;';
+      inner.innerHTML = cartPanelHTML(totals);
+      drawer.innerHTML = '';
+      drawer.appendChild(inner);
+    }
+
+    // Body padding for mobile bar
+    document.body.classList.toggle('has-cart-items', count > 0);
+  }
+
+  function onFulfillmentChange() {
+    renderCart();
+  }
+
+  // ── Render all ─────────────────────────────────────────────────────
+  function renderAll() {
+    renderCart();
+  }
+
+  // ── Mobile drawer ──────────────────────────────────────────────────
+  function openDrawer() {
+    document.getElementById('mobile-drawer').classList.add('open');
+    document.getElementById('drawer-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDrawer() {
+    document.getElementById('mobile-drawer').classList.remove('open');
+    document.getElementById('drawer-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  // Close drawer on Escape
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
+
+  // ── Checkout navigation ───────────────────────────────────────────
+  function handleCheckoutClick() {
+    showCheckout();
+  }
+
+  function showCart() {
+    currentStep = 'cart';
+    renderAll();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showCheckout() {
+    const totals = getCartTotals();
+    if (!totals.meetsMin || totals.overCeiling) return;
+    currentStep = 'checkout';
+    renderAll();
+    document.getElementById('ct-checkout-form')?.querySelector('input,textarea')?.focus();
+  }
+
+  // ── Blackout date validation ───────────────────────────────────────
+  async function fetchBlackoutDates() {
+    try {
+      const FB_PROJECT = 'inoa-times';
+      const FB_KEY     = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
+      const url = `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents/cateringConfig/blackouts?key=${FB_KEY}`;
+      const res = await fetch(url);
+      if (!res.ok) return;
+      const doc = await res.json();
+      const arr = doc.fields?.dates?.arrayValue?.values || [];
+      blackoutDates = arr.map(v => v.stringValue).filter(Boolean);
+    } catch { /* offline or doc missing — no blackouts */ }
+  }
+
+  function isBlackout(dateStr) {
+    return blackoutDates.includes(dateStr);
+  }
+
+  function onDateChange(value) {
+    const warn = document.getElementById('ct-date-warn');
+    if (!warn) return;
+    if (isBlackout(value)) {
+      warn.hidden = false;
+    } else {
+      warn.hidden = true;
+    }
+  }
+
+  // ── Order submission ───────────────────────────────────────────────
+  async function handleSubmitOrder(e) {
+    e.preventDefault();
+    const form    = document.getElementById('ct-checkout-form');
+    const errEl   = document.getElementById('ct-checkout-err');
+    const btn     = document.getElementById('ct-place-btn');
+    if (!form || !errEl || !btn) return;
+
+    errEl.hidden = true;
+
+    // Basic HTML5 validation first
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
+
+    const eventDate = form.event_date?.value;
+    if (!eventDate) {
+      showErr(errEl, 'Please select an event date.');
+      return;
+    }
+    if (isBlackout(eventDate)) {
+      showErr(errEl, 'That date is unavailable. Please choose another.');
+      return;
+    }
+
+    const totals = getCartTotals();
+
+    const payload = {
+      eventDate,
+      name:          form.name?.value?.trim(),
+      company:       form.company?.value?.trim() || '',
+      email:         form.email?.value?.trim(),
+      phone:         form.phone?.value?.trim(),
+      notes:         form.notes?.value?.trim() || '',
+      fulfillment:   totals.fulfillment,
+      deliveryCity:  totals.city || '',
+      cart:          cart.map(i => ({
+        itemId:  i.itemId,
+        name:    i.name,
+        flavor:  i.flavor  || null,
+        flavor2: i.flavor2 || null,
+        cents:   i.cents,
+        qty:     i.qty,
+        category: i.category,
+      })),
+    };
+
+    btn.disabled    = true;
+    btn.textContent = 'Placing order…';
+
+    try {
+      const res  = await fetch('/api/catering-order', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        showErr(errEl, data.error || 'Something went wrong. Please try again.');
+        btn.disabled    = false;
+        btn.textContent = 'Place order — pay via Square';
+        return;
+      }
+
+      // Stash reference before redirect
       try {
-        const res = await fetch(`https://formspree.io/f/${CATERING_FORMSPREE_ID}`, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body:    JSON.stringify(payload),
-        });
-        if (res.ok) {
-          formEl.style.display = 'none';
-          successEl.classList.add('visible');
-        } else {
-          throw new Error('not ok');
-        }
-      } catch {
-        errorEl.classList.add('visible');
-        btn.disabled = false;
-        btnText.textContent = 'Send inquiry';
-        spinner.style.display = 'none';
-      }
-    });
-  </script>
+        sessionStorage.setItem('inoa_catering_reference', data.referenceId || '');
+        sessionStorage.setItem('inoa_catering_email',     payload.email);
+        sessionStorage.setItem('inoa_catering_date',      eventDate);
+      } catch { /* private mode — silent */ }
+
+      clearCart();
+      window.location.href = data.url;
+    } catch {
+      showErr(errEl, 'Network error. Check your connection and try again.');
+      btn.disabled    = false;
+      btn.textContent = 'Place order — pay via Square';
+    }
+  }
+
+  function showErr(el, msg) {
+    el.textContent = msg;
+    el.hidden = false;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ── Flavor table ──────────────────────────────────────────────────
+  function renderFlavorTable() {
+    const tbody = document.getElementById('flavor-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = D.flavors.map(f => {
+      const badges = [
+        f.gf     ? '<span class="ct-badge gf">GF</span>'     : '',
+        f.cooked ? '<span class="ct-badge cooked">Cooked</span>' : '',
+      ].filter(Boolean).join(' ') || '—';
+      return `<tr>
+        <td>${f.name}</td>
+        <td>${f.build}</td>
+        <td>${badges}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────
+  renderMenu();
+  renderFlavorTable();
+  renderAll();
+  fetchBlackoutDates();
+</script>
+
 </body>
 </html>

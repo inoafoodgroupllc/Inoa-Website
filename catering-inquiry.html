@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>catering inquiry — inoa</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:opsz,wght@9..40,300;9..40,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8e0d0;
+      --driftwood: #8b7355;
+      --ogo:       #4a7c6f;
+      --err:       #b87a5a;
+    }
+    html { background: var(--cream); color: var(--ink); font-family: 'DM Sans', sans-serif; }
+
+    /* ── Nav ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px; background: var(--cream);
+      border-bottom: 1px solid rgba(26,26,26,0.07);
+    }
+    .nav-logo { height: 26px; }
+    .nav-back { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.5; text-decoration: none; transition: opacity 0.2s; }
+    .nav-back:hover { opacity: 1; }
+
+    /* ── Page layout ── */
+    .page { max-width: 680px; margin: 0 auto; padding: 64px 24px 120px; }
+
+    .page-eyebrow {
+      font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--driftwood); margin-bottom: 12px;
+    }
+    .page-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 52px);
+      font-weight: 300; letter-spacing: -0.02em; line-height: 1.1;
+      margin-bottom: 16px;
+    }
+    .page-sub {
+      font-size: 14px; line-height: 1.8; opacity: 0.6; margin-bottom: 48px;
+    }
+
+    /* ── Cart context box ── */
+    .cart-context {
+      background: rgba(74,124,111,0.06);
+      border: 1px solid rgba(74,124,111,0.18);
+      border-radius: 4px; padding: 20px 24px; margin-bottom: 40px;
+    }
+    .cart-context-label {
+      font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--ogo); margin-bottom: 10px;
+    }
+    .cart-context-item {
+      display: flex; justify-content: space-between; align-items: baseline;
+      font-size: 13px; line-height: 1.7; opacity: 0.8;
+    }
+    .cart-context-item + .cart-context-item { border-top: 1px solid rgba(26,26,26,0.06); padding-top: 4px; }
+
+    /* ── Form ── */
+    .form-group { margin-bottom: 24px; }
+    .form-label {
+      display: block; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--ink); opacity: 0.55; margin-bottom: 7px;
+    }
+    .form-label span { text-transform: none; letter-spacing: 0; opacity: 0.7; font-size: 10px; }
+    .form-input, .form-select, .form-textarea {
+      display: block; width: 100%;
+      padding: 11px 14px;
+      background: rgba(26,26,26,0.03); border: 1px solid rgba(26,26,26,0.14);
+      border-radius: 3px;
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+      transition: border-color 0.18s;
+      appearance: none; -webkit-appearance: none;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none; border-color: var(--ogo);
+      box-shadow: 0 0 0 3px rgba(74,124,111,0.12);
+    }
+    .form-textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
+    .form-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 560px) { .form-two { grid-template-columns: 1fr; } }
+
+    .date-soft-warn {
+      margin-top: 7px; font-size: 12px; color: var(--driftwood); line-height: 1.5;
+    }
+
+    .form-err { font-size: 12px; color: var(--err); margin-top: 20px; }
+
+    /* ── Submit ── */
+    .submit-btn {
+      display: block; width: 100%; margin-top: 32px;
+      padding: 15px 24px; text-align: center;
+      background: var(--ogo); color: #fff;
+      font-family: 'DM Sans', sans-serif; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+      border: none; border-radius: 3px; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .submit-btn:hover:not(:disabled) { opacity: 0.88; }
+    .submit-btn:active:not(:disabled) { transform: scale(0.99); }
+    .submit-btn:disabled { opacity: 0.45; cursor: default; }
+
+    /* ── Success state ── */
+    .success-state {
+      text-align: center; padding: 64px 24px;
+    }
+    .success-check {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--ogo);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .success-check svg { width: 24px; height: 24px; stroke: #fff; fill: none; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .success-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 38px; font-weight: 300; letter-spacing: -0.02em; margin-bottom: 12px;
+    }
+    .success-sub { font-size: 14px; opacity: 0.6; line-height: 1.75; max-width: 360px; margin: 0 auto 32px; }
+    .btn-back {
+      display: inline-block; padding: 11px 28px;
+      background: var(--ink); color: var(--cream);
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; border-radius: 2px;
+      transition: opacity 0.2s;
+    }
+    .btn-back:hover { opacity: 0.8; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/home"><img src="/brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="nav-logo"></a>
+    <a href="/catering" class="nav-back">← back to catering</a>
+  </nav>
+
+  <main class="page" id="main-page">
+
+    <p class="page-eyebrow">Catering inquiry</p>
+    <h1 class="page-heading">Let's plan<br><em>your event.</em></h1>
+    <p class="page-sub">For large groups, on-site service, weddings, or custom requests — tell us what you're thinking and we'll get back to you within one business day.</p>
+
+    <div id="cart-context-wrap"></div>
+
+    <form id="inquiry-form" novalidate>
+
+      <div class="form-two">
+        <div class="form-group">
+          <label class="form-label" for="iq-name">Name</label>
+          <input class="form-input" type="text" id="iq-name" name="name" required autocomplete="name">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="iq-company">Company <span>(optional)</span></label>
+          <input class="form-input" type="text" id="iq-company" name="company" autocomplete="organization">
+        </div>
+      </div>
+
+      <div class="form-two">
+        <div class="form-group">
+          <label class="form-label" for="iq-email">Email</label>
+          <input class="form-input" type="email" id="iq-email" name="email" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="iq-phone">Phone</label>
+          <input class="form-input" type="tel" id="iq-phone" name="phone" required autocomplete="tel">
+        </div>
+      </div>
+
+      <div class="form-two">
+        <div class="form-group">
+          <label class="form-label" for="iq-event-date">Event date <span>(approx. ok)</span></label>
+          <input class="form-input" type="date" id="iq-event-date" name="event_date" onchange="checkDateWarn(this.value)">
+          <div class="date-soft-warn" id="date-soft-warn" hidden>Within 72 hours — we may not be able to accommodate, but reach out anyway.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="iq-event-time">Event time <span>(approx. ok)</span></label>
+          <input class="form-input" type="text" id="iq-event-time" name="event_time" placeholder="e.g. 6 PM">
+        </div>
+      </div>
+
+      <div class="form-two">
+        <div class="form-group">
+          <label class="form-label" for="iq-headcount">Estimated headcount</label>
+          <input class="form-input" type="number" id="iq-headcount" name="headcount" min="1" placeholder="e.g. 80">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="iq-format">Format interest</label>
+          <select class="form-select" id="iq-format" name="format">
+            <option value="">— select —</option>
+            <option>Individually packaged boxes</option>
+            <option>Tray service (self-serve)</option>
+            <option>On-site service / staffed</option>
+            <option>Mixed / not sure yet</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-two">
+        <div class="form-group">
+          <label class="form-label" for="iq-fulfillment">Pickup or delivery?</label>
+          <select class="form-select" id="iq-fulfillment" name="fulfillment" onchange="toggleCity(this.value)">
+            <option value="">— select —</option>
+            <option value="pickup">Pickup (Scotts Valley)</option>
+            <option value="delivery">Delivery</option>
+          </select>
+        </div>
+        <div class="form-group" id="city-group" style="display:none">
+          <label class="form-label" for="iq-city">Delivery city / area</label>
+          <input class="form-input" type="text" id="iq-city" name="delivery_city" placeholder="e.g. Santa Cruz">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="iq-dietary">Dietary needs <span>(optional)</span></label>
+        <input class="form-input" type="text" id="iq-dietary" name="dietary" placeholder="e.g. gluten-free, shellfish allergy">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="iq-notes">Tell us more <span>(optional)</span></label>
+        <textarea class="form-textarea" id="iq-notes" name="notes" placeholder="Event type, vibe, budget range, anything else we should know…"></textarea>
+      </div>
+
+      <div class="form-err" id="form-err" hidden></div>
+
+      <button class="submit-btn" type="submit" id="submit-btn">Send inquiry</button>
+
+    </form>
+
+  </main>
+
+  <!-- Success state (hidden initially) -->
+  <div class="success-state" id="success-state" style="display:none">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h2 class="success-heading">Inquiry sent.</h2>
+    <p class="success-sub">We'll get back to you within one business day. Questions in the meantime? Text us at (925) 391-6589.</p>
+    <a href="/catering" class="btn-back">Back to catering</a>
+  </div>
+
+  <script>
+    const CATERING_INQUIRY_FORMSPREE_ID = 'mljeooew';
+    const MIN_LEAD_TIME_MS = 72 * 60 * 60 * 1000;
+
+    // ── Cart context prefill ──────────────────────────────────────────
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('from') === 'cart') {
+      try {
+        const raw = localStorage.getItem('inoa_catering_cart');
+        const items = raw ? JSON.parse(raw) : [];
+        if (items.length) {
+          const wrap = document.getElementById('cart-context-wrap');
+          const rows = items.map(i => {
+            const f = [i.flavor, i.flavor2].filter(Boolean).join(' / ');
+            const label = `${i.name}${f ? ` — ${f}` : ''}`;
+            const price = `$${((i.cents * i.qty) / 100).toFixed(2)}`;
+            return `<div class="cart-context-item"><span>${label} ×${i.qty}</span><span>${price}</span></div>`;
+          }).join('');
+          wrap.innerHTML = `
+            <div class="cart-context">
+              <div class="cart-context-label">Items from your cart</div>
+              ${rows}
+            </div>`;
+          // Prefill notes textarea
+          const notesEl = document.getElementById('iq-notes');
+          const cartSummary = items.map(i => {
+            const f = [i.flavor, i.flavor2].filter(Boolean).join(' / ');
+            return `${i.name}${f ? ` (${f})` : ''} ×${i.qty}`;
+          }).join(', ');
+          if (notesEl && !notesEl.value) {
+            notesEl.value = `From my cart: ${cartSummary}`;
+          }
+        }
+      } catch { /* ignore */ }
+    }
+
+    // ── Soft date warning ─────────────────────────────────────────────
+    function checkDateWarn(value) {
+      const warn = document.getElementById('date-soft-warn');
+      if (!warn) return;
+      if (!value) { warn.hidden = true; return; }
+      const eventMs = new Date(value + 'T00:00:00').getTime();
+      warn.hidden = isNaN(eventMs) || eventMs >= Date.now() + MIN_LEAD_TIME_MS;
+    }
+
+    // ── City field toggle ─────────────────────────────────────────────
+    function toggleCity(val) {
+      const g = document.getElementById('city-group');
+      if (g) g.style.display = val === 'delivery' ? 'block' : 'none';
+    }
+
+    // ── Form submit ───────────────────────────────────────────────────
+    document.getElementById('inquiry-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const form   = e.target;
+      const errEl  = document.getElementById('form-err');
+      const btn    = document.getElementById('submit-btn');
+
+      errEl.hidden = true;
+      if (!form.checkValidity()) { form.reportValidity(); return; }
+
+      const payload = {
+        _subject:       `inoa Catering Inquiry — ${form.name?.value || ''}`,
+        name:           form.name?.value?.trim() || '',
+        company:        form.company?.value?.trim() || '',
+        email:          form.email?.value?.trim() || '',
+        phone:          form.phone?.value?.trim() || '',
+        event_date:     form.event_date?.value || '',
+        event_time:     form.event_time?.value?.trim() || '',
+        headcount:      form.headcount?.value || '',
+        format:         form.format?.value || '',
+        fulfillment:    form.fulfillment?.value || '',
+        delivery_city:  form.delivery_city?.value?.trim() || '',
+        dietary:        form.dietary?.value?.trim() || '',
+        notes:          form.notes?.value?.trim() || '',
+      };
+
+      btn.disabled    = true;
+      btn.textContent = 'Sending…';
+
+      try {
+        const res = await fetch(`https://formspree.io/f/${CATERING_INQUIRY_FORMSPREE_ID}`, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body:    JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          errEl.textContent = data.error || 'Something went wrong. Please try again.';
+          errEl.hidden      = false;
+          btn.disabled      = false;
+          btn.textContent   = 'Send inquiry';
+          return;
+        }
+        document.getElementById('main-page').style.display   = 'none';
+        document.getElementById('success-state').style.display = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch {
+        errEl.textContent = 'Network error. Check your connection and try again.';
+        errEl.hidden      = false;
+        btn.disabled      = false;
+        btn.textContent   = 'Send inquiry';
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -17,6 +17,8 @@
     { "source": "/refund", "destination": "/refund.html" },
     { "source": "/terms", "destination": "/terms.html" },
     { "source": "/catering", "destination": "/catering.html" },
+    { "source": "/catering/inquiry",   "destination": "/catering-inquiry.html" },
+    { "source": "/catering/confirmed", "destination": "/catering-confirmed.html" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "redirects": [
