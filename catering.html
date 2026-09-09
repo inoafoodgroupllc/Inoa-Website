@@ -467,15 +467,15 @@
     }
     .ct-fulfillment-opts input[type=radio] {
       appearance: none; -webkit-appearance: none;
-      width: 15px; height: 15px; border-radius: 50%;
+      width: 16px; height: 16px; border-radius: 50%;
       border: 1.5px solid rgba(26,26,26,0.28);
+      background: transparent;
       cursor: pointer; flex-shrink: 0;
-      transition: border-color 0.15s;
+      transition: border-color 0.15s, background 0.15s;
     }
     .ct-fulfillment-opts input[type=radio]:checked {
       border-color: var(--ogo);
-      background: var(--ogo);
-      box-shadow: inset 0 0 0 3px var(--cream);
+      background: radial-gradient(circle, var(--ogo) 4px, transparent 4px);
     }
     .ct-city-wrap { margin-bottom: 4px; }
     .ct-city-wrap label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.45; display: block; margin-bottom: 5px; }
