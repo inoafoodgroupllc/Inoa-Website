@@ -261,6 +261,17 @@
     .mod-opt-name { font-size: 13px; color: var(--ink); flex: 1; }
     .mod-opt-price { font-size: 12px; color: var(--ink); opacity: 0.42; }
 
+    /* Protein dropdown */
+    .mod-protein-select {
+      width: 100%; font-family: 'DM Sans', sans-serif; font-size: 13px;
+      padding: 10px 34px 10px 12px; border: 1px solid rgba(26,26,26,0.18);
+      background: var(--cream); color: var(--ink); border-radius: 3px;
+      appearance: none; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(26,26,26,0.4)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    .mod-protein-select:focus { outline: 2px solid var(--driftwood); outline-offset: 2px; }
+
     /* Add-ons grid */
     .addon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
     .addon-card {
@@ -614,7 +625,7 @@
       { id:401, cat:'specials', name:'Poke Nachos',               desc:'housemade wonton chips, shoyu marinated ahi/salmon, avocado, cilantro, serrano, green onion, spicy mayo & sweet soy drizzle, furikake, masago',   price:16.50 },
       { id:402, cat:'specials', name:'Poke Bombs',                desc:'three sweet tofu pouches filled with seasoned sushi rice & your choice of poke flavors',                                                           price:12.00 },
       { id:403, cat:'specials', name:'Spicy Tuna Bowl',           desc:'minced spicy tuna over seasoned sushi rice w/ seaweed salad',                                                                                      price:12.00 },
-      { id:404, cat:'specials', name:'Sushi Bake',               desc:'warm sushi rice layered with creamy crab, baked to order. finished with spicy mayo, sweet soy, masago, and green onions. nori pack on the side. upgrade your protein in add-ons.',  price:12.00 },
+      { id:404, cat:'specials', name:'Sushi Bake',               desc:'warm sushi rice layered with creamy crab, baked to order. finished with spicy mayo, sweet soy, masago, and green onions. nori pack on the side.',  price:12.00 },
       // SIDES
       { id:501, cat:'sides',    name:'Crab Mac Salad',            desc:'macaroni, imitation crab, mayo',                                                                                                                    price:6.00 },
       { id:502, cat:'sides',    name:'Seaweed Salad',             desc:'from japan',                                                                                                                                        price:5.00 },
@@ -654,7 +665,7 @@
       401: { fish:{ min:1, max:1 } },
       402: { flavors:{ min:1, max:3 }, addOns:true },
       403: { addOns:true },
-      404: { addOns:true },
+      404: { protein:true },
     };
 
     const FLAVOR_OPTS = [
@@ -665,15 +676,20 @@
     const SOLD_OUT_FLAVORS = new Set();
     const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
     const ADDON_OPTS = [
-      { name:'Sliced Avocado',                     price:2.00 },
-      { name:'Roasted Nori Pack',                  price:2.50 },
-      { name:'Spicy Mayo Drizzle',                 price:0.50 },
-      { name:'Sweet Soy Drizzle',                  price:0.50 },
-      { name:'Wasabi',                             price:0.75 },
-      { name:'Sushi Bake — salmon or shrimp',      price:3.00, sushiBakeOnly:true },
-      { name:'Sushi Bake — ahi or scallop',        price:5.00, sushiBakeOnly:true },
+      { name:'Sliced Avocado',     price:2.00 },
+      { name:'Roasted Nori Pack',  price:2.50 },
+      { name:'Spicy Mayo Drizzle', price:0.50 },
+      { name:'Sweet Soy Drizzle',  price:0.50 },
+      { name:'Wasabi',             price:0.75 },
     ];
     const FISH_OPTS = ['Ahi','Salmon'];
+    const PROTEIN_OPTS = [
+      { name:'Regular (crab)',  price:0 },
+      { name:'Salmon',          price:3 },
+      { name:'Shrimp',          price:3 },
+      { name:'Ahi',             price:5 },
+      { name:'Scallop',         price:5 },
+    ];
 
     const PROMO_CODES = {
       nextdoor: { label:'Nextdoor', discount:0.10 },
@@ -723,12 +739,13 @@
       if (mods.flavors?.length) parts.push(mods.flavors.join(' + '));
       if (mods.sides?.length)   parts.push(mods.sides.join(', '));
       if (mods.fish)            parts.push(mods.fish);
+      if (mods.protein?.name && mods.protein.name !== 'Regular (crab)') parts.push(mods.protein.name);
       if (mods.addOns?.length)  parts.push(mods.addOns.map(a => a.name).join(', '));
       return parts.join(' · ');
     }
 
     function unitPrice(basePrice, mods) {
-      return basePrice + (mods.addOns||[]).reduce((s,a) => s + a.price, 0);
+      return basePrice + (mods.addOns||[]).reduce((s,a) => s + a.price, 0) + (mods.protein?.price || 0);
     }
 
     function fmtMoney(n) {
@@ -865,7 +882,7 @@
     function ItemModal({ item, editLine, onAdd, onClose }) {
       const cfg = MODIFIER_CONFIGS[item.id] || {};
       const [qty, setQty] = useState(editLine?.quantity || 1);
-      const [mods, setMods] = useState(editLine ? { ...editLine.modifiers } : { flavors:[], sides:[], fish:null, addOns:[] });
+      const [mods, setMods] = useState(editLine ? { ...editLine.modifiers } : { flavors:[], sides:[], fish:null, addOns:[], protein:PROTEIN_OPTS[0] });
 
       const up = unitPrice(item.price, mods);
       const total = up * qty;
@@ -1018,6 +1035,31 @@
                 </div>
               )}
 
+              {/* Protein dropdown */}
+              {cfg.protein && (
+                <div className="mod-group">
+                  <div className="mod-group-hdr">
+                    <span className="mod-group-label">protein</span>
+                    <span className="mod-badge opt">optional</span>
+                  </div>
+                  <div className="mod-rule" />
+                  <select
+                    className="mod-protein-select"
+                    value={mods.protein?.name || PROTEIN_OPTS[0].name}
+                    onChange={e => {
+                      const opt = PROTEIN_OPTS.find(p => p.name === e.target.value) || PROTEIN_OPTS[0];
+                      setMods(prev => ({ ...prev, protein: opt }));
+                    }}
+                  >
+                    {PROTEIN_OPTS.map(opt => (
+                      <option key={opt.name} value={opt.name}>
+                        {opt.name}{opt.price > 0 ? ` (+$${opt.price})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {/* Add-ons */}
               {cfg.addOns && (
                 <div className="mod-group">
@@ -1027,7 +1069,7 @@
                   </div>
                   <div className="mod-rule" />
                   <div className="addon-grid">
-                    {ADDON_OPTS.filter(addon => addon.sushiBakeOnly ? item.id === 404 : true).map(addon => {
+                    {ADDON_OPTS.map(addon => {
                       const sel = !!(mods.addOns||[]).find(a => a.name === addon.name);
                       return (
                         <div key={addon.name} className={`addon-card${sel?' sel':''}`} onClick={() => toggleAddon(addon)}>
