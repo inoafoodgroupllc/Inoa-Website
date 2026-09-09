@@ -461,19 +461,18 @@
     /* Cart fulfillment */
     .ct-fulfillment { padding: 14px 20px 0; border-top: 1px solid rgba(26,26,26,0.08); margin-top: 4px; }
     .ct-fulfillment-opts { display: flex; gap: 16px; margin-bottom: 10px; }
-    .ct-fulfillment-opts label {
+    .ct-fulfil-opt {
       display: flex; align-items: center; gap: 6px;
-      font-size: 12.5px; cursor: pointer; color: var(--ink);
+      font-size: 12.5px; cursor: pointer; color: var(--ink); user-select: none;
     }
-    .ct-fulfillment-opts input[type=radio] {
-      appearance: none; -webkit-appearance: none;
+    .ct-fulfil-dot {
       width: 16px; height: 16px; border-radius: 50%;
       border: 1.5px solid rgba(26,26,26,0.28);
       background: transparent;
-      cursor: pointer; flex-shrink: 0;
+      flex-shrink: 0; display: inline-block;
       transition: border-color 0.15s, background 0.15s;
     }
-    .ct-fulfillment-opts input[type=radio]:checked {
+    .ct-fulfil-dot--active {
       border-color: var(--ogo);
       background: radial-gradient(circle, var(--ogo) 4px, transparent 4px);
     }
@@ -1225,8 +1224,14 @@
     const fulfillHTML = `
       <div class="ct-fulfillment">
         <div class="ct-fulfillment-opts">
-          <label><input type="radio" name="fulfillment" value="pickup" ${fulfillment === 'pickup' ? 'checked' : ''} onchange="onFulfillmentChange()"> Pickup (Scotts Valley)</label>
-          <label><input type="radio" name="fulfillment" value="delivery" ${fulfillment === 'delivery' ? 'checked' : ''} onchange="onFulfillmentChange()"> Delivery</label>
+          <span class="ct-fulfil-opt" onclick="selectFulfillment('pickup')">
+            <span class="ct-fulfil-dot ${fulfillment === 'pickup' ? 'ct-fulfil-dot--active' : ''}"></span>
+            Pickup (Scotts Valley)
+          </span>
+          <span class="ct-fulfil-opt" onclick="selectFulfillment('delivery')">
+            <span class="ct-fulfil-dot ${fulfillment === 'delivery' ? 'ct-fulfil-dot--active' : ''}"></span>
+            Delivery
+          </span>
         </div>
         <div class="ct-city-wrap" id="city-wrap" ${fulfillment !== 'delivery' ? 'hidden' : ''}>
           <label for="delivery-city">Delivery city</label>
@@ -1305,9 +1310,9 @@
     document.body.classList.toggle('has-cart-items', count > 0);
   }
 
-  function onFulfillmentChange() {
-    selectedFulfillment = document.querySelector('input[name="fulfillment"]:checked')?.value || 'pickup';
-    if (selectedFulfillment !== 'delivery') selectedCity = '';
+  function selectFulfillment(val) {
+    selectedFulfillment = val;
+    if (val !== 'delivery') selectedCity = '';
     renderAll();
   }
 
