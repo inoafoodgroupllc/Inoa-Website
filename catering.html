@@ -300,10 +300,65 @@
 
     /* ── Ordering section ── */
     .ct-order-section {
-      padding: 64px 0 96px;
+      padding: 0;
       background: var(--cream);
       border-top: 1px solid rgba(26,26,26,0.07);
     }
+
+    /* Coming soon */
+    .ct-coming-soon {
+      position: relative; overflow: hidden;
+      min-height: 520px;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a22 40%, #1e2e2b 100%);
+      padding: 100px 40px;
+    }
+    .ct-cs-grain {
+      position: absolute; inset: -50%;
+      width: 200%; height: 200%;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      opacity: 0.04; pointer-events: none;
+    }
+    .ct-cs-glow {
+      position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse 60% 50% at 50% 60%, rgba(74,124,111,0.18) 0%, transparent 70%);
+      animation: ct-cs-pulse 6s ease-in-out infinite;
+    }
+    @keyframes ct-cs-pulse {
+      0%, 100% { opacity: 0.7; transform: scale(1); }
+      50%       { opacity: 1;   transform: scale(1.06); }
+    }
+    .ct-cs-inner {
+      position: relative; text-align: center; max-width: 560px;
+      animation: ct-cs-fadein 0.9s ease both;
+    }
+    @keyframes ct-cs-fadein {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .ct-cs-eyebrow {
+      display: block; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--ogo); opacity: 0.75; margin-bottom: 24px;
+    }
+    .ct-cs-heading {
+      font-family: 'Cormorant Garamond', serif; font-weight: 300; font-style: italic;
+      font-size: clamp(40px, 7vw, 68px); letter-spacing: -0.02em; line-height: 1.05;
+      color: var(--cream); margin-bottom: 28px;
+    }
+    .ct-cs-sub {
+      font-size: 14px; line-height: 1.75; color: rgba(245,240,232,0.52);
+      max-width: 400px; margin: 0 auto 40px;
+    }
+    .ct-cs-btn {
+      display: inline-block; padding: 13px 32px;
+      background: var(--ogo); color: var(--cream);
+      font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+      text-decoration: none; border-radius: 2px;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .ct-cs-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .ct-cs-btn:active { transform: translateY(0); opacity: 1; }
+
     .ct-order-header {
       max-width: 1200px; margin: 0 auto; padding: 0 40px 40px;
     }
@@ -689,8 +744,8 @@
     <p class="ct-hero-sub">Hawaiian-inspired poke, cut and mixed the morning of your event.</p>
     <p class="ct-hero-support">Order online in a few minutes. Three days' notice, Santa Cruz County and the South Bay.</p>
     <div class="ct-hero-btns">
-      <a href="#order" class="ct-btn-primary">Start ordering</a>
-      <a href="/catering/inquiry" class="ct-btn-ghost">Send an inquiry</a>
+      <a href="/catering/inquiry" class="ct-btn-primary">Send an inquiry</a>
+      <a href="#order" class="ct-btn-ghost">Learn more</a>
     </div>
   </div>
 </section>
@@ -811,28 +866,20 @@
 
 <!-- ── Ordering section ── -->
 <section class="ct-order-section" id="order" aria-labelledby="menu-heading">
-  <div class="ct-order-header">
-    <span class="ct-section-label">order online</span>
-    <h2 class="ct-section-heading" id="menu-heading" style="margin-bottom:0">Build your order</h2>
-  </div>
-
-  <div class="ct-order-layout">
-    <!-- Menu (left column, rendered by JS) -->
-    <div class="ct-menu-col" id="order-menu" aria-label="Menu items">
-      <p style="font-size:13px;opacity:0.4;padding-top:8px;">Loading menu…</p>
-    </div>
-
-    <!-- Cart sidebar (right column, sticky) -->
-    <div class="ct-cart-col" aria-label="Your cart">
-      <div class="ct-cart-panel" id="cart-panel">
-        <!-- Populated by JS -->
-      </div>
+  <div class="ct-coming-soon">
+    <div class="ct-cs-grain"></div>
+    <div class="ct-cs-glow"></div>
+    <div class="ct-cs-inner">
+      <span class="ct-cs-eyebrow">online ordering</span>
+      <h2 class="ct-cs-heading" id="menu-heading">catering coming soon.</h2>
+      <p class="ct-cs-sub">Online ordering for catering is on its way. In the meantime, send us an inquiry and we'll get back to you within 24 hours.</p>
+      <a href="/catering/inquiry" class="ct-cs-btn">Send an inquiry</a>
     </div>
   </div>
 </section>
 
 <!-- Mobile cart bar -->
-<div class="ct-mobile-bar" id="mobile-cart-bar" role="button" tabindex="0" aria-label="View cart" onclick="openDrawer()" onkeydown="if(event.key==='Enter'||event.key===' ')openDrawer()">
+<div class="ct-mobile-bar" id="mobile-cart-bar" style="display:none!important" role="button" tabindex="0" aria-label="View cart" onclick="openDrawer()" onkeydown="if(event.key==='Enter'||event.key===' ')openDrawer()">
   <span class="ct-mobile-bar-left" id="mobile-bar-count">0 items</span>
   <div class="ct-mobile-bar-right">
     <span class="ct-mobile-bar-total" id="mobile-bar-total">$0.00</span>

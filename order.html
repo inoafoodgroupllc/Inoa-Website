@@ -614,6 +614,7 @@
       { id:401, cat:'specials', name:'Poke Nachos',               desc:'housemade wonton chips, shoyu marinated ahi/salmon, avocado, cilantro, serrano, green onion, spicy mayo & sweet soy drizzle, furikake, masago',   price:16.50 },
       { id:402, cat:'specials', name:'Poke Bombs',                desc:'three sweet tofu pouches filled with seasoned sushi rice & your choice of poke flavors',                                                           price:12.00 },
       { id:403, cat:'specials', name:'Spicy Tuna Bowl',           desc:'minced spicy tuna over seasoned sushi rice w/ seaweed salad',                                                                                      price:12.00 },
+      { id:404, cat:'specials', name:'Sushi Bake',               desc:'warm sushi rice layered with creamy crab, baked to order. finished with spicy mayo, sweet soy, masago, and green onions. nori pack on the side. upgrade your protein in add-ons.',  price:12.00 },
       // SIDES
       { id:501, cat:'sides',    name:'Crab Mac Salad',            desc:'macaroni, imitation crab, mayo',                                                                                                                    price:6.00 },
       { id:502, cat:'sides',    name:'Seaweed Salad',             desc:'from japan',                                                                                                                                        price:5.00 },
@@ -653,6 +654,7 @@
       401: { fish:{ min:1, max:1 } },
       402: { flavors:{ min:1, max:3 }, addOns:true },
       403: { addOns:true },
+      404: { addOns:true },
     };
 
     const FLAVOR_OPTS = [
@@ -663,11 +665,13 @@
     const SOLD_OUT_FLAVORS = new Set();
     const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
     const ADDON_OPTS = [
-      { name:'Sliced Avocado',     price:2.00 },
-      { name:'Roasted Nori Pack',  price:2.50 },
-      { name:'Spicy Mayo Drizzle', price:0.50 },
-      { name:'Sweet Soy Drizzle',  price:0.50 },
-      { name:'Wasabi',             price:0.75 },
+      { name:'Sliced Avocado',                     price:2.00 },
+      { name:'Roasted Nori Pack',                  price:2.50 },
+      { name:'Spicy Mayo Drizzle',                 price:0.50 },
+      { name:'Sweet Soy Drizzle',                  price:0.50 },
+      { name:'Wasabi',                             price:0.75 },
+      { name:'Sushi Bake — salmon or shrimp',      price:3.00, sushiBakeOnly:true },
+      { name:'Sushi Bake — ahi or scallop',        price:5.00, sushiBakeOnly:true },
     ];
     const FISH_OPTS = ['Ahi','Salmon'];
 
@@ -1023,7 +1027,7 @@
                   </div>
                   <div className="mod-rule" />
                   <div className="addon-grid">
-                    {ADDON_OPTS.map(addon => {
+                    {ADDON_OPTS.filter(addon => addon.sushiBakeOnly ? item.id === 404 : true).map(addon => {
                       const sel = !!(mods.addOns||[]).find(a => a.name === addon.name);
                       return (
                         <div key={addon.name} className={`addon-card${sel?' sel':''}`} onClick={() => toggleAddon(addon)}>
