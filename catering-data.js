@@ -5,7 +5,7 @@ window.CATERING_CONSTANTS = {
   PICKUP_MIN_CENTS:  20000,
   INQUIRY_GUESTS:    50,
   INQUIRY_BOXES:     30,
-  BOX_MINIMUM:       10,
+  BOX_MINIMUM:       5,
   DELIVERY_ZONES: {
     'Scotts Valley': { min: 20000, fee:     0 },
     'Santa Cruz':    { min: 25000, fee:  3500 },
