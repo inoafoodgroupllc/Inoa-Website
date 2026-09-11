@@ -1271,6 +1271,17 @@ function fmt(cents) {
 }
 function fmtDec(cents) { return '$' + (cents / 100).toFixed(2); }
 
+const TRAY_GROUPS = [
+  { key: 'std',     label: 'Poke tray',           desc: 'Spicy salmon, sweet unagi, chili garlic, garlic shrimp' },
+  { key: 'premium', label: 'Premium poke tray',   desc: 'Shoyu ahi, Hawaiian ahi, spicy ahi, tobiko scallop, kimchi tako' },
+  { key: 'cooked',  label: 'Cooked protein tray', desc: 'Teriyaki beef, shoyu ginger chicken' },
+  { key: 'tofu',    label: 'Tofu tray',           desc: 'Hawaiian tofu · GF · vegan' },
+].map(g => ({
+  ...g,
+  s15: M.trays.find(t => t.id === `tray-${g.key}-15`),
+  s40: M.trays.find(t => t.id === `tray-${g.key}-40`),
+}));
+
 const CheckMark = () => (
   <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
     <path d="M1 3.5L4 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -1401,6 +1412,81 @@ function BarModal({ bar, onAdd, onClose, editLine }) {
 
         <div className="ct-modal-bottom">
           <button className="ct-modal-add-btn" disabled={!canAdd} onClick={handleAdd}>
+            {editLine ? 'Update order' : 'Add to order'} · {fmt(total)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── TrayModal ─────────────── */
+function TrayModal({ tray, onAdd, onClose, editLine }) {
+  const [size, setSize] = useState(editLine?.mods?.size ?? '15');
+  const [qty,  setQty]  = useState(editLine?.qty ?? 1);
+
+  const item  = size === '15' ? tray.s15 : tray.s40;
+  const label = size === '15' ? 'serves 15' : 'serves 40';
+  const total = (item?.cents ?? 0) * qty;
+
+  function handleAdd() {
+    if (!item) return;
+    onAdd({
+      cartId:    editLine?.cartId ?? uid(),
+      itemId:    item.id,
+      label:     tray.label,
+      detail:    `${label} · ${tray.desc}`,
+      unitPrice: item.cents,
+      qty,
+      category:  'tray',
+      mods:      { size },
+    });
+    onClose();
+  }
+
+  return (
+    <div className="ct-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="ct-modal-panel" onClick={e => e.stopPropagation()}>
+        <div className="ct-modal-top">
+          <div>
+            <div className="ct-modal-title">{tray.label}</div>
+            <div style={{fontSize:'11.5px',opacity:0.42,marginTop:'3px'}}>{tray.desc}</div>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:'16px'}}>
+            <span className="ct-modal-price-preview">{fmt(total)}</span>
+            <button className="ct-modal-close" onClick={onClose} aria-label="Close">×</button>
+          </div>
+        </div>
+
+        <div className="ct-modal-scroll">
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Size</span>
+            <div className="ct-radio-list">
+              {[
+                { key: '15', label: 'Serves 15', cents: tray.s15?.cents },
+                { key: '40', label: 'Serves 40', cents: tray.s40?.cents },
+              ].map(s => (
+                <label key={s.key} className={`ct-radio-item${size === s.key ? ' ct-radio-item--selected' : ''}`} onClick={() => setSize(s.key)} style={{cursor:'pointer'}}>
+                  <span className="ct-radio-dot" />
+                  <span className="ct-radio-label">{s.label}</span>
+                  <span className="ct-radio-price">{fmt(s.cents)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Quantity</span>
+            <div className="ct-modal-qty-row">
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+              <span className="ct-modal-qty-val">{qty}</span>
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="ct-modal-bottom">
+          <button className="ct-modal-add-btn" onClick={handleAdd}>
             {editLine ? 'Update order' : 'Add to order'} · {fmt(total)}
           </button>
         </div>
@@ -1616,22 +1702,11 @@ function CateringMenu({ onOpenModal, onAddDirect, scrollToCart }) {
 
   const pbakeProteinObj = M.personalBake.proteins.find(p => p.key === pbakeProtein);
 
-  const trayGroups = [
-    { key: 'std',     label: 'Poke tray',           desc: 'Spicy salmon, sweet unagi, chili garlic, garlic shrimp' },
-    { key: 'premium', label: 'Premium poke tray',   desc: 'Shoyu ahi, Hawaiian ahi, spicy ahi, tobiko scallop, kimchi tako' },
-    { key: 'cooked',  label: 'Cooked protein tray', desc: 'Teriyaki beef, shoyu ginger chicken' },
-    { key: 'tofu',    label: 'Tofu tray',           desc: 'Hawaiian tofu · GF · vegan' },
-  ].map(g => ({
-    ...g,
-    s15: M.trays.find(t => t.id === `tray-${g.key}-15`),
-    s40: M.trays.find(t => t.id === `tray-${g.key}-40`),
-  }));
-
   const sideGroups = [
     { key: 'rice',    label: 'Sushi rice',      note: '' },
     { key: 'greens',  label: 'Greens',           note: 'Spring mix and shredded cabbage' },
     { key: 'sides',   label: 'Sides',            note: 'Crab mac, seaweed, kimchi cucumber, cold roasted sweet potato' },
-    { key: 'topping', label: 'Topping bar',      note: '' },
+    { key: 'topping', label: 'Topping bar',      note: 'Fried shallots, fried garlic, diced avocado, cilantro, jalapeño, green onions, furikake' },
     { key: 'chips',   label: 'Wonton chips',     note: 'Homemade' },
   ].map(g => ({
     ...g,
@@ -1664,23 +1739,18 @@ function CateringMenu({ onOpenModal, onAddDirect, scrollToCart }) {
         <p className="ct-ordering-sec-note">Family-style · each tray labeled with contents and allergens</p>
         <table className="ct-tray-table">
           <thead>
-            <tr><th></th><th>Serves 15</th><th>Serves 40</th></tr>
+            <tr><th></th><th>Serves 15</th><th>Serves 40</th><th></th></tr>
           </thead>
           <tbody>
-            {trayGroups.map(g => (
+            {TRAY_GROUPS.map(g => (
               <tr key={g.key}>
                 <td>
                   <span className="ct-tray-name">{g.label}</span>
                   <span className="ct-tray-desc">{g.desc}</span>
                 </td>
-                <td>
-                  <span className="ct-tray-price">{fmt(g.s15.cents)}</span>
-                  <button className="ct-add-btn" onClick={() => addItem(g.s15.id, g.label, `serves 15 · ${g.desc}`, g.s15.cents, 1, 'tray')}>+ Add</button>
-                </td>
-                <td>
-                  <span className="ct-tray-price">{fmt(g.s40.cents)}</span>
-                  <button className="ct-add-btn" onClick={() => addItem(g.s40.id, g.label, `serves 40 · ${g.desc}`, g.s40.cents, 1, 'tray')}>+ Add</button>
-                </td>
+                <td><span className="ct-tray-price">{fmt(g.s15.cents)}</span></td>
+                <td><span className="ct-tray-price">{fmt(g.s40.cents)}</span></td>
+                <td><button className="ct-add-btn" onClick={() => onOpenModal({ type: 'tray', item: g })}>Select →</button></td>
               </tr>
             ))}
           </tbody>
@@ -2042,14 +2112,25 @@ function CateringApp() {
     });
   }
   function removeItem(cartId)     { setCartItems(p => p.filter(ci => ci.cartId !== cartId)); }
-  function changeQty(cartId, d)   { setCartItems(p => p.map(ci => ci.cartId === cartId ? {...ci, qty: Math.max(1, ci.qty + d)} : ci)); }
+  function changeQty(cartId, d) {
+    setCartItems(p => p.map(ci => {
+      if (ci.cartId !== cartId) return ci;
+      const minQty = ci.category === 'box' ? 5 : 1;
+      return {...ci, qty: Math.max(minQty, ci.qty + d)};
+    }));
+  }
   function clearCart()            { setCartItems([]); setStep('menu'); }
 
   function editItem(line) {
     const type = line.category;
-    let item = type === 'bar' ? M.bars.find(b => b.id === line.itemId)
-             : type === 'box' ? M.boxes.find(b => b.id === line.itemId)
-             : type === 'bake' ? M.sushiBake : null;
+    let item;
+    if      (type === 'bar')  item = M.bars.find(b => b.id === line.itemId);
+    else if (type === 'box')  item = M.boxes.find(b => b.id === line.itemId);
+    else if (type === 'bake') item = M.sushiBake;
+    else if (type === 'tray') {
+      const m = line.itemId.match(/^tray-(.+)-\d+$/);
+      item = m ? TRAY_GROUPS.find(g => g.key === m[1]) : null;
+    }
     if (item) setOpenModal({ type, item, editLine: line });
   }
 
@@ -2090,6 +2171,7 @@ function CateringApp() {
   return (
     <>
       {openModal?.type === 'bar'  && <BarModal       bar={openModal.item}  onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
+      {openModal?.type === 'tray' && <TrayModal      tray={openModal.item} onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
       {openModal?.type === 'box'  && <BoxModal       box={openModal.item}  onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
       {openModal?.type === 'bake' && <SushiBakeModal                        onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
 
