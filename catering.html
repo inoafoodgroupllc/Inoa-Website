@@ -1280,8 +1280,6 @@ const TRAY_GROUPS = [
       { name: 'Sweet unagi salmon',   note: null },
       { name: 'Chili garlic salmon',  note: null },
       { name: 'Garlic shrimp',        note: 'GF · cooked' },
-      { name: 'Teriyaki beef',        note: 'cooked' },
-      { name: 'Shoyu ginger chicken', note: 'cooked' },
       { name: 'Hawaiian tofu',        note: 'GF · vegan' },
     ],
   },
@@ -1296,8 +1294,21 @@ const TRAY_GROUPS = [
       { name: 'Kimchi tako',    note: 'GF · cooked' },
     ],
   },
-  { key: 'cooked', label: 'Cooked protein tray', desc: 'Teriyaki beef, shoyu ginger chicken', maxFlavors: 0, flavorList: [] },
-  { key: 'tofu',   label: 'Tofu tray',           desc: 'Hawaiian tofu · GF · vegan',         maxFlavors: 0, flavorList: [] },
+  {
+    key: 'cooked', label: 'Cooked protein tray', desc: 'Teriyaki beef, shoyu ginger chicken',
+    maxFlavors: 2,
+    flavorList: [
+      { name: 'Teriyaki beef',        note: 'cooked' },
+      { name: 'Shoyu ginger chicken', note: 'cooked' },
+    ],
+  },
+  {
+    key: 'tofu', label: 'Tofu tray', desc: 'Hawaiian tofu · GF · vegan',
+    maxFlavors: 1,
+    flavorList: [
+      { name: 'Hawaiian tofu', note: 'GF · vegan' },
+    ],
+  },
 ].map(g => ({
   ...g,
   s15: M.trays.find(t => t.id === `tray-${g.key}-15`),
