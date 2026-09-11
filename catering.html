@@ -1272,14 +1272,48 @@ function fmt(cents) {
 function fmtDec(cents) { return '$' + (cents / 100).toFixed(2); }
 
 const TRAY_GROUPS = [
-  { key: 'std',     label: 'Poke tray',           desc: 'Spicy salmon, sweet unagi, chili garlic, garlic shrimp' },
-  { key: 'premium', label: 'Premium poke tray',   desc: 'Shoyu ahi, Hawaiian ahi, spicy ahi, tobiko scallop, kimchi tako' },
-  { key: 'cooked',  label: 'Cooked protein tray', desc: 'Teriyaki beef, shoyu ginger chicken' },
-  { key: 'tofu',    label: 'Tofu tray',           desc: 'Hawaiian tofu · GF · vegan' },
+  {
+    key: 'std', label: 'Poke tray', desc: 'Spicy salmon, sweet unagi, chili garlic, garlic shrimp',
+    maxFlavors: 4,
+    flavorList: [
+      { name: 'Spicy salmon',         note: 'GF' },
+      { name: 'Sweet unagi salmon',   note: null },
+      { name: 'Chili garlic salmon',  note: null },
+      { name: 'Garlic shrimp',        note: 'GF · cooked' },
+      { name: 'Teriyaki beef',        note: 'cooked' },
+      { name: 'Shoyu ginger chicken', note: 'cooked' },
+      { name: 'Hawaiian tofu',        note: 'GF · vegan' },
+    ],
+  },
+  {
+    key: 'premium', label: 'Premium poke tray', desc: 'Shoyu ahi, Hawaiian ahi, spicy ahi, tobiko scallop, kimchi tako',
+    maxFlavors: 5,
+    flavorList: [
+      { name: 'Shoyu ahi',      note: null },
+      { name: 'Hawaiian ahi',   note: 'GF' },
+      { name: 'Spicy ahi',      note: 'GF' },
+      { name: 'Tobiko scallop', note: 'GF' },
+      { name: 'Kimchi tako',    note: 'GF · cooked' },
+    ],
+  },
+  { key: 'cooked', label: 'Cooked protein tray', desc: 'Teriyaki beef, shoyu ginger chicken', maxFlavors: 0, flavorList: [] },
+  { key: 'tofu',   label: 'Tofu tray',           desc: 'Hawaiian tofu · GF · vegan',         maxFlavors: 0, flavorList: [] },
 ].map(g => ({
   ...g,
   s15: M.trays.find(t => t.id === `tray-${g.key}-15`),
   s40: M.trays.find(t => t.id === `tray-${g.key}-40`),
+}));
+
+const SIDE_GROUPS = [
+  { key: 'rice',    label: 'Sushi rice',   note: '' },
+  { key: 'greens',  label: 'Greens',        note: 'Spring mix and shredded cabbage' },
+  { key: 'sides',   label: 'Sides',         note: 'Crab mac, seaweed, kimchi cucumber, cold roasted sweet potato' },
+  { key: 'topping', label: 'Topping bar',   note: 'Fried shallots, fried garlic, diced avocado, cilantro, jalapeño, green onions, furikake' },
+  { key: 'chips',   label: 'Wonton chips',  note: 'Homemade' },
+].map(g => ({
+  ...g,
+  s15: M.sidesRice.find(x => x.id === `${g.key}-15`),
+  s40: M.sidesRice.find(x => x.id === `${g.key}-40`),
 }));
 
 const CheckMark = () => (
@@ -1422,24 +1456,31 @@ function BarModal({ bar, onAdd, onClose, editLine }) {
 
 /* ─────────────── TrayModal ─────────────── */
 function TrayModal({ tray, onAdd, onClose, editLine }) {
-  const [size, setSize] = useState(editLine?.mods?.size ?? '15');
-  const [qty,  setQty]  = useState(editLine?.qty ?? 1);
+  const [size,    setSize]    = useState(editLine?.mods?.size    ?? '15');
+  const [qty,     setQty]     = useState(editLine?.qty           ?? 1);
+  const [flavors, setFlavors] = useState(editLine?.mods?.flavors ?? []);
 
   const item  = size === '15' ? tray.s15 : tray.s40;
   const label = size === '15' ? 'serves 15' : 'serves 40';
   const total = (item?.cents ?? 0) * qty;
+  const hasFlavors = tray.flavorList.length > 0;
+
+  function toggleFlavor(name) {
+    setFlavors(p => p.includes(name) ? p.filter(x => x !== name) : p.length < tray.maxFlavors ? [...p, name] : p);
+  }
 
   function handleAdd() {
     if (!item) return;
+    const flavorDetail = hasFlavors && flavors.length > 0 ? flavors.join(', ') : tray.desc;
     onAdd({
       cartId:    editLine?.cartId ?? uid(),
       itemId:    item.id,
       label:     tray.label,
-      detail:    `${label} · ${tray.desc}`,
+      detail:    `${label} · ${flavorDetail}`,
       unitPrice: item.cents,
       qty,
       category:  'tray',
-      mods:      { size },
+      mods:      { size, flavors },
     });
     onClose();
   }
@@ -1475,6 +1516,103 @@ function TrayModal({ tray, onAdd, onClose, editLine }) {
             </div>
           </div>
 
+          {hasFlavors && (
+            <div className="ct-mgroup">
+              <span className="ct-mgroup-label">
+                Choose up to {tray.maxFlavors} proteins · {flavors.length}/{tray.maxFlavors} selected
+              </span>
+              <div className="ct-check-list">
+                {tray.flavorList.map(fl => {
+                  const sel = flavors.includes(fl.name);
+                  const dis = !sel && flavors.length >= tray.maxFlavors;
+                  return (
+                    <label key={fl.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
+                      <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleFlavor(fl.name)} className="sr-only" />
+                      <span className="ct-check-box">{sel && <CheckMark />}</span>
+                      <span className="ct-check-name">{fl.name}</span>
+                      {fl.note && <span className="ct-check-note">{fl.note}</span>}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Quantity</span>
+            <div className="ct-modal-qty-row">
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+              <span className="ct-modal-qty-val">{qty}</span>
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="ct-modal-bottom">
+          <button className="ct-modal-add-btn" onClick={handleAdd}>
+            {editLine ? 'Update order' : 'Add to order'} · {fmt(total)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── SideModal ─────────────── */
+function SideModal({ side, onAdd, onClose, editLine }) {
+  const [size, setSize] = useState(editLine?.mods?.size ?? '15');
+  const [qty,  setQty]  = useState(editLine?.qty ?? 1);
+
+  const item  = size === '15' ? side.s15 : side.s40;
+  const label = size === '15' ? 'serves 15' : 'serves 40';
+  const total = (item?.cents ?? 0) * qty;
+
+  function handleAdd() {
+    if (!item) return;
+    onAdd({
+      cartId:    editLine?.cartId ?? uid(),
+      itemId:    item.id,
+      label:     side.label,
+      detail:    side.note ? `${label} · ${side.note}` : label,
+      unitPrice: item.cents,
+      qty,
+      category:  'side',
+      mods:      { size },
+    });
+    onClose();
+  }
+
+  return (
+    <div className="ct-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="ct-modal-panel" onClick={e => e.stopPropagation()}>
+        <div className="ct-modal-top">
+          <div>
+            <div className="ct-modal-title">{side.label}</div>
+            {side.note && <div style={{fontSize:'11.5px',opacity:0.42,marginTop:'3px'}}>{side.note}</div>}
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:'16px'}}>
+            <span className="ct-modal-price-preview">{fmt(total)}</span>
+            <button className="ct-modal-close" onClick={onClose} aria-label="Close">×</button>
+          </div>
+        </div>
+
+        <div className="ct-modal-scroll">
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Size</span>
+            <div className="ct-radio-list">
+              {[
+                { key: '15', label: 'Serves 15', cents: side.s15?.cents },
+                { key: '40', label: 'Serves 40', cents: side.s40?.cents },
+              ].map(s => (
+                <label key={s.key} className={`ct-radio-item${size === s.key ? ' ct-radio-item--selected' : ''}`} onClick={() => setSize(s.key)} style={{cursor:'pointer'}}>
+                  <span className="ct-radio-dot" />
+                  <span className="ct-radio-label">{s.label}</span>
+                  <span className="ct-radio-price">{fmt(s.cents)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           <div className="ct-mgroup">
             <span className="ct-mgroup-label">Quantity</span>
             <div className="ct-modal-qty-row">
@@ -1497,14 +1635,14 @@ function TrayModal({ tray, onAdd, onClose, editLine }) {
 
 /* ─────────────── BoxModal ─────────────── */
 function BoxModal({ box, onAdd, onClose, editLine }) {
-  const [qty,     setQty]     = useState(editLine?.qty ?? box.minQty);
+  const [qty,     setQty]     = useState(editLine?.qty ?? 1);
   const [flavors, setFlavors] = useState(editLine?.mods?.flavors ?? []);
   const [sides,   setSides]   = useState(editLine?.mods?.sides   ?? []);
 
   const premiumCnt = flavors.filter(n => M.boxFlavors.find(f => f.name === n)?.premium).length;
   const unitPrice  = box.cents + premiumCnt * box.premiumUp;
   const total      = unitPrice * qty;
-  const canAdd     = flavors.length >= 1 && sides.length >= 1;
+  const canAdd     = flavors.length >= 1 && sides.length >= 1 && qty >= 5;
 
   function toggleFlavor(name) {
     setFlavors(p => p.includes(name) ? p.filter(x => x !== name) : p.length < 2 ? [...p, name] : p);
@@ -1529,7 +1667,7 @@ function BoxModal({ box, onAdd, onClose, editLine }) {
         <div className="ct-modal-top">
           <div>
             <div className="ct-modal-title">{box.name}</div>
-            <div style={{fontSize:'11.5px',opacity:0.42,marginTop:'3px'}}>{fmt(box.cents)}/box · min {box.minQty} boxes</div>
+            <div style={{fontSize:'11.5px',opacity:0.42,marginTop:'3px'}}>{fmt(box.cents)}/box · minimum 5 per build</div>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:'16px'}}>
             <span className="ct-modal-price-preview">{fmt(total)}</span>
@@ -1539,12 +1677,13 @@ function BoxModal({ box, onAdd, onClose, editLine }) {
 
         <div className="ct-modal-scroll">
           <div className="ct-mgroup">
-            <span className="ct-mgroup-label">Quantity (min {box.minQty})</span>
+            <span className="ct-mgroup-label">Quantity</span>
             <div className="ct-modal-qty-row">
-              <button className="ct-modal-qty-btn" onClick={() => setQty(q => Math.max(box.minQty, q - 1))}>−</button>
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
               <span className="ct-modal-qty-val">{qty}</span>
               <button className="ct-modal-qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
             </div>
+            {qty < 5 && <div style={{fontSize:'11px',color:'var(--err)',marginTop:'6px'}}>Minimum 5 per box build</div>}
           </div>
 
           <div className="ct-mgroup">
@@ -1702,17 +1841,6 @@ function CateringMenu({ onOpenModal, onAddDirect, scrollToCart }) {
 
   const pbakeProteinObj = M.personalBake.proteins.find(p => p.key === pbakeProtein);
 
-  const sideGroups = [
-    { key: 'rice',    label: 'Sushi rice',      note: '' },
-    { key: 'greens',  label: 'Greens',           note: 'Spring mix and shredded cabbage' },
-    { key: 'sides',   label: 'Sides',            note: 'Crab mac, seaweed, kimchi cucumber, cold roasted sweet potato' },
-    { key: 'topping', label: 'Topping bar',      note: 'Fried shallots, fried garlic, diced avocado, cilantro, jalapeño, green onions, furikake' },
-    { key: 'chips',   label: 'Wonton chips',     note: 'Homemade' },
-  ].map(g => ({
-    ...g,
-    s15: M.sidesRice.find(x => x.id === `${g.key}-15`),
-    s40: M.sidesRice.find(x => x.id === `${g.key}-40`),
-  }));
 
   return (
     <div>
@@ -1762,23 +1890,18 @@ function CateringMenu({ onOpenModal, onAddDirect, scrollToCart }) {
         <span className="ct-ordering-sec-label">Sides & Rice</span>
         <table className="ct-tray-table">
           <thead>
-            <tr><th></th><th>Serves 15</th><th>Serves 40</th></tr>
+            <tr><th></th><th>Serves 15</th><th>Serves 40</th><th></th></tr>
           </thead>
           <tbody>
-            {sideGroups.map(g => (
+            {SIDE_GROUPS.map(g => (
               <tr key={g.key}>
                 <td>
                   <span className="ct-tray-name">{g.label}</span>
                   {g.note && <span className="ct-tray-desc">{g.note}</span>}
                 </td>
-                <td>
-                  <span className="ct-tray-price">{fmt(g.s15.cents)}</span>
-                  <button className="ct-add-btn" onClick={() => addItem(g.s15.id, g.label, 'serves 15', g.s15.cents, 1, 'side')}>+ Add</button>
-                </td>
-                <td>
-                  <span className="ct-tray-price">{fmt(g.s40.cents)}</span>
-                  <button className="ct-add-btn" onClick={() => addItem(g.s40.id, g.label, 'serves 40', g.s40.cents, 1, 'side')}>+ Add</button>
-                </td>
+                <td><span className="ct-tray-price">{fmt(g.s15.cents)}</span></td>
+                <td><span className="ct-tray-price">{fmt(g.s40.cents)}</span></td>
+                <td><button className="ct-add-btn" onClick={() => onOpenModal({ type: 'side', item: g })}>Select →</button></td>
               </tr>
             ))}
           </tbody>
@@ -2131,6 +2254,10 @@ function CateringApp() {
       const m = line.itemId.match(/^tray-(.+)-\d+$/);
       item = m ? TRAY_GROUPS.find(g => g.key === m[1]) : null;
     }
+    else if (type === 'side') {
+      const m = line.itemId.match(/^(.+)-\d+$/);
+      item = m ? SIDE_GROUPS.find(g => g.key === m[1]) : null;
+    }
     if (item) setOpenModal({ type, item, editLine: line });
   }
 
@@ -2172,6 +2299,7 @@ function CateringApp() {
     <>
       {openModal?.type === 'bar'  && <BarModal       bar={openModal.item}  onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
       {openModal?.type === 'tray' && <TrayModal      tray={openModal.item} onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
+      {openModal?.type === 'side' && <SideModal      side={openModal.item} onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
       {openModal?.type === 'box'  && <BoxModal       box={openModal.item}  onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
       {openModal?.type === 'bake' && <SushiBakeModal                        onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
 
