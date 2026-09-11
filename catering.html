@@ -1316,11 +1316,42 @@ const TRAY_GROUPS = [
 }));
 
 const SIDE_GROUPS = [
-  { key: 'rice',    label: 'Sushi rice',   note: '' },
-  { key: 'greens',  label: 'Greens',        note: 'Spring mix and shredded cabbage' },
-  { key: 'sides',   label: 'Sides',         note: 'Crab mac, seaweed, kimchi cucumber, cold roasted sweet potato' },
-  { key: 'topping', label: 'Topping bar',   note: 'Fried shallots, fried garlic, diced avocado, cilantro, jalapeño, green onions, furikake' },
-  { key: 'chips',   label: 'Wonton chips',  note: 'Homemade' },
+  {
+    key: 'rice', label: 'Sushi rice', note: '',
+    optionList: [],
+  },
+  {
+    key: 'greens', label: 'Greens', note: 'Spring mix and shredded cabbage',
+    optionList: [
+      { name: 'Spring mix' },
+      { name: 'Shredded cabbage' },
+    ],
+  },
+  {
+    key: 'sides', label: 'Sides', note: 'Crab mac, seaweed, kimchi cucumber, cold roasted sweet potato',
+    optionList: [
+      { name: 'Crab mac salad' },
+      { name: 'Seaweed salad' },
+      { name: 'Kimchi cucumber' },
+      { name: 'Cold roasted sweet potato' },
+    ],
+  },
+  {
+    key: 'topping', label: 'Topping bar', note: 'Fried shallots, fried garlic, diced avocado, cilantro, jalapeño, green onions, furikake',
+    optionList: [
+      { name: 'Fried shallots' },
+      { name: 'Fried garlic' },
+      { name: 'Diced avocado' },
+      { name: 'Cilantro' },
+      { name: 'Jalapeño' },
+      { name: 'Green onions' },
+      { name: 'Furikake' },
+    ],
+  },
+  {
+    key: 'chips', label: 'Wonton chips', note: 'Homemade',
+    optionList: [],
+  },
 ].map(g => ({
   ...g,
   s15: M.sidesRice.find(x => x.id === `${g.key}-15`),
@@ -1571,24 +1602,31 @@ function TrayModal({ tray, onAdd, onClose, editLine }) {
 
 /* ─────────────── SideModal ─────────────── */
 function SideModal({ side, onAdd, onClose, editLine }) {
-  const [size, setSize] = useState(editLine?.mods?.size ?? '15');
-  const [qty,  setQty]  = useState(editLine?.qty ?? 1);
+  const [size,    setSize]    = useState(editLine?.mods?.size    ?? '15');
+  const [qty,     setQty]     = useState(editLine?.qty           ?? 1);
+  const [options, setOptions] = useState(editLine?.mods?.options ?? []);
 
-  const item  = size === '15' ? side.s15 : side.s40;
-  const label = size === '15' ? 'serves 15' : 'serves 40';
-  const total = (item?.cents ?? 0) * qty;
+  const item       = size === '15' ? side.s15 : side.s40;
+  const label      = size === '15' ? 'serves 15' : 'serves 40';
+  const total      = (item?.cents ?? 0) * qty;
+  const hasOptions = side.optionList.length > 0;
+
+  function toggleOption(name) {
+    setOptions(p => p.includes(name) ? p.filter(x => x !== name) : [...p, name]);
+  }
 
   function handleAdd() {
     if (!item) return;
+    const optionDetail = hasOptions && options.length > 0 ? options.join(', ') : side.note;
     onAdd({
       cartId:    editLine?.cartId ?? uid(),
       itemId:    item.id,
       label:     side.label,
-      detail:    side.note ? `${label} · ${side.note}` : label,
+      detail:    optionDetail ? `${label} · ${optionDetail}` : label,
       unitPrice: item.cents,
       qty,
       category:  'side',
-      mods:      { size },
+      mods:      { size, options },
     });
     onClose();
   }
@@ -1623,6 +1661,24 @@ function SideModal({ side, onAdd, onClose, editLine }) {
               ))}
             </div>
           </div>
+
+          {hasOptions && (
+            <div className="ct-mgroup">
+              <span className="ct-mgroup-label">Items included · {options.length}/{side.optionList.length} selected</span>
+              <div className="ct-check-list">
+                {side.optionList.map(opt => {
+                  const sel = options.includes(opt.name);
+                  return (
+                    <label key={opt.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}`}>
+                      <input type="checkbox" checked={sel} onChange={() => toggleOption(opt.name)} className="sr-only" />
+                      <span className="ct-check-box">{sel && <CheckMark />}</span>
+                      <span className="ct-check-name">{opt.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           <div className="ct-mgroup">
             <span className="ct-mgroup-label">Quantity</span>
