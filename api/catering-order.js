@@ -1,101 +1,68 @@
 // POST /api/catering-order
 // Validates catering cart, writes a pending Firestore doc, creates a Square Payment Link.
-// Prices are authoritative here — client-supplied cents are ignored.
 
 import crypto from 'crypto';
 
-// ── Capacity constants (edit here; must mirror catering-data.js) ─────────────
-const MIN_LEAD_TIME_MS      = 72 * 60 * 60 * 1000;
-const MAX_BOXES_PER_DAY     = 40;
-const MAX_TRAYS_PER_DAY     = 8;
-const INQUIRY_CEILING_BOXES = 30;
-const INQUIRY_CEILING_TRAYS = 6;
-const BOX_MINIMUM           = 10;
-const PENDING_TTL_MS        = 30 * 60 * 1000;
+const MIN_LEAD_TIME_MS = 48 * 60 * 60 * 1000;
+const BOX_MINIMUM      = 10;
+const INQUIRY_GUESTS   = 50;
+const INQUIRY_BOXES    = 30;
+const PENDING_TTL_MS   = 30 * 60 * 1000;
 
-// ── Server-side price catalogue (cents) — must match catering-data.js ────────
-const CATALOG = {
-  // Boxes
-  'box-poke-premium':   2100,
-  'box-poke-std':       1700,
-  'box-poke-shrimp':    1600,
-  'box-musubi-premium': 2300,
-  'box-musubi-std':     1900,
-  'box-beef':           1600,
-  'box-chicken':        1400,
-  'box-tofu':           1300,
-  'box-handroll':       2600,
-  'box-bake-crab':      1200,
-  'box-bake-salmon':    1500,
-  'box-bake-shrimp':    1500,
-  'box-bake-scallop':   1600,
-  'box-bake-ahi':       1600,
-  // Poke trays
-  'tray-premium-sm':    9500,
-  'tray-premium-lg':   18000,
-  'tray-standard-sm':   7800,
-  'tray-standard-lg':  14800,
-  'tray-shrimp-sm':     7000,
-  'tray-shrimp-lg':    13200,
-  'tray-split-ps-sm':   8700,
-  'tray-split-ps-lg':  16400,
-  'tray-split-psh-sm':  8300,
-  'tray-split-psh-lg': 15600,
-  'tray-split-ssh-sm':  7400,
-  'tray-split-ssh-lg': 14000,
-  // Protein trays
-  'tray-beef-sm':       7000,
-  'tray-beef-lg':      13500,
-  'tray-chicken-sm':    5500,
-  'tray-chicken-lg':   10500,
-  'tray-tofu-sm':       4500,
-  'tray-tofu-lg':       8500,
-  // Bases
-  'base-rice-sm':       2800,
-  'base-rice-lg':       5200,
-  'base-greens-sm':     2200,
-  'base-greens-lg':     4000,
-  // Sides
-  'side-crab-sm':       3600,
-  'side-crab-lg':       6600,
-  'side-seaweed-sm':    3800,
-  'side-seaweed-lg':    7000,
-  'side-kimchi-sm':     3000,
-  'side-kimchi-lg':     5600,
-  'side-yam-sm':        3000,
-  'side-yam-lg':        5600,
-  // Musubi
-  'musubi-12':          4200,
-  'musubi-24':          8000,
-  'musubi-36':         11400,
-  // Sushi bake pans
-  'bake-crab-half':     6200,
-  'bake-crab-full':    11800,
-  'bake-salmon-half':   7800,
-  'bake-salmon-full':  14800,
-  'bake-shrimp-half':   7800,
-  'bake-shrimp-full':  14800,
-  'bake-scallop-half':  8500,
-  'bake-scallop-full': 16200,
-  'bake-ahi-half':      8500,
-  'bake-ahi-full':     16200,
-  // Sashimi
-  'sash-ahi':           9500,
-  'sash-salmon':        8500,
-  'sash-mixed':        13000,
-  // Dessert / drinks
-  'mochi-each':          325,
-  'mochi-20':           6000,
-  'hsun-each':           400,
-  'hsun-case':          8000,
+// Bar base prices per person (cents)
+const BAR_CONFIGS = {
+  'bar-poke':   { pricePerPerson: 22, min: 10, maxUpPerPerson: 10 },
+  'bar-nachos': { pricePerPerson: 18, min: 10, maxUpPerPerson:  3 },
 };
 
-const BOX_IDS  = new Set(Object.keys(CATALOG).filter(k => k.startsWith('box-')));
-const TRAY_IDS = new Set(Object.keys(CATALOG).filter(k =>
-  k.startsWith('tray-') || k.startsWith('base-') || k.startsWith('side-')
-));
+// Fixed-price catalog (cents) — bars handled separately
+const CATALOG = {
+  // Poke trays
+  'tray-std-15':      12000,
+  'tray-std-40':      29500,
+  'tray-premium-15':  17500,
+  'tray-premium-40':  44000,
+  'tray-cooked-15':    9000,
+  'tray-cooked-40':   22500,
+  'tray-tofu-15':      6500,
+  'tray-tofu-40':     16500,
+  // Sides & rice
+  'rice-15':           4000,
+  'rice-40':          10000,
+  'greens-15':         3200,
+  'greens-40':         7800,
+  'sides-15':          4800,
+  'sides-40':         12000,
+  'topping-15':        5500,
+  'topping-40':       14000,
+  'chips-15':          2800,
+  'chips-40':          6800,
+  // Musubi
+  'musubi-12':         4200,
+  'musubi-24':         8000,
+  'musubi-36':        11400,
+  // Sushi bake pans
+  'bake-half-crab':    6200,
+  'bake-half-salmon':  7800,
+  'bake-half-ahi':     8800,
+  'bake-full-crab':   11800,
+  'bake-full-salmon': 14800,
+  'bake-full-ahi':    16500,
+  // Boxes (base price; client may add premium flavor upcharge)
+  'box-poke':          2000,
+  'box-musubi':        2200,
+  // Personal sushi bake
+  'box-bake-crab':     1200,
+  'box-bake-salmon':   1500,
+  'box-bake-ahi':      1700,
+  // Extras
+  'extra-mayo':         600,
+  'extra-soy':          600,
+  'extra-serviceware':  150,
+  'extra-hsun':         400,
+  'extra-hsun-case':   8000,
+};
 
-// ── Delivery zones (min in cents, fee in cents) ───────────────────────────────
 const DELIVERY_ZONES = {
   'Scotts Valley': { min: 20000, fee:     0 },
   'Santa Cruz':    { min: 25000, fee:  3500 },
@@ -105,7 +72,7 @@ const DELIVERY_ZONES = {
   'San Jose':      { min: 50000, fee:  7500 },
   'Santa Clara':   { min: 50000, fee:  7500 },
 };
-const PICKUP_MIN = 20000; // cents
+const PICKUP_MIN = 20000;
 
 const FB_PROJECT = 'inoa-times';
 const FB_KEY     = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
@@ -131,7 +98,6 @@ async function fbPatch(path, fields, maskFields) {
 }
 
 async function fbQuery(collectionId, filters) {
-  // Simple structured query via REST
   const body = {
     structuredQuery: {
       from: [{ collectionId }],
@@ -139,11 +105,7 @@ async function fbQuery(collectionId, filters) {
         compositeFilter: {
           op: 'AND',
           filters: filters.map(([field, op, value]) => ({
-            fieldFilter: {
-              field: { fieldPath: field },
-              op,
-              value,
-            },
+            fieldFilter: { field: { fieldPath: field }, op, value },
           })),
         },
       },
@@ -176,42 +138,34 @@ function fromFS(doc) {
 
 // ── Capacity check ────────────────────────────────────────────────────────────
 async function getExistingCapacity(eventDate) {
-  // Query paid orders for the event date
-  const docs = await fbQuery('cateringOrders', [
-    ['eventDate', 'EQUAL', { stringValue: eventDate }],
-    ['status',    'EQUAL', { stringValue: 'paid' }],
-  ]);
-
   let existingBoxes = 0;
   let existingTrays = 0;
 
-  for (const doc of docs) {
-    const data = fromFS(doc);
-    let items = [];
-    try { items = JSON.parse(data.lineItemsJson || '[]'); } catch { continue; }
-    for (const item of items) {
-      if (BOX_IDS.has(item.itemId))  existingBoxes += (item.qty || 1);
-      if (TRAY_IDS.has(item.itemId)) existingTrays += (item.qty || 1);
+  const countFromDocs = (docs, cutoff = null) => {
+    for (const doc of docs) {
+      const data = fromFS(doc);
+      if (cutoff !== null) {
+        const createdAt = data.createdAt ? new Date(data.createdAt).getTime() : 0;
+        if (createdAt < cutoff) continue;
+      }
+      existingBoxes += parseInt(data.boxCount || 0);
+      existingTrays += parseInt(data.trayCount || 0);
     }
-  }
+  };
 
-  // Also include recent pending orders (< 30 min old) to hold capacity
-  const pendingDocs = await fbQuery('cateringOrders', [
-    ['eventDate', 'EQUAL', { stringValue: eventDate }],
-    ['status',    'EQUAL', { stringValue: 'pending' }],
+  const [paidDocs, pendingDocs] = await Promise.all([
+    fbQuery('cateringOrders', [
+      ['eventDate', 'EQUAL', { stringValue: eventDate }],
+      ['status',    'EQUAL', { stringValue: 'paid' }],
+    ]),
+    fbQuery('cateringOrders', [
+      ['eventDate', 'EQUAL', { stringValue: eventDate }],
+      ['status',    'EQUAL', { stringValue: 'pending' }],
+    ]),
   ]);
-  const cutoff = Date.now() - PENDING_TTL_MS;
-  for (const doc of pendingDocs) {
-    const data = fromFS(doc);
-    const createdAt = data.createdAt ? new Date(data.createdAt).getTime() : 0;
-    if (createdAt < cutoff) continue; // expired hold
-    let items = [];
-    try { items = JSON.parse(data.lineItemsJson || '[]'); } catch { continue; }
-    for (const item of items) {
-      if (BOX_IDS.has(item.itemId))  existingBoxes += (item.qty || 1);
-      if (TRAY_IDS.has(item.itemId)) existingTrays += (item.qty || 1);
-    }
-  }
+
+  countFromDocs(paidDocs);
+  countFromDocs(pendingDocs, Date.now() - PENDING_TTL_MS);
 
   return { existingBoxes, existingTrays };
 }
@@ -220,10 +174,17 @@ async function getExistingCapacity(eventDate) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
-  const { eventDate, name, company, email, phone, notes, fulfillment, deliveryCity, cart } = req.body || {};
+  const body = req.body || {};
 
-  // ── Basic presence checks ─────────────────────────────────────────────────
-  if (!eventDate || !name || !email || !phone || !Array.isArray(cart) || !cart.length) {
+  // Support both new format (lineItems + customer obj) and legacy (cart + top-level fields)
+  const lineItems = body.lineItems || body.cart;
+  const customer  = body.customer || {};
+  const name      = customer.name  || body.name  || '';
+  const email     = customer.email || body.email || '';
+  const phone     = customer.phone || body.phone || '';
+  const { eventDate, company, notes, fulfillment, deliveryCity } = body;
+
+  if (!eventDate || !name || !email || !phone || !Array.isArray(lineItems) || !lineItems.length) {
     return res.status(400).json({ error: 'Missing required fields.' });
   }
   if (fulfillment === 'delivery' && !DELIVERY_ZONES[deliveryCity]) {
@@ -233,7 +194,7 @@ export default async function handler(req, res) {
   // ── 1. Lead time ──────────────────────────────────────────────────────────
   const eventMs = new Date(eventDate + 'T00:00:00').getTime();
   if (isNaN(eventMs) || eventMs < Date.now() + MIN_LEAD_TIME_MS) {
-    return res.status(400).json({ error: 'Orders must be placed at least 72 hours before the event.' });
+    return res.status(400).json({ error: 'Orders must be placed at least 48 hours before the event.' });
   }
 
   // ── 2. Blackouts ──────────────────────────────────────────────────────────
@@ -246,31 +207,61 @@ export default async function handler(req, res) {
       }
     }
   } catch (err) {
-    console.error('[inoa catering] Blackout check failed — refusing order:', err.message);
+    console.error('[inoa catering] Blackout check failed:', err.message);
     return res.status(503).json({ error: 'Could not verify date availability. Please try again in a moment.' });
   }
 
-  // ── 3. Price validation + cart counts ────────────────────────────────────
+  // ── 3. Cart validation ────────────────────────────────────────────────────
   let subtotalCents = 0;
   let totalBoxes    = 0;
   let totalTrays    = 0;
+  let totalGuests   = 0;
   const validatedCart = [];
 
-  for (const item of cart) {
-    const catalogCents = CATALOG[item.itemId];
-    if (catalogCents === undefined) {
-      return res.status(400).json({ error: `Unknown item: ${item.itemId}` });
+  for (const item of lineItems) {
+    const qty       = Math.max(1, Math.round(item.qty || 1));
+    const unitPrice = Math.round(item.unitPrice || 0);
+    const category  = item.category || '';
+
+    if (category === 'bar') {
+      const barConf = BAR_CONFIGS[item.itemId];
+      if (!barConf) return res.status(400).json({ error: `Unknown bar: ${item.itemId}` });
+      const people = Math.max(0, parseInt(item.mods?.people || 0));
+      if (people < barConf.min) {
+        return res.status(400).json({ error: `${item.label} requires at least ${barConf.min} people.` });
+      }
+      const minPrice = people * barConf.pricePerPerson * 100;
+      if (unitPrice < minPrice) {
+        return res.status(400).json({ error: `Invalid price for ${item.label}.` });
+      }
+      totalGuests += people * qty;
+    } else {
+      const catalogCents = CATALOG[item.itemId];
+      if (catalogCents === undefined) {
+        return res.status(400).json({ error: `Unknown item: ${item.itemId}` });
+      }
+      if (unitPrice < catalogCents) {
+        return res.status(400).json({ error: `Invalid price for ${item.label}.` });
+      }
+      if (category === 'box') totalBoxes += qty;
+      if (category === 'tray' || category === 'side') totalTrays += qty;
     }
-    const qty = Math.max(1, Math.round(item.qty || 1));
-    subtotalCents += catalogCents * qty;
-    if (BOX_IDS.has(item.itemId))  totalBoxes += qty;
-    if (TRAY_IDS.has(item.itemId)) totalTrays += qty;
-    validatedCart.push({ itemId: item.itemId, name: item.name, flavor: item.flavor || null, flavor2: item.flavor2 || null, cents: catalogCents, qty, category: item.category });
+
+    subtotalCents += unitPrice * qty;
+    validatedCart.push({
+      itemId:    item.itemId,
+      label:     String(item.label || item.itemId),
+      detail:    String(item.detail || ''),
+      unitPrice,
+      qty,
+      category,
+      mods:      item.mods || {},
+    });
   }
 
-  // ── 4. Inquiry ceiling ────────────────────────────────────────────────────
-  if (totalBoxes > INQUIRY_CEILING_BOXES || totalTrays > INQUIRY_CEILING_TRAYS) {
-    return res.status(400).json({ error: 'This order size requires a quote. Please use the inquiry form.' });
+  // ── 4. Inquiry threshold ──────────────────────────────────────────────────
+  if (totalGuests > INQUIRY_GUESTS || totalBoxes > INQUIRY_BOXES) {
+    return res.status(400).json({ error: 'This order size requires an inquiry. Please use the inquiry form.' });
   }
 
   // ── 5. Box minimum ────────────────────────────────────────────────────────
@@ -279,31 +270,30 @@ export default async function handler(req, res) {
   }
 
   // ── 6. Order minimum ─────────────────────────────────────────────────────
-  const deliveryFee   = fulfillment === 'delivery' ? (DELIVERY_ZONES[deliveryCity]?.fee || 0) : 0;
-  const deliveryMin   = fulfillment === 'delivery' ? (DELIVERY_ZONES[deliveryCity]?.min || 0) : PICKUP_MIN;
-  if (subtotalCents < deliveryMin) {
-    const gap = ((deliveryMin - subtotalCents) / 100).toFixed(2);
-    return res.status(400).json({ error: `Minimum order is $${(deliveryMin / 100).toFixed(0)} for this option. Add $${gap} more.` });
+  const deliveryFee = fulfillment === 'delivery' ? (DELIVERY_ZONES[deliveryCity]?.fee || 0) : 0;
+  const orderMin    = fulfillment === 'delivery' ? (DELIVERY_ZONES[deliveryCity]?.min || 0) : PICKUP_MIN;
+  if (subtotalCents < orderMin) {
+    const gap = ((orderMin - subtotalCents) / 100).toFixed(2);
+    return res.status(400).json({ error: `Minimum order is $${(orderMin / 100).toFixed(0)} for this option. Add $${gap} more.` });
   }
 
   // ── 7. Daily capacity ─────────────────────────────────────────────────────
-  let existingBoxes = 0, existingTrays = 0;
   try {
-    ({ existingBoxes, existingTrays } = await getExistingCapacity(eventDate));
+    const { existingBoxes, existingTrays } = await getExistingCapacity(eventDate);
+    if (existingBoxes + totalBoxes > 40) {
+      return res.status(409).json({ error: `Box capacity for ${eventDate} is full. Please choose a different date.` });
+    }
+    if (existingTrays + totalTrays > 12) {
+      return res.status(409).json({ error: `Tray capacity for ${eventDate} is full. Please choose a different date.` });
+    }
   } catch (err) {
     console.warn('[inoa catering] Capacity check failed (allowing order):', err.message);
   }
-  if (existingBoxes + totalBoxes > MAX_BOXES_PER_DAY) {
-    return res.status(409).json({ error: `Box capacity for ${eventDate} is full. Please choose a different date or contact us.` });
-  }
-  if (existingTrays + totalTrays > MAX_TRAYS_PER_DAY) {
-    return res.status(409).json({ error: `Tray capacity for ${eventDate} is full. Please choose a different date or contact us.` });
-  }
 
   // ── 8. Write pending order to Firestore ──────────────────────────────────
-  const referenceId = `catering_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
+  const referenceId   = `catering_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
+  const totalCents    = subtotalCents + deliveryFee;
   const lineItemsJson = JSON.stringify(validatedCart);
-  const totalCents = subtotalCents + deliveryFee;
 
   const firestoreFields = {
     status:          toFS('pending'),
@@ -320,6 +310,9 @@ export default async function handler(req, res) {
     lineItemsJson:   toFS(lineItemsJson),
     subtotalCents:   toFS(subtotalCents),
     totalCents:      toFS(totalCents),
+    boxCount:        toFS(totalBoxes),
+    trayCount:       toFS(totalTrays),
+    guestCount:      toFS(totalGuests),
     squareOrderId:   toFS(null),
     squarePaymentId: toFS(null),
     paidAt:          toFS(null),
@@ -334,21 +327,17 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: 'Could not save your order. Please try again.' });
   }
 
-  // ── 9. Build Square Payment Link ──────────────────────────────────────────
+  // ── 9. Square Payment Link ────────────────────────────────────────────────
   const baseUrl = process.env.SQUARE_ENV === 'production'
     ? 'https://connect.squareup.com'
     : 'https://connect.squareupsandbox.com';
   const siteUrl = process.env.SITE_URL || 'https://inoa.kitchen';
 
-  const line_items = validatedCart.map(item => {
-    const parts = [item.flavor, item.flavor2].filter(Boolean);
-    const suffix = parts.length ? ` (${parts.join(' / ')})` : '';
-    return {
-      name:             `${item.name}${suffix}`,
-      quantity:         String(item.qty),
-      base_price_money: { amount: item.cents, currency: 'USD' },
-    };
-  });
+  const line_items = validatedCart.map(item => ({
+    name:             `${item.label}${item.detail ? ' — ' + item.detail : ''}`,
+    quantity:         String(item.qty),
+    base_price_money: { amount: item.unitPrice, currency: 'USD' },
+  }));
 
   if (deliveryFee > 0) {
     line_items.push({
@@ -366,6 +355,7 @@ export default async function handler(req, res) {
       line_items,
       metadata: {
         order_type:       'catering',
+        customer_name:    name,
         customer_email:   email,
         customer_phone:   phone,
         event_date:       eventDate,
@@ -374,15 +364,15 @@ export default async function handler(req, res) {
       },
     },
     checkout_options: {
-      redirect_url:            `${siteUrl}/catering/confirmed`,
-      allow_tipping:           false,
+      redirect_url:             `${siteUrl}/catering/confirmed`,
+      allow_tipping:            false,
       ask_for_shipping_address: false,
-      merchant_support_email:  'clyde.ccollado@gmail.com',
+      merchant_support_email:   'clyde.ccollado@gmail.com',
     },
   };
 
   try {
-    const squareRes = await fetch(`${baseUrl}/v2/online-checkout/payment-links`, {
+    const squareRes  = await fetch(`${baseUrl}/v2/online-checkout/payment-links`, {
       method:  'POST',
       headers: {
         'Authorization':  `Bearer ${process.env.SQUARE_ACCESS_TOKEN}`,
@@ -391,7 +381,6 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify(squareBody),
     });
-
     const squareData = await squareRes.json();
     console.log('[inoa catering] Square response:', squareRes.status);
 
@@ -404,11 +393,10 @@ export default async function handler(req, res) {
     }
 
     return res.status(200).json({
-      url:         squareData.payment_link.url,
+      paymentUrl:  squareData.payment_link.url,
       referenceId,
       orderId:     squareData.payment_link.order_id,
     });
-
   } catch (err) {
     console.error('[inoa catering] Unexpected error:', err);
     return res.status(500).json({ error: 'Network error creating payment link. Please try again.' });

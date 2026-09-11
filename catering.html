@@ -709,6 +709,270 @@
       .ct-hero-btns { flex-direction: column; }
       .ct-hero-btns > * { text-align: center; justify-content: center; }
     }
+
+    /* ── Order section header ── */
+    .ct-order-hd { padding: 64px 40px 40px; }
+    .ct-order-hd-sub { font-size: 12.5px; color: var(--ink); opacity: 0.5; margin-top: 6px; }
+    .ct-app-root { max-width: 1200px; margin: 0 auto; padding-bottom: 80px; }
+    @media (max-width: 768px) { .ct-order-hd { padding: 48px 20px 32px; } }
+
+    /* ── Card grid (bars, boxes) ── */
+    .ct-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+    @media (max-width: 540px) { .ct-card-grid { grid-template-columns: 1fr; } }
+    .ct-menu-card {
+      background: white; border: 1px solid rgba(26,26,26,0.1); border-radius: 3px;
+      padding: 18px 20px; cursor: pointer;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 3px 10px rgba(0,0,0,0.05);
+      transition: border-color 0.15s, box-shadow 0.15s, transform 0.12s;
+      text-align: left; width: 100%;
+    }
+    .ct-menu-card:hover { border-color: rgba(26,26,26,0.2); box-shadow: 0 2px 8px rgba(0,0,0,0.08); transform: translateY(-1px); }
+    .ct-menu-card:active { transform: translateY(0); }
+    .ct-menu-card:focus-visible { outline: 2px solid var(--ogo); outline-offset: 3px; }
+    .ct-card-name { font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 20px; color: var(--ink); margin-bottom: 3px; }
+    .ct-card-price { font-size: 12px; color: var(--ogo); margin-bottom: 8px; }
+    .ct-card-desc { font-size: 11.5px; color: var(--ink); opacity: 0.55; line-height: 1.6; margin-bottom: 12px; }
+    .ct-card-cta { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.4; }
+
+    /* ── Menu section labels ── */
+    .ct-ordering-sec { margin-bottom: 40px; }
+    .ct-ordering-sec-label { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ogo); margin-bottom: 8px; display: block; }
+    .ct-ordering-sec-note { font-size: 11.5px; color: var(--ink); opacity: 0.45; margin-bottom: 12px; }
+
+    /* ── Tray / sides table ── */
+    .ct-tray-table { width: 100%; border-collapse: collapse; }
+    .ct-tray-table th { font-family: 'DM Sans', sans-serif; font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink); opacity: 0.4; padding: 0 10px 10px 0; border-bottom: 1px solid rgba(26,26,26,0.08); text-align: left; }
+    .ct-tray-table th:not(:first-child) { text-align: center; }
+    .ct-tray-table td { padding: 10px 10px 10px 0; border-bottom: 1px solid rgba(26,26,26,0.06); vertical-align: middle; }
+    .ct-tray-table td:not(:first-child) { text-align: center; }
+    .ct-tray-name { font-size: 13px; color: var(--ink); display: block; }
+    .ct-tray-desc { font-size: 11px; color: var(--ink); opacity: 0.42; display: block; margin-top: 1px; }
+    .ct-tray-price { font-size: 12px; color: var(--ink); opacity: 0.6; display: block; margin-bottom: 5px; }
+
+    /* ── Inline qty control ── */
+    .ct-iqc { display: inline-flex; align-items: center; }
+    .ct-iqc-btn {
+      width: 26px; height: 26px; border: 1px solid rgba(26,26,26,0.18);
+      background: transparent; cursor: pointer; font-size: 14px; line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--ink); transition: background 0.1s;
+    }
+    .ct-iqc-btn:first-child { border-radius: 2px 0 0 2px; }
+    .ct-iqc-btn:last-child  { border-radius: 0 2px 2px 0; border-left: none; }
+    .ct-iqc-btn:hover { background: var(--sand); }
+    .ct-iqc-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 1px; }
+    .ct-iqc-val { width: 32px; height: 26px; border-top: 1px solid rgba(26,26,26,0.18); border-bottom: 1px solid rgba(26,26,26,0.18); display: flex; align-items: center; justify-content: center; font-size: 12px; }
+
+    /* ── Extra / musubi row ── */
+    .ct-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(26,26,26,0.06); }
+    .ct-row:last-child { border-bottom: none; }
+    .ct-row-info { flex: 1; min-width: 0; }
+    .ct-row-name { font-size: 13.5px; color: var(--ink); }
+    .ct-row-desc { font-size: 11px; color: var(--ink); opacity: 0.42; }
+    .ct-row-right { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .ct-row-price { font-size: 12.5px; color: var(--ink); opacity: 0.6; }
+
+    /* ── Personal bake row ── */
+    .ct-bake-select {
+      font-family: 'DM Sans', sans-serif; font-size: 12.5px; color: var(--ink);
+      background: var(--cream); border: 1px solid rgba(26,26,26,0.2);
+      padding: 5px 28px 5px 8px; border-radius: 2px; appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(26,26,26,0.35)'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 8px center; cursor: pointer;
+    }
+    .ct-bake-select:focus { outline: 2px solid var(--ogo); outline-offset: 2px; }
+
+    /* ── Modal ── */
+    .ct-modal-overlay {
+      position: fixed; inset: 0; background: rgba(26,26,26,0.55); z-index: 300;
+      display: flex; align-items: flex-end; justify-content: center;
+    }
+    @media (min-width: 640px) { .ct-modal-overlay { align-items: center; } }
+    .ct-modal-panel {
+      background: var(--cream); width: 100%; max-width: 540px;
+      border-radius: 8px 8px 0 0; max-height: 90vh; display: flex; flex-direction: column;
+      box-shadow: 0 -4px 32px rgba(0,0,0,0.22);
+      animation: ct-modal-in 0.25s cubic-bezier(0.34,1.36,0.64,1) both;
+    }
+    @media (min-width: 640px) { .ct-modal-panel { border-radius: 5px; animation-name: ct-modal-center; } }
+    @keyframes ct-modal-in { from { transform: translateY(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+    @keyframes ct-modal-center { from { transform: scale(0.96) translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
+    .ct-modal-top {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 18px 20px 14px; border-bottom: 1px solid rgba(26,26,26,0.08); flex-shrink: 0;
+    }
+    .ct-modal-title { font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 24px; color: var(--ink); letter-spacing: -0.01em; }
+    .ct-modal-price-preview { font-size: 15px; color: var(--ink); font-weight: 500; padding-top: 3px; white-space: nowrap; }
+    .ct-modal-close { background: none; border: none; cursor: pointer; font-size: 20px; color: var(--ink); opacity: 0.38; padding: 2px 4px; line-height: 1; transition: opacity 0.15s; }
+    .ct-modal-close:hover { opacity: 0.7; }
+    .ct-modal-close:focus-visible { outline: 2px solid var(--ogo); border-radius: 2px; }
+    .ct-modal-scroll { flex: 1; overflow-y: auto; padding: 18px 20px; }
+    .ct-modal-bottom { padding: 12px 20px 20px; border-top: 1px solid rgba(26,26,26,0.08); flex-shrink: 0; }
+    .ct-modal-add-btn {
+      width: 100%; padding: 13px; border-radius: 2px; border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.12em;
+      text-transform: uppercase; cursor: pointer;
+      background: var(--ogo); color: white;
+      transition: opacity 0.18s, transform 0.1s;
+    }
+    .ct-modal-add-btn:hover:not(:disabled) { opacity: 0.88; }
+    .ct-modal-add-btn:active:not(:disabled) { transform: scale(0.99); }
+    .ct-modal-add-btn:disabled { opacity: 0.32; cursor: not-allowed; }
+    .ct-modal-add-btn:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+
+    /* ── Modal groups ── */
+    .ct-mgroup { margin-bottom: 20px; }
+    .ct-mgroup-label { font-family: 'DM Sans', sans-serif; font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.52; margin-bottom: 10px; display: block; }
+
+    /* ── People grid ── */
+    .ct-people-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .ct-people-btn {
+      min-width: 44px; padding: 7px 10px; border-radius: 2px; font-size: 13px;
+      border: 1px solid rgba(26,26,26,0.18); background: transparent; color: var(--ink);
+      cursor: pointer; transition: background 0.12s, border-color 0.12s;
+    }
+    .ct-people-btn:hover { background: var(--sand); border-color: rgba(26,26,26,0.28); }
+    .ct-people-btn.active { background: var(--driftwood); border-color: var(--driftwood); color: white; }
+    .ct-people-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 2px; }
+
+    /* ── Check list (flavors / sides in modals) ── */
+    .ct-check-list { display: flex; flex-direction: column; gap: 2px; }
+    .ct-check-section { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--driftwood); opacity: 0.75; padding: 10px 0 4px; display: block; }
+    .ct-check-item {
+      display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 3px;
+      cursor: pointer; border: 1px solid transparent;
+      transition: background 0.1s, border-color 0.1s; user-select: none;
+    }
+    .ct-check-item:hover:not(.ct-check-item--disabled) { background: rgba(26,26,26,0.04); }
+    .ct-check-item--selected { background: rgba(74,124,111,0.08); border-color: rgba(74,124,111,0.25); }
+    .ct-check-item--disabled { opacity: 0.32; cursor: not-allowed; }
+    .ct-check-box {
+      width: 16px; height: 16px; border: 1.5px solid rgba(26,26,26,0.25); border-radius: 2px;
+      flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+      transition: background 0.1s, border-color 0.1s;
+    }
+    .ct-check-item--selected .ct-check-box { background: var(--ogo); border-color: var(--ogo); }
+    .ct-check-box svg { display: none; }
+    .ct-check-item--selected .ct-check-box svg { display: block; }
+    .ct-check-name { font-size: 13px; color: var(--ink); flex: 1; }
+    .ct-check-note { font-size: 10.5px; color: var(--ink); opacity: 0.42; }
+    .ct-check-up { font-size: 11px; color: var(--driftwood); flex-shrink: 0; }
+
+    /* ── Toggle row (topping bar) ── */
+    .ct-toggle-row {
+      display: flex; align-items: center; gap: 12px; padding: 10px 10px; border-radius: 3px;
+      cursor: pointer; border: 1px solid rgba(26,26,26,0.1);
+      transition: background 0.1s, border-color 0.1s; user-select: none;
+    }
+    .ct-toggle-row:hover { background: rgba(26,26,26,0.03); }
+    .ct-toggle-row--on { background: rgba(74,124,111,0.08); border-color: rgba(74,124,111,0.28); }
+    .ct-toggle-info { flex: 1; }
+    .ct-toggle-name { font-size: 13px; color: var(--ink); }
+    .ct-toggle-price { font-size: 11px; color: var(--driftwood); }
+    .ct-toggle-knob {
+      width: 36px; height: 20px; border-radius: 10px; background: rgba(26,26,26,0.1);
+      border: 1.5px solid rgba(26,26,26,0.2); position: relative; flex-shrink: 0;
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .ct-toggle-knob::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 12px; height: 12px; border-radius: 50%; background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform 0.18s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .ct-toggle-row--on .ct-toggle-knob { background: var(--ogo); border-color: var(--ogo); }
+    .ct-toggle-row--on .ct-toggle-knob::after { transform: translateX(16px); }
+
+    /* ── Radio list (size / protein in modals) ── */
+    .ct-radio-list { display: flex; flex-direction: column; gap: 8px; }
+    .ct-radio-item {
+      display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 3px;
+      cursor: pointer; border: 1px solid rgba(26,26,26,0.1);
+      transition: background 0.1s, border-color 0.1s; user-select: none;
+    }
+    .ct-radio-item:hover { background: rgba(26,26,26,0.04); }
+    .ct-radio-item--selected { background: rgba(74,124,111,0.08); border-color: rgba(74,124,111,0.3); }
+    .ct-radio-dot {
+      width: 16px; height: 16px; border-radius: 50%; border: 1.5px solid rgba(26,26,26,0.28);
+      flex-shrink: 0; transition: border-color 0.1s, background 0.1s;
+    }
+    .ct-radio-item--selected .ct-radio-dot { border-color: var(--ogo); background: radial-gradient(circle, var(--ogo) 4px, transparent 4px); }
+    .ct-radio-label { font-size: 13px; color: var(--ink); flex: 1; }
+    .ct-radio-sub { font-size: 11px; color: var(--ink); opacity: 0.42; }
+    .ct-radio-price { font-size: 13px; color: var(--ink); opacity: 0.65; flex-shrink: 0; }
+
+    /* ── Modal qty row ── */
+    .ct-modal-qty-row { display: flex; align-items: center; gap: 0; }
+    .ct-modal-qty-btn { width: 34px; height: 34px; border: 1px solid rgba(26,26,26,0.18); background: transparent; cursor: pointer; font-size: 18px; line-height: 1; display: flex; align-items: center; justify-content: center; color: var(--ink); transition: background 0.1s; }
+    .ct-modal-qty-btn:first-child { border-radius: 2px 0 0 2px; }
+    .ct-modal-qty-btn:last-child  { border-radius: 0 2px 2px 0; border-left: none; }
+    .ct-modal-qty-btn:hover { background: var(--sand); }
+    .ct-modal-qty-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 1px; }
+    .ct-modal-qty-val { width: 48px; height: 34px; border-top: 1px solid rgba(26,26,26,0.18); border-bottom: 1px solid rgba(26,26,26,0.18); display: flex; align-items: center; justify-content: center; font-size: 15px; }
+
+    /* ── Inquiry/warning banners ── */
+    .ct-warn-banner { margin: 10px 20px; padding: 10px 12px; font-size: 12px; border-radius: 2px; line-height: 1.5; }
+    .ct-warn-banner--err { background: rgba(184,122,90,0.1); border: 1px solid rgba(184,122,90,0.22); color: var(--err); }
+    .ct-warn-banner--info { background: rgba(139,115,85,0.08); border: 1px solid rgba(139,115,85,0.2); color: var(--driftwood); }
+    .ct-warn-banner a { color: var(--ogo); text-decoration: none; border-bottom: 1px solid rgba(74,124,111,0.3); }
+
+    /* ── Mobile cart bar + drawer ── */
+    .ct-m-bar {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 150;
+      background: var(--ink); color: var(--cream);
+      padding: 14px 20px; align-items: center; justify-content: space-between;
+      cursor: pointer; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .ct-m-bar.ct-m-bar--show { display: flex; }
+    .ct-m-bar-left { font-size: 12px; opacity: 0.72; }
+    .ct-m-bar-right { display: flex; align-items: center; gap: 12px; }
+    .ct-m-bar-total { font-size: 15px; font-weight: 500; }
+    .ct-drawer-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; }
+    .ct-drawer-overlay.open { display: block; }
+    .ct-m-drawer {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 201; height: 88vh;
+      background: var(--cream); border-radius: 12px 12px 0 0;
+      transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1);
+      display: flex; flex-direction: column; overflow: hidden;
+    }
+    .ct-m-drawer.open { transform: translateY(0); }
+    .ct-m-drawer-handle { width: 36px; height: 4px; background: rgba(26,26,26,0.16); border-radius: 2px; margin: 10px auto 6px; flex-shrink: 0; }
+    .ct-m-drawer-hd { display: flex; align-items: center; justify-content: space-between; padding: 6px 20px 12px; border-bottom: 1px solid rgba(26,26,26,0.08); flex-shrink: 0; }
+    .ct-m-drawer-title { font-size: 14px; letter-spacing: 0.06em; opacity: 0.65; }
+    .ct-m-drawer-close { background: none; border: none; font-size: 22px; cursor: pointer; opacity: 0.38; padding: 4px; line-height: 1; }
+    .ct-m-drawer-close:hover { opacity: 0.72; }
+    .ct-m-drawer-body { flex: 1; overflow-y: auto; }
+    @media (min-width: 961px) { .ct-m-bar, .ct-m-bar.ct-m-bar--show { display: none !important; } }
+    @media (max-width: 960px) { .ct-cart-col { display: none; } body.ct-has-cart { padding-bottom: 64px; } }
+
+    /* ── Musubi size buttons ── */
+    .ct-musubi-btns { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ct-musubi-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 1px;
+      padding: 8px 14px; border: 1px solid rgba(26,26,26,0.2); border-radius: 2px;
+      background: transparent; cursor: pointer; color: var(--ink);
+      transition: background 0.12s, border-color 0.12s, transform 0.1s;
+    }
+    .ct-musubi-btn:hover { background: var(--sand); border-color: rgba(26,26,26,0.3); }
+    .ct-musubi-btn:active { transform: scale(0.97); }
+    .ct-musubi-btn:focus-visible { outline: 2px solid var(--ogo); outline-offset: 2px; }
+    .ct-musubi-btn-qty { font-size: 13px; font-weight: 500; }
+    .ct-musubi-btn-price { font-size: 11px; opacity: 0.5; }
+
+    /* ── Sushi bake pricing display ── */
+    .ct-bake-pricing { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+    .ct-bake-pricing-sz { font-size: 11.5px; color: var(--ink); opacity: 0.45; }
+
+    /* ── Cart sidebar edit button ── */
+    .ct-cart-edit-btn {
+      font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+      opacity: 0.45; background: none; border: none; cursor: pointer;
+      color: var(--ogo); padding: 0; transition: opacity 0.15s;
+    }
+    .ct-cart-edit-btn:hover { opacity: 0.85; }
+
+    /* ── Checkout fulfillment section spacing ── */
+    .ct-fulfillment { padding: 0; border-top: none; margin-top: 0; }
   </style>
 </head>
 <body>
@@ -742,47 +1006,10 @@
     <span class="ct-eyebrow">inoa · catering</span>
     <h1 id="hero-heading">Catering</h1>
     <p class="ct-hero-sub">Hawaiian-inspired poke, cut and mixed the morning of your event.</p>
-    <p class="ct-hero-support">Order online in a few minutes. Three days' notice, Santa Cruz County and the South Bay.</p>
+    <p class="ct-hero-support">Two days' notice. Santa Cruz County and the South Bay. Parties of 100 or more guests require an inquiry.</p>
     <div class="ct-hero-btns">
-      <a href="/catering/inquiry" class="ct-btn-primary">Send an inquiry</a>
-      <a href="#order" class="ct-btn-ghost">Learn more</a>
-    </div>
-  </div>
-</section>
-
-<!-- ── Two formats ── -->
-<section class="ct-section" aria-labelledby="formats-heading">
-  <div class="ct-inner">
-    <span class="ct-section-label">formats</span>
-    <h2 class="ct-section-heading" id="formats-heading">Two formats</h2>
-    <div class="ct-formats">
-      <div class="ct-format-card">
-        <div class="ct-format-name">Individually packaged</div>
-        <p class="ct-format-desc">Sealed, labeled single-serve boxes. No setup, no serving line, nothing to manage.</p>
-        <div class="ct-format-footer">10 box minimum</div>
-      </div>
-      <div class="ct-format-card">
-        <div class="ct-format-name">À la carte trays</div>
-        <p class="ct-format-desc">Order exactly what you need. Poke by the tray, rice and greens, sides, musubi, sushi bake, and sashimi platters.</p>
-        <div class="ct-format-footer">Trays serve 10 or 20</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── How much to order ── -->
-<section class="ct-section alt" aria-labelledby="howmuch-heading">
-  <div class="ct-inner">
-    <span class="ct-section-label">starter sets</span>
-    <h2 class="ct-section-heading" id="howmuch-heading">How much to order</h2>
-    <p class="ct-prefill-note">Not sure how much you need? These are our standard proportions. Adjust anything after it's in your cart.</p>
-    <div class="ct-prefill-btns">
-      <button class="ct-prefill-btn" onclick="prefillCart(10)" aria-label="Prefill cart for 10 guests: one small poke tray, rice, greens, two small sides">
-        Feeding 10
-      </button>
-      <button class="ct-prefill-btn" onclick="prefillCart(20)" aria-label="Prefill cart for 20 guests: one large poke tray, rice, greens, two large sides">
-        Feeding 20
-      </button>
+      <a href="#order" class="ct-btn-primary">Start ordering</a>
+      <a href="/catering/inquiry" class="ct-btn-ghost">Send an inquiry</a>
     </div>
   </div>
 </section>
@@ -815,22 +1042,22 @@
     <ul class="ct-dietary-list" role="list">
       <li class="ct-dietary-item">
         <span class="ct-dietary-tag">Gluten free</span>
-        <span class="ct-dietary-desc">Six of our eight poke flavors, plus the tofu, rice, and most sides.</span>
+        <span class="ct-dietary-desc">Hawaiian ahi, spicy ahi, spicy salmon, kimchi tako, garlic shrimp, tobiko scallop, Hawaiian tofu.</span>
       </li>
       <li class="ct-dietary-item">
         <span class="ct-dietary-tag">Vegan</span>
-        <span class="ct-dietary-desc">Hawaiian tofu, kimchi cucumber, roasted sweet potato, rice and greens.</span>
+        <span class="ct-dietary-desc">Hawaiian tofu, kimchi cucumber, cold roasted sweet potato, sushi rice, greens.</span>
       </li>
       <li class="ct-dietary-item">
-        <span class="ct-dietary-tag">No raw fish</span>
-        <span class="ct-dietary-desc">Kimchi tako, garlic shrimp, teriyaki beef, shoyu ginger chicken, sushi bake.</span>
+        <span class="ct-dietary-tag">Cooked, no raw fish</span>
+        <span class="ct-dietary-desc">Kimchi tako, garlic shrimp, teriyaki beef, shoyu ginger chicken, all sushi bakes.</span>
       </li>
       <li class="ct-dietary-item">
         <span class="ct-dietary-tag">Contains pork</span>
         <span class="ct-dietary-desc">Spam musubi.</span>
       </li>
     </ul>
-    <p style="font-size:12px;color:var(--ink);opacity:0.45;margin-top:20px;">Every tray and box is labeled with contents and allergens.</p>
+    <p style="font-size:12px;color:var(--ink);opacity:0.45;margin-top:20px;">Contains soy, wheat, sesame, egg, fish, and fish roe. Crab mac salad, sushi bake, garlic shrimp, and tobiko scallop contain shellfish. MSG is used in house marinades. Every tray and box is labeled with contents and allergens.</p>
   </div>
 </section>
 
@@ -842,23 +1069,27 @@
     <ul class="ct-know-list" role="list">
       <li class="ct-know-item">
         <span class="ct-know-label">Lead time</span>
-        <span class="ct-know-val">Three days' notice. Fish is ordered to spec, not pulled from a case.</span>
-      </li>
-      <li class="ct-know-item">
-        <span class="ct-know-label">Serving window</span>
-        <span class="ct-know-val">Poke trays arrive on ice and should be served within two hours.</span>
+        <span class="ct-know-val">48 hours. Fish is ordered to spec, not pulled from a case.</span>
       </li>
       <li class="ct-know-item">
         <span class="ct-know-label">Minimums</span>
         <span class="ct-know-val">$200 pickup · $250 delivered in Santa Cruz County · $500 delivered over the hill</span>
       </li>
       <li class="ct-know-item">
-        <span class="ct-know-label">Larger events</span>
-        <span class="ct-know-val">Over 30 boxes or 6 trays, or want us on site? <a href="/catering/inquiry" style="color:var(--ogo);text-decoration:none;border-bottom:1px solid rgba(74,124,111,0.3);">Send an inquiry</a> and we'll build a quote.</span>
+        <span class="ct-know-label">Delivery</span>
+        <span class="ct-know-val">$35 local · $75 over the hill · pickup free at 100 Enterprise Way, Scotts Valley</span>
       </li>
       <li class="ct-know-item">
         <span class="ct-know-label">Payment</span>
-        <span class="ct-know-val">Paid in full online via Square. No deposit structure — these orders aren't custom.</span>
+        <span class="ct-know-val">Paid in full at checkout via Square. Custom and large orders quoted and invoiced with a 50% deposit.</span>
+      </li>
+      <li class="ct-know-item">
+        <span class="ct-know-label">Capacity</span>
+        <span class="ct-know-val">Over 50 guests or 30 boxes requires an <a href="/catering/inquiry" style="color:var(--ogo);text-decoration:none;border-bottom:1px solid rgba(74,124,111,0.3);">inquiry</a>.</span>
+      </li>
+      <li class="ct-know-item">
+        <span class="ct-know-label">Serving window</span>
+        <span class="ct-know-val">All cold items arrive on ice and should be served within two hours.</span>
       </li>
     </ul>
   </div>
@@ -866,41 +1097,21 @@
 
 <!-- ── Ordering section ── -->
 <section class="ct-order-section" id="order" aria-labelledby="menu-heading">
-  <div class="ct-coming-soon">
-    <div class="ct-cs-grain"></div>
-    <div class="ct-cs-glow"></div>
-    <div class="ct-cs-inner">
-      <span class="ct-cs-eyebrow">online ordering</span>
-      <h2 class="ct-cs-heading" id="menu-heading">catering coming soon.</h2>
-      <p class="ct-cs-sub">Online ordering for catering is on its way. In the meantime, send us an inquiry and we'll get back to you within 24 hours.</p>
-      <a href="/catering/inquiry" class="ct-cs-btn">Send an inquiry</a>
+  <div class="ct-order-hd">
+    <div class="ct-inner">
+      <span class="ct-section-label">order online</span>
+      <h2 class="ct-section-heading" id="menu-heading">Build your catering order</h2>
+      <p class="ct-order-hd-sub">Min $200 pickup · $250 local delivery · 48-hour notice required</p>
+    </div>
+  </div>
+  <div class="ct-app-root" id="catering-app-root">
+    <div class="ct-order-layout">
+      <div class="ct-menu-col"><p style="opacity:0.4;font-size:13px">Loading menu…</p></div>
+      <div class="ct-cart-col"><div class="ct-cart-panel"></div></div>
     </div>
   </div>
 </section>
 
-<!-- Mobile cart bar -->
-<div class="ct-mobile-bar" id="mobile-cart-bar" style="display:none!important" role="button" tabindex="0" aria-label="View cart" onclick="openDrawer()" onkeydown="if(event.key==='Enter'||event.key===' ')openDrawer()">
-  <span class="ct-mobile-bar-left" id="mobile-bar-count">0 items</span>
-  <div class="ct-mobile-bar-right">
-    <span class="ct-mobile-bar-total" id="mobile-bar-total">$0.00</span>
-    <span class="ct-mobile-bar-caret">↑</span>
-  </div>
-</div>
-
-<!-- Mobile drawer overlay -->
-<div class="ct-drawer-overlay" id="drawer-overlay" onclick="closeDrawer()" aria-hidden="true"></div>
-
-<!-- Mobile cart drawer -->
-<div class="ct-mobile-drawer" id="mobile-drawer" role="dialog" aria-modal="true" aria-label="Your cart">
-  <div class="ct-drawer-handle" aria-hidden="true"></div>
-  <div class="ct-drawer-header">
-    <span class="ct-drawer-title">Your order</span>
-    <button class="ct-drawer-close" onclick="closeDrawer()" aria-label="Close cart">×</button>
-  </div>
-  <div class="ct-drawer-content" id="mobile-drawer-content">
-    <!-- Populated by JS -->
-  </div>
-</div>
 
 <!-- ── Footer ── -->
 <footer class="footer" role="contentinfo">
@@ -922,614 +1133,14 @@
   <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
 </div>
 
-<!-- Menu data -->
+<!-- Menu data + React -->
 <script src="/catering-data.js"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.10/babel.min.js"></script>
 
 <script>
-  const CART_KEY = 'inoa_catering_cart';
-  const C = window.CATERING_CONSTANTS;
   const D = window.CATERING_DATA;
-
-  // ── Cart state ──────────────────────────────────────────────────────
-  let cart               = loadCart();
-  let activePicker       = null;
-  let currentStep        = 'cart'; // 'cart' | 'checkout'
-  let blackoutDates      = [];
-  let blackoutLoadFailed = false;
-  let selectedFulfillment = 'pickup';
-  let selectedCity        = '';
-
-  function loadCart() {
-    try { return JSON.parse(localStorage.getItem(CART_KEY)) || []; }
-    catch { return []; }
-  }
-  function saveCart() {
-    localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  }
-
-  // ── Item lookup ─────────────────────────────────────────────────────
-  function getItemDef(id) {
-    for (const sec of D.sections) {
-      const item = sec.items.find(i => i.id === id);
-      if (item) return { ...item, category: sec.category };
-    }
-    return null;
-  }
-
-  // ── Totals ─────────────────────────────────────────────────────────
-  function getCartTotals() {
-    const totalBoxes = cart.filter(i => i.category === 'box').reduce((s, i) => s + i.qty, 0);
-    const totalTrays = cart.filter(i => i.category === 'tray').reduce((s, i) => s + i.qty, 0);
-    const subtotal   = cart.reduce((s, i) => s + i.cents * i.qty, 0);
-
-    const fulfillment = selectedFulfillment;
-    const city        = selectedCity;
-
-    let deliveryFee = 0;
-    let zoneMin     = C.PICKUP_MIN * 100; // 200 → 20000 cents
-    if (fulfillment === 'delivery' && city && C.DELIVERY_ZONES[city]) {
-      deliveryFee = C.DELIVERY_ZONES[city].fee;
-      zoneMin     = C.DELIVERY_ZONES[city].min;
-    } else if (fulfillment === 'pickup') {
-      zoneMin = C.PICKUP_MIN * 100;
-    }
-
-    const total       = subtotal + deliveryFee;
-    const gapCents    = Math.max(0, zoneMin - subtotal);
-    const meetsMin    = subtotal >= zoneMin;
-    const overCeiling = totalBoxes > C.INQUIRY_CEILING_BOXES || totalTrays > C.INQUIRY_CEILING_TRAYS;
-    const boxShortfall = cart.some(i => i.category === 'box') ? Math.max(0, C.BOX_MINIMUM - totalBoxes) : 0;
-
-    return { totalBoxes, totalTrays, subtotal, deliveryFee, total, gapCents, meetsMin, overCeiling, boxShortfall, fulfillment, city };
-  }
-
-  // ── Format helpers ─────────────────────────────────────────────────
-  const fmt = cents => '$' + (cents / 100).toFixed(2).replace(/\.00$/, '');
-
-  function announce(text) {
-    const el = document.getElementById('cart-announce');
-    el.textContent = '';
-    requestAnimationFrame(() => { el.textContent = text; });
-  }
-
-  // ── Cart mutations ─────────────────────────────────────────────────
-  function addToCart(itemId, flavor, flavor2) {
-    const def = getItemDef(itemId);
-    if (!def) return;
-    // Try to merge with existing identical entry
-    const existing = cart.find(i =>
-      i.itemId === itemId &&
-      (i.flavor || null) === (flavor || null) &&
-      (i.flavor2 || null) === (flavor2 || null)
-    );
-    if (existing) {
-      existing.qty++;
-    } else {
-      cart.push({
-        uid:      crypto.randomUUID(),
-        itemId,
-        name:     def.name,
-        flavor:   flavor || null,
-        flavor2:  flavor2 || null,
-        cents:    def.cents,
-        qty:      1,
-        category: def.category,
-      });
-    }
-    saveCart();
-    renderAll();
-    const label = def.name + (flavor ? ` — ${flavor}` : '') + (flavor2 ? ` / ${flavor2}` : '');
-    const total = cart.reduce((s, i) => s + i.qty, 0);
-    announce(`${label} added to cart. ${total} item${total !== 1 ? 's' : ''} in cart.`);
-  }
-
-  function removeFromCart(uid) {
-    cart = cart.filter(i => i.uid !== uid);
-    saveCart();
-    renderAll();
-    announce('Item removed from cart.');
-  }
-
-  function setQty(uid, qty) {
-    if (qty < 1) { removeFromCart(uid); return; }
-    const item = cart.find(i => i.uid === uid);
-    if (item) { item.qty = qty; saveCart(); renderAll(); }
-  }
-
-  function clearCart() {
-    cart = [];
-    saveCart();
-    renderAll();
-    announce('Cart cleared.');
-  }
-
-  function prefillCart(headcount) {
-    const prefill = D.prefills[headcount];
-    if (!prefill) return;
-    cart = [];
-    for (const { id, qty } of prefill) {
-      const def = getItemDef(id);
-      if (!def) continue;
-      cart.push({ uid: crypto.randomUUID(), itemId: id, name: def.name, flavor: null, flavor2: null, cents: def.cents, qty, category: def.category });
-    }
-    saveCart();
-    renderAll();
-    document.getElementById('order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    const total = cart.reduce((s, i) => s + i.qty, 0);
-    announce(`Cart set for ${headcount} guests. ${total} items added.`);
-  }
-
-  // ── Flavor picker ──────────────────────────────────────────────────
-  function handleAdd(itemId) {
-    const def = getItemDef(itemId);
-    if (!def) return;
-    const needsFlavor = !!(def.flavorGroup || def.split);
-    if (!needsFlavor) {
-      addToCart(itemId, null, null);
-      return;
-    }
-    // Close any other open picker
-    if (activePicker && activePicker !== itemId) closePicker(activePicker);
-    activePicker = itemId;
-    const pickerEl = document.getElementById('picker-' + itemId);
-    if (pickerEl) { pickerEl.hidden = false; pickerEl.querySelector('select')?.focus(); }
-  }
-
-  function closePicker(itemId) {
-    const pickerEl = document.getElementById('picker-' + itemId);
-    if (pickerEl) pickerEl.hidden = true;
-    if (activePicker === itemId) activePicker = null;
-  }
-
-  function confirmAdd(itemId) {
-    const def = getItemDef(itemId);
-    const sel1 = document.getElementById('sel1-' + itemId);
-    const sel2 = document.getElementById('sel2-' + itemId);
-    const flavor  = sel1?.value || null;
-    const flavor2 = sel2?.value || null;
-    if (!flavor) { sel1?.focus(); sel1?.setCustomValidity('Please choose a flavor.'); sel1?.reportValidity(); return; }
-    if (sel2 && !flavor2) { sel2?.focus(); sel2?.setCustomValidity('Please choose a second flavor.'); sel2?.reportValidity(); return; }
-    sel1?.setCustomValidity('');
-    sel2?.setCustomValidity('');
-    closePicker(itemId);
-    addToCart(itemId, flavor, flavor2);
-  }
-
-  function flavorOptions(groupName) {
-    if (groupName === 'shrimp') return ['Garlic shrimp'];
-    return D.flavorGroups[groupName] || [];
-  }
-
-  function buildPickerHTML(def) {
-    let selects = '';
-    if (def.split) {
-      const [g1, g2] = def.split;
-      const opts1 = flavorOptions(g1).map(f => `<option value="${f}">${f}</option>`).join('');
-      const opts2 = flavorOptions(g2).map(f => `<option value="${f}">${f}</option>`).join('');
-      selects = `
-        <div class="ct-picker-select-wrap">
-          <label for="sel1-${def.id}">First half</label>
-          <select id="sel1-${def.id}" aria-label="First flavor"><option value="">Choose…</option>${opts1}</select>
-        </div>
-        <div class="ct-picker-select-wrap">
-          <label for="sel2-${def.id}">Second half</label>
-          <select id="sel2-${def.id}" aria-label="Second flavor"><option value="">Choose…</option>${opts2}</select>
-        </div>`;
-    } else if (def.flavorGroup) {
-      const opts = flavorOptions(def.flavorGroup).map(f => `<option value="${f}">${f}</option>`).join('');
-      selects = `
-        <div class="ct-picker-select-wrap">
-          <label for="sel1-${def.id}">Flavor</label>
-          <select id="sel1-${def.id}" aria-label="Flavor"><option value="">Choose…</option>${opts}</select>
-        </div>`;
-    }
-    return `
-      <div class="ct-picker" id="picker-${def.id}" hidden>
-        <div class="ct-picker-selects">${selects}</div>
-        <div class="ct-picker-actions">
-          <button class="ct-picker-confirm" onclick="confirmAdd('${def.id}')">Add to cart</button>
-          <button class="ct-picker-cancel" onclick="closePicker('${def.id}')">Cancel</button>
-        </div>
-      </div>`;
-  }
-
-  // ── Menu rendering ─────────────────────────────────────────────────
-  function renderMenu() {
-    const container = document.getElementById('order-menu');
-    if (!container) return;
-    let html = '';
-    for (const section of D.sections) {
-      html += `<div class="ct-menu-section" id="sec-${section.id}">`;
-      html += `<div class="ct-menu-section-header">`;
-      html += `<h3 class="ct-menu-section-title">${section.label}</h3>`;
-      if (section.note) html += `<p class="ct-menu-section-note">${section.note}</p>`;
-      html += `</div>`;
-      html += `<ul class="ct-item-list" aria-label="${section.label}">`;
-      for (const item of section.items) {
-        const needsFlavor = !!(item.flavorGroup || item.split);
-        let metaLine = '';
-        if (item.note) metaLine += `<span class="ct-item-note">${item.note}</span>`;
-        if (item.serves) metaLine += `${item.note ? ' · ' : ''}<span class="ct-item-note">serves ${item.serves}</span>`;
-        html += `<li class="ct-item-card">
-          <div class="ct-item-row">
-            <div class="ct-item-info">
-              <span class="ct-item-name">${item.name}</span>
-              ${metaLine}
-            </div>
-            <span class="ct-item-price">${fmt(item.cents)}</span>
-            <button class="ct-add-btn" onclick="handleAdd('${item.id}')" aria-label="Add ${item.name} to cart">Add</button>
-          </div>
-          ${needsFlavor ? buildPickerHTML(item) : ''}
-        </li>`;
-      }
-      html += `</ul></div>`;
-    }
-    container.innerHTML = html;
-  }
-
-  // ── Cart rendering ─────────────────────────────────────────────────
-  // ── Checkout form HTML (cart step 2) ──────────────────────────────
-  function checkoutFormHTML(totals) {
-    const { subtotal, deliveryFee, total, fulfillment, city } = totals;
-    const minDate = new Date(Date.now() + C.MIN_LEAD_TIME_MS).toISOString().slice(0, 10);
-    const summaryLines = cart.map(i => {
-      const f = [i.flavor, i.flavor2].filter(Boolean).join(' / ');
-      return `<div class="ct-checkout-summary-row"><span>${i.name}${f ? ` — ${f}` : ''} ×${i.qty}</span><span>${fmt(i.cents * i.qty)}</span></div>`;
-    }).join('');
-    const fulfillLabel = fulfillment === 'delivery' && city ? `Delivery to ${city}` : 'Pickup (Scotts Valley)';
-
-    return `
-      <button class="ct-checkout-back" onclick="showCart()" aria-label="Back to cart">← Back</button>
-      <div class="ct-checkout-summary">
-        ${summaryLines}
-        ${deliveryFee > 0 ? `<div class="ct-checkout-summary-row"><span>Delivery</span><span>${fmt(deliveryFee)}</span></div>` : ''}
-        <div class="ct-checkout-summary-row strong"><span>Total</span><span>${fmt(total)}</span></div>
-        <div class="ct-checkout-summary-row" style="opacity:0.45;font-size:11px;padding-top:4px"><span>${fulfillLabel}</span></div>
-      </div>
-      <form class="ct-checkout-form" id="ct-checkout-form" onsubmit="handleSubmitOrder(event)" novalidate>
-        <div class="ct-form-group">
-          <label class="ct-form-label" for="ct-event-date">Event date</label>
-          <input class="ct-form-input" type="date" id="ct-event-date" name="event_date"
-            min="${minDate}" required aria-required="true" aria-describedby="ct-date-warn"
-            onchange="onDateChange(this.value)">
-          <div class="ct-blackout-warn" id="ct-date-warn" hidden>That date is unavailable. Please choose another.</div>
-          ${blackoutLoadFailed ? `<div class="ct-blackout-warn" style="display:block">Couldn't load date availability — please text (925) 391-6589 to confirm your date is open before ordering.</div>` : ''}
-        </div>
-        <div class="ct-form-two">
-          <div class="ct-form-group">
-            <label class="ct-form-label" for="ct-name">Name</label>
-            <input class="ct-form-input" type="text" id="ct-name" name="name" required aria-required="true" autocomplete="name">
-          </div>
-          <div class="ct-form-group">
-            <label class="ct-form-label" for="ct-company">Company <span>(optional)</span></label>
-            <input class="ct-form-input" type="text" id="ct-company" name="company" autocomplete="organization">
-          </div>
-        </div>
-        <div class="ct-form-two">
-          <div class="ct-form-group">
-            <label class="ct-form-label" for="ct-email">Email</label>
-            <input class="ct-form-input" type="email" id="ct-email" name="email" required aria-required="true" autocomplete="email">
-          </div>
-          <div class="ct-form-group">
-            <label class="ct-form-label" for="ct-phone">Phone</label>
-            <input class="ct-form-input" type="tel" id="ct-phone" name="phone" required aria-required="true" autocomplete="tel">
-          </div>
-        </div>
-        <div class="ct-form-group">
-          <label class="ct-form-label" for="ct-notes">Notes <span>(optional)</span></label>
-          <textarea class="ct-form-textarea" id="ct-notes" name="notes" placeholder="Allergen notes, label requests, timing, anything we should know…"></textarea>
-        </div>
-        <div class="ct-checkout-err" id="ct-checkout-err" hidden></div>
-        <button class="ct-place-btn" id="ct-place-btn" type="submit">Place order — pay via Square</button>
-        <p class="ct-tax-note" style="margin-top:10px">Tax calculated at Square checkout. No card data enters this site.</p>
-      </form>`;
-  }
-
-  function cartPanelHTML(totals) {
-    if (currentStep === 'checkout') {
-      return checkoutFormHTML(totals);
-    }
-    const { subtotal, deliveryFee, total, gapCents, meetsMin, overCeiling, boxShortfall, fulfillment, city } = totals;
-    if (cart.length === 0) {
-      return `<div class="ct-cart-empty">
-        <div class="ct-cart-empty-icon" aria-hidden="true">○</div>
-        <p>Your cart is empty.</p>
-        <p>Add items from the menu above.</p>
-      </div>`;
-    }
-
-    // Box minimum banner
-    const boxBanner = boxShortfall > 0
-      ? `<div class="ct-box-min-banner" role="alert">Add <strong>${boxShortfall}</strong> more box${boxShortfall !== 1 ? 'es' : ''} to meet the 10-box minimum.</div>`
-      : '';
-
-    // Item rows
-    let itemRows = '';
-    for (const item of cart) {
-      const flavorLine = [item.flavor, item.flavor2].filter(Boolean).join(' / ');
-      itemRows += `<div class="ct-cart-item" data-uid="${item.uid}">
-        <div class="ct-cart-item-info">
-          <div class="ct-cart-item-name">${item.name}</div>
-          ${flavorLine ? `<div class="ct-cart-item-flavor">${flavorLine}</div>` : ''}
-        </div>
-        <div class="ct-cart-item-right">
-          <div class="ct-cart-item-price">${fmt(item.cents * item.qty)}</div>
-          <div class="ct-qty-ctrl" role="group" aria-label="Quantity for ${item.name}">
-            <button class="ct-qty-btn" onclick="setQty('${item.uid}', ${item.qty - 1})" aria-label="Decrease quantity">−</button>
-            <span class="ct-qty-val" aria-live="polite">${item.qty}</span>
-            <button class="ct-qty-btn" onclick="setQty('${item.uid}', ${item.qty + 1})" aria-label="Increase quantity">+</button>
-          </div>
-        </div>
-        <button class="ct-item-remove" onclick="removeFromCart('${item.uid}')" aria-label="Remove ${item.name}">×</button>
-      </div>`;
-    }
-
-    // Fulfillment toggle
-    const cityOptions = Object.keys(C.DELIVERY_ZONES).map(c =>
-      `<option value="${c}" ${c === city ? 'selected' : ''}>${c}</option>`
-    ).join('');
-    const fulfillHTML = `
-      <div class="ct-fulfillment">
-        <div class="ct-fulfillment-opts">
-          <span class="ct-fulfil-opt" onclick="selectFulfillment('pickup')">
-            <span class="ct-fulfil-dot ${fulfillment === 'pickup' ? 'ct-fulfil-dot--active' : ''}"></span>
-            Pickup (Scotts Valley)
-          </span>
-          <span class="ct-fulfil-opt" onclick="selectFulfillment('delivery')">
-            <span class="ct-fulfil-dot ${fulfillment === 'delivery' ? 'ct-fulfil-dot--active' : ''}"></span>
-            Delivery
-          </span>
-        </div>
-        <div class="ct-city-wrap" id="city-wrap" ${fulfillment !== 'delivery' ? 'hidden' : ''}>
-          <label for="delivery-city">Delivery city</label>
-          <select class="ct-city-select" id="delivery-city" onchange="onCityChange()" aria-required="true">
-            <option value="">Select city</option>
-            ${cityOptions}
-          </select>
-        </div>
-      </div>`;
-
-    // Summary
-    const gapMsg = !meetsMin && cart.length > 0 && fulfillment === 'delivery' && city
-      ? `<div class="ct-min-gap" role="alert">Add ${fmt(gapCents)} more for delivery to ${city}.</div>`
-      : (!meetsMin && cart.length > 0 && fulfillment === 'pickup')
-        ? `<div class="ct-min-gap" role="alert">Add ${fmt(gapCents)} more to meet the $200 pickup minimum.</div>`
-        : '';
-
-    const summaryHTML = `
-      <div class="ct-summary">
-        <div class="ct-summary-row"><span>Subtotal</span><span>${fmt(subtotal)}</span></div>
-        ${deliveryFee > 0 ? `<div class="ct-summary-row"><span>Delivery</span><span>${fmt(deliveryFee)}</span></div>` : ''}
-        ${gapMsg}
-        <div class="ct-summary-row total"><span>Total</span><span>${fmt(total)}</span></div>
-      </div>`;
-
-    // Checkout action
-    const canCheckout = meetsMin && !overCeiling && boxShortfall === 0 && (fulfillment === 'pickup' || (fulfillment === 'delivery' && city));
-    let actionHTML;
-    if (overCeiling) {
-      actionHTML = `<a class="ct-inquiry-link" href="/catering/inquiry?from=cart">This order needs a quote — send an inquiry ↗</a>`;
-    } else {
-      actionHTML = `<button class="ct-checkout-btn" ${canCheckout ? '' : 'disabled'} onclick="handleCheckoutClick()" aria-disabled="${!canCheckout}">Proceed to checkout</button>`;
-    }
-
-    return `
-      <div class="ct-cart-top">
-        <span class="ct-cart-heading">Your order</span>
-        <button class="ct-cart-clear-btn" onclick="clearCart()">Clear all</button>
-      </div>
-      ${boxBanner}
-      <div class="ct-cart-items">${itemRows}</div>
-      ${fulfillHTML}
-      ${summaryHTML}
-      <div class="ct-cart-actions">
-        ${actionHTML}
-        <p class="ct-tax-note">Tax calculated at checkout</p>
-      </div>`;
-  }
-
-  function renderCart() {
-    const totals = getCartTotals();
-    const panel  = document.getElementById('cart-panel');
-    if (panel) panel.innerHTML = cartPanelHTML(totals);
-
-    // Mobile bar
-    const bar   = document.getElementById('mobile-cart-bar');
-    const count = cart.reduce((s, i) => s + i.qty, 0);
-    const total = totals.total;
-    if (bar) {
-      document.getElementById('mobile-bar-count').textContent = count === 0 ? 'Your cart' : `${count} item${count !== 1 ? 's' : ''}`;
-      document.getElementById('mobile-bar-total').textContent = fmt(total);
-      bar.classList.toggle('has-items', count > 0);
-    }
-
-    // Mobile drawer (same content but different container)
-    const drawer = document.getElementById('mobile-drawer-content');
-    if (drawer) {
-      const inner = document.createElement('div');
-      inner.style.cssText = 'background:white;margin:12px;border-radius:3px;';
-      inner.innerHTML = cartPanelHTML(totals);
-      drawer.innerHTML = '';
-      drawer.appendChild(inner);
-    }
-
-    // Body padding for mobile bar
-    document.body.classList.toggle('has-cart-items', count > 0);
-  }
-
-  function selectFulfillment(val) {
-    selectedFulfillment = val;
-    if (val !== 'delivery') selectedCity = '';
-    renderAll();
-  }
-
-  function onCityChange() {
-    selectedCity = document.getElementById('delivery-city')?.value || '';
-    renderAll();
-  }
-
-  // ── Render all ─────────────────────────────────────────────────────
-  function renderAll() {
-    renderCart();
-  }
-
-  // ── Mobile drawer ──────────────────────────────────────────────────
-  function openDrawer() {
-    document.getElementById('mobile-drawer').classList.add('open');
-    document.getElementById('drawer-overlay').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-  function closeDrawer() {
-    document.getElementById('mobile-drawer').classList.remove('open');
-    document.getElementById('drawer-overlay').classList.remove('open');
-    document.body.style.overflow = '';
-  }
-  // Close drawer on Escape
-  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDrawer(); });
-
-  // ── Checkout navigation ───────────────────────────────────────────
-  function handleCheckoutClick() {
-    showCheckout();
-  }
-
-  function showCart() {
-    currentStep = 'cart';
-    renderAll();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function showCheckout() {
-    const totals = getCartTotals();
-    if (!totals.meetsMin || totals.overCeiling) return;
-    currentStep = 'checkout';
-    renderAll();
-    document.getElementById('ct-checkout-form')?.querySelector('input,textarea')?.focus();
-  }
-
-  // ── Blackout date validation ───────────────────────────────────────
-  async function fetchBlackoutDates() {
-    try {
-      const FB_PROJECT = 'inoa-times';
-      const FB_KEY     = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
-      const url = `https://firestore.googleapis.com/v1/projects/${FB_PROJECT}/databases/(default)/documents/cateringConfig/blackouts?key=${FB_KEY}`;
-      const res = await fetch(url);
-      if (res.status === 404) return; // doc doesn't exist yet — no blackouts configured
-      if (!res.ok) {
-        console.error('[inoa catering] fetchBlackoutDates: Firestore returned', res.status, '— check Firestore security rules for cateringConfig');
-        blackoutLoadFailed = true;
-        renderAll(); // re-render checkout form to show the warning
-        return;
-      }
-      const doc = await res.json();
-      const arr = doc.fields?.dates?.arrayValue?.values || [];
-      blackoutDates = arr.map(v => v.stringValue).filter(Boolean);
-    } catch (err) {
-      console.error('[inoa catering] fetchBlackoutDates network error:', err.message);
-      // network failure — don't block the UI, but don't claim all dates are clear
-    }
-  }
-
-  function isBlackout(dateStr) {
-    return blackoutDates.includes(dateStr);
-  }
-
-  function onDateChange(value) {
-    const warn = document.getElementById('ct-date-warn');
-    if (!warn) return;
-    if (isBlackout(value)) {
-      warn.hidden = false;
-    } else {
-      warn.hidden = true;
-    }
-  }
-
-  // ── Order submission ───────────────────────────────────────────────
-  async function handleSubmitOrder(e) {
-    e.preventDefault();
-    const form    = document.getElementById('ct-checkout-form');
-    const errEl   = document.getElementById('ct-checkout-err');
-    const btn     = document.getElementById('ct-place-btn');
-    if (!form || !errEl || !btn) return;
-
-    errEl.hidden = true;
-
-    // Basic HTML5 validation first
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    const eventDate = form.event_date?.value;
-    if (!eventDate) {
-      showErr(errEl, 'Please select an event date.');
-      return;
-    }
-    if (isBlackout(eventDate)) {
-      showErr(errEl, 'That date is unavailable. Please choose another.');
-      return;
-    }
-
-    const totals = getCartTotals();
-
-    const payload = {
-      eventDate,
-      name:          form.name?.value?.trim(),
-      company:       form.company?.value?.trim() || '',
-      email:         form.email?.value?.trim(),
-      phone:         form.phone?.value?.trim(),
-      notes:         form.notes?.value?.trim() || '',
-      fulfillment:   totals.fulfillment,
-      deliveryCity:  totals.city || '',
-      cart:          cart.map(i => ({
-        itemId:  i.itemId,
-        name:    i.name,
-        flavor:  i.flavor  || null,
-        flavor2: i.flavor2 || null,
-        cents:   i.cents,
-        qty:     i.qty,
-        category: i.category,
-      })),
-    };
-
-    btn.disabled    = true;
-    btn.textContent = 'Placing order…';
-
-    try {
-      const res  = await fetch('/api/catering-order', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        showErr(errEl, data.error || 'Something went wrong. Please try again.');
-        btn.disabled    = false;
-        btn.textContent = 'Place order — pay via Square';
-        return;
-      }
-
-      // Stash reference before redirect
-      try {
-        sessionStorage.setItem('inoa_catering_reference', data.referenceId || '');
-        sessionStorage.setItem('inoa_catering_email',     payload.email);
-        sessionStorage.setItem('inoa_catering_date',      eventDate);
-      } catch { /* private mode — silent */ }
-
-      clearCart();
-      window.location.href = data.url;
-    } catch {
-      showErr(errEl, 'Network error. Check your connection and try again.');
-      btn.disabled    = false;
-      btn.textContent = 'Place order — pay via Square';
-    }
-  }
-
-  function showErr(el, msg) {
-    el.textContent = msg;
-    el.hidden = false;
-    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
 
   // ── Flavor table ──────────────────────────────────────────────────
   function renderFlavorTable() {
@@ -1549,10 +1160,881 @@
   }
 
   // ── Init ──────────────────────────────────────────────────────────
-  renderMenu();
   renderFlavorTable();
-  renderAll();
-  fetchBlackoutDates();
+</script>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef } = React;
+const M = window.CATERING_MENU;
+const C = window.CATERING_CONSTANTS;
+
+function uid() { return Math.random().toString(36).slice(2, 10); }
+function fmt(cents) {
+  const s = (cents / 100).toFixed(2);
+  return '$' + (s.endsWith('.00') ? s.slice(0, -3) : s);
+}
+function fmtDec(cents) { return '$' + (cents / 100).toFixed(2); }
+
+const CheckMark = () => (
+  <svg width="10" height="8" viewBox="0 0 10 8" fill="none" aria-hidden="true">
+    <path d="M1 3.5L4 6.5L9 1" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+);
+
+/* ─────────────── BarModal ─────────────── */
+function BarModal({ bar, onAdd, onClose, editLine }) {
+  const [people,  setPeople]  = useState(editLine?.mods?.people  ?? bar.min);
+  const [flavors, setFlavors] = useState(editLine?.mods?.flavors ?? []);
+  const [sides,   setSides]   = useState(editLine?.mods?.sides   ?? []);
+  const [topping, setTopping] = useState(editLine?.mods?.topping ?? false);
+
+  const peopleOpts = [10, 15, 20, 25, 30, 35, 40, 45, 50];
+  const premiumCnt = flavors.filter(n => bar.flavors.find(f => f.name === n)?.premium).length;
+  const ppPrice    = bar.pricePerPerson + premiumCnt * bar.premiumUp + (topping && bar.hasTopping ? bar.toppingUp : 0);
+  const total      = people * ppPrice * 100;
+  const canAdd     = flavors.length === bar.chooseFlavors && (bar.chooseSides === 0 || sides.length === bar.chooseSides);
+
+  function toggleFlavor(name) {
+    setFlavors(p => p.includes(name) ? p.filter(x => x !== name) : p.length < bar.chooseFlavors ? [...p, name] : p);
+  }
+  function toggleSide(name) {
+    setSides(p => p.includes(name) ? p.filter(x => x !== name) : p.length < bar.chooseSides ? [...p, name] : p);
+  }
+  function handleAdd() {
+    if (!canAdd) return;
+    const parts = [`${people} guests`, flavors.join(' + ')];
+    if (sides.length) parts.push(sides.join(' + '));
+    if (topping) parts.push('topping bar');
+    onAdd({ cartId: editLine?.cartId ?? uid(), itemId: bar.id, label: bar.name, detail: parts.join(' · '), unitPrice: total, qty: 1, category: 'bar', mods: { people, flavors, sides, topping } });
+    onClose();
+  }
+
+  const stdFlavors = bar.flavors.filter(f => !f.premium);
+  const premFlavors = bar.flavors.filter(f => f.premium);
+
+  return (
+    <div className="ct-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="ct-modal-panel" onClick={e => e.stopPropagation()}>
+        <div className="ct-modal-top">
+          <div>
+            <div className="ct-modal-title">{bar.name}</div>
+            <div style={{fontSize:'11.5px',opacity:0.42,marginTop:'3px'}}>${bar.pricePerPerson}/person · min {bar.min} guests</div>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:'16px'}}>
+            <span className="ct-modal-price-preview">{fmt(total)}</span>
+            <button className="ct-modal-close" onClick={onClose} aria-label="Close">×</button>
+          </div>
+        </div>
+
+        <div className="ct-modal-scroll">
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">How many guests?</span>
+            <div className="ct-people-grid">
+              {peopleOpts.map(n => (
+                <button key={n} className={`ct-people-btn${people === n ? ' active' : ''}`} onClick={() => setPeople(n)}>{n}</button>
+              ))}
+            </div>
+          </div>
+
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Choose {bar.chooseFlavors} flavor{bar.chooseFlavors > 1 ? 's' : ''} · {flavors.length}/{bar.chooseFlavors} selected</span>
+            <div className="ct-check-list">
+              {stdFlavors.length > 0 && <span className="ct-check-section">Standard</span>}
+              {stdFlavors.map(fl => {
+                const sel = flavors.includes(fl.name), dis = !sel && flavors.length >= bar.chooseFlavors;
+                return (
+                  <label key={fl.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
+                    <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleFlavor(fl.name)} className="sr-only" />
+                    <span className="ct-check-box">{sel && <CheckMark />}</span>
+                    <span className="ct-check-name">{fl.name}</span>
+                    {fl.note && <span className="ct-check-note">{fl.note}</span>}
+                  </label>
+                );
+              })}
+              {premFlavors.length > 0 && <span className="ct-check-section">Premium +${bar.premiumUp}/person</span>}
+              {premFlavors.map(fl => {
+                const sel = flavors.includes(fl.name), dis = !sel && flavors.length >= bar.chooseFlavors;
+                return (
+                  <label key={fl.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
+                    <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleFlavor(fl.name)} className="sr-only" />
+                    <span className="ct-check-box">{sel && <CheckMark />}</span>
+                    <span className="ct-check-name">{fl.name}</span>
+                    {fl.note && <span className="ct-check-note">{fl.note}</span>}
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {bar.chooseSides > 0 && (
+            <div className="ct-mgroup">
+              <span className="ct-mgroup-label">Choose {bar.chooseSides} side{bar.chooseSides > 1 ? 's' : ''} · {sides.length}/{bar.chooseSides} selected</span>
+              <div className="ct-check-list">
+                {bar.sides.map(s => {
+                  const sel = sides.includes(s), dis = !sel && sides.length >= bar.chooseSides;
+                  return (
+                    <label key={s} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
+                      <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleSide(s)} className="sr-only" />
+                      <span className="ct-check-box">{sel && <CheckMark />}</span>
+                      <span className="ct-check-name">{s}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {bar.hasTopping && (
+            <div className="ct-mgroup">
+              <span className="ct-mgroup-label">Add-ons</span>
+              <div
+                className={`ct-toggle-row${topping ? ' ct-toggle-row--on' : ''}`}
+                onClick={() => setTopping(t => !t)}
+                role="checkbox" aria-checked={topping} tabIndex={0}
+                onKeyDown={e => e.key === ' ' && (e.preventDefault(), setTopping(t => !t))}
+              >
+                <div className="ct-toggle-info">
+                  <div className="ct-toggle-name">Topping bar</div>
+                  <div className="ct-toggle-price">+${bar.toppingUp}/person</div>
+                </div>
+                <div className="ct-toggle-knob" aria-hidden="true" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="ct-modal-bottom">
+          <button className="ct-modal-add-btn" disabled={!canAdd} onClick={handleAdd}>
+            {editLine ? 'Update order' : 'Add to order'} · {fmt(total)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── BoxModal ─────────────── */
+function BoxModal({ box, onAdd, onClose, editLine }) {
+  const [qty,     setQty]     = useState(editLine?.qty ?? box.minQty);
+  const [flavors, setFlavors] = useState(editLine?.mods?.flavors ?? []);
+  const [sides,   setSides]   = useState(editLine?.mods?.sides   ?? []);
+
+  const premiumCnt = flavors.filter(n => M.boxFlavors.find(f => f.name === n)?.premium).length;
+  const unitPrice  = box.cents + premiumCnt * box.premiumUp;
+  const total      = unitPrice * qty;
+  const canAdd     = flavors.length >= 1 && sides.length >= 1;
+
+  function toggleFlavor(name) {
+    setFlavors(p => p.includes(name) ? p.filter(x => x !== name) : p.length < 2 ? [...p, name] : p);
+  }
+  function toggleSide(name) {
+    setSides(p => p.includes(name) ? p.filter(x => x !== name) : p.length < 2 ? [...p, name] : p);
+  }
+  function handleAdd() {
+    if (!canAdd) return;
+    const parts = [`${qty} boxes`, flavors.join(' + ')];
+    if (sides.length) parts.push(sides.join(' + '));
+    onAdd({ cartId: editLine?.cartId ?? uid(), itemId: box.id, label: box.name, detail: parts.join(' · '), unitPrice, qty, category: 'box', mods: { flavors, sides } });
+    onClose();
+  }
+
+  const stdFlavors  = M.boxFlavors.filter(f => !f.premium);
+  const premFlavors = M.boxFlavors.filter(f => f.premium);
+
+  return (
+    <div className="ct-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="ct-modal-panel" onClick={e => e.stopPropagation()}>
+        <div className="ct-modal-top">
+          <div>
+            <div className="ct-modal-title">{box.name}</div>
+            <div style={{fontSize:'11.5px',opacity:0.42,marginTop:'3px'}}>{fmt(box.cents)}/box · min {box.minQty} boxes</div>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:'16px'}}>
+            <span className="ct-modal-price-preview">{fmt(total)}</span>
+            <button className="ct-modal-close" onClick={onClose} aria-label="Close">×</button>
+          </div>
+        </div>
+
+        <div className="ct-modal-scroll">
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Quantity (min {box.minQty})</span>
+            <div className="ct-modal-qty-row">
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => Math.max(box.minQty, q - 1))}>−</button>
+              <span className="ct-modal-qty-val">{qty}</span>
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
+            </div>
+          </div>
+
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Choose 1–2 flavors · {flavors.length}/2 selected</span>
+            <div className="ct-check-list">
+              {stdFlavors.length > 0 && <span className="ct-check-section">Standard</span>}
+              {stdFlavors.map(fl => {
+                const sel = flavors.includes(fl.name), dis = !sel && flavors.length >= 2;
+                return (
+                  <label key={fl.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
+                    <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleFlavor(fl.name)} className="sr-only" />
+                    <span className="ct-check-box">{sel && <CheckMark />}</span>
+                    <span className="ct-check-name">{fl.name}</span>
+                  </label>
+                );
+              })}
+              {premFlavors.length > 0 && <span className="ct-check-section">Premium +${box.premiumUp / 100}/box</span>}
+              {premFlavors.map(fl => {
+                const sel = flavors.includes(fl.name), dis = !sel && flavors.length >= 2;
+                return (
+                  <label key={fl.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
+                    <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleFlavor(fl.name)} className="sr-only" />
+                    <span className="ct-check-box">{sel && <CheckMark />}</span>
+                    <span className="ct-check-name">{fl.name}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Choose 1–2 sides · {sides.length}/2 selected</span>
+            <div className="ct-check-list">
+              {M.boxSides.map(s => {
+                const sel = sides.includes(s), dis = !sel && sides.length >= 2;
+                return (
+                  <label key={s} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
+                    <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleSide(s)} className="sr-only" />
+                    <span className="ct-check-box">{sel && <CheckMark />}</span>
+                    <span className="ct-check-name">{s}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <div className="ct-modal-bottom">
+          <button className="ct-modal-add-btn" disabled={!canAdd} onClick={handleAdd}>
+            {editLine ? 'Update order' : 'Add to order'} · {fmt(total)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── SushiBakeModal ─────────────── */
+function SushiBakeModal({ onAdd, onClose, editLine }) {
+  const bake = M.sushiBake;
+  const [sizeKey,    setSizeKey]    = useState(editLine?.mods?.sizeKey    ?? 'half');
+  const [proteinKey, setProteinKey] = useState(editLine?.mods?.proteinKey ?? 'crab');
+  const [qty,        setQty]        = useState(editLine?.qty              ?? 1);
+
+  const sizeObj    = bake.sizes.find(s => s.key === sizeKey);
+  const proteinObj = sizeObj?.proteins.find(p => p.key === proteinKey) ?? sizeObj?.proteins[0];
+  const unitPrice  = proteinObj?.cents ?? 0;
+  const total      = unitPrice * qty;
+
+  function handleAdd() {
+    onAdd({
+      cartId: editLine?.cartId ?? uid(),
+      itemId: proteinObj.itemId,
+      label: 'Sushi bake',
+      detail: `${sizeObj.label} · ${proteinObj.name}${qty > 1 ? ` · ×${qty}` : ''}`,
+      unitPrice, qty,
+      category: 'bake',
+      mods: { sizeKey, proteinKey },
+    });
+    onClose();
+  }
+
+  return (
+    <div className="ct-modal-overlay" onClick={onClose} role="dialog" aria-modal="true">
+      <div className="ct-modal-panel" onClick={e => e.stopPropagation()}>
+        <div className="ct-modal-top">
+          <div>
+            <div className="ct-modal-title">Sushi Bake</div>
+            <div style={{fontSize:'11.5px',opacity:0.42,marginTop:'3px'}}>Baked casserole over seasoned rice · served with nori</div>
+          </div>
+          <div style={{display:'flex',alignItems:'center',gap:'16px'}}>
+            <span className="ct-modal-price-preview">{fmt(total)}</span>
+            <button className="ct-modal-close" onClick={onClose} aria-label="Close">×</button>
+          </div>
+        </div>
+
+        <div className="ct-modal-scroll">
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Pan size</span>
+            <div className="ct-radio-list">
+              {bake.sizes.map(s => (
+                <label key={s.key} className={`ct-radio-item${sizeKey === s.key ? ' ct-radio-item--selected' : ''}`}>
+                  <input type="radio" name="bake-size" checked={sizeKey === s.key} onChange={() => { setSizeKey(s.key); setProteinKey('crab'); }} className="sr-only" />
+                  <span className="ct-radio-dot" />
+                  <span className="ct-radio-label">{s.label}</span>
+                  <span className="ct-radio-sub">serves {s.serves}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Protein</span>
+            <div className="ct-radio-list">
+              {sizeObj?.proteins.map(p => (
+                <label key={p.key} className={`ct-radio-item${proteinKey === p.key ? ' ct-radio-item--selected' : ''}`}>
+                  <input type="radio" name="bake-protein" checked={proteinKey === p.key} onChange={() => setProteinKey(p.key)} className="sr-only" />
+                  <span className="ct-radio-dot" />
+                  <span className="ct-radio-label">{p.name}</span>
+                  <span className="ct-radio-price">{fmt(p.cents)}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="ct-mgroup">
+            <span className="ct-mgroup-label">Quantity</span>
+            <div className="ct-modal-qty-row">
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => Math.max(1, q - 1))}>−</button>
+              <span className="ct-modal-qty-val">{qty}</span>
+              <button className="ct-modal-qty-btn" onClick={() => setQty(q => q + 1)}>+</button>
+            </div>
+          </div>
+        </div>
+
+        <div className="ct-modal-bottom">
+          <button className="ct-modal-add-btn" onClick={handleAdd}>
+            {editLine ? 'Update order' : 'Add to order'} · {fmt(total)}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────── CateringMenu ─────────────── */
+function CateringMenu({ onOpenModal, onAddDirect, scrollToCart }) {
+  const [pbakeProtein, setPbakeProtein] = useState('crab');
+  const [pbakeQty,     setPbakeQty]     = useState(1);
+
+  function addItem(itemId, label, detail, cents, qty, category, mods) {
+    onAddDirect({ cartId: uid(), itemId, label, detail, unitPrice: cents, qty, category, mods: mods ?? {} });
+    scrollToCart();
+  }
+
+  const pbakeProteinObj = M.personalBake.proteins.find(p => p.key === pbakeProtein);
+
+  const trayGroups = [
+    { key: 'std',     label: 'Poke tray',           desc: 'Spicy salmon, sweet unagi, chili garlic, garlic shrimp' },
+    { key: 'premium', label: 'Premium poke tray',   desc: 'Shoyu ahi, Hawaiian ahi, spicy ahi, tobiko scallop, kimchi tako' },
+    { key: 'cooked',  label: 'Cooked protein tray', desc: 'Teriyaki beef, shoyu ginger chicken' },
+    { key: 'tofu',    label: 'Tofu tray',           desc: 'Hawaiian tofu · GF · vegan' },
+  ].map(g => ({
+    ...g,
+    s15: M.trays.find(t => t.id === `tray-${g.key}-15`),
+    s40: M.trays.find(t => t.id === `tray-${g.key}-40`),
+  }));
+
+  const sideGroups = [
+    { key: 'rice',    label: 'Sushi rice',      note: '' },
+    { key: 'greens',  label: 'Greens',           note: 'Spring mix and shredded cabbage' },
+    { key: 'sides',   label: 'Sides',            note: 'Crab mac, seaweed, kimchi cucumber, cold roasted sweet potato' },
+    { key: 'topping', label: 'Topping bar',      note: '' },
+    { key: 'chips',   label: 'Wonton chips',     note: 'Homemade' },
+  ].map(g => ({
+    ...g,
+    s15: M.sidesRice.find(x => x.id === `${g.key}-15`),
+    s40: M.sidesRice.find(x => x.id === `${g.key}-40`),
+  }));
+
+  return (
+    <div>
+
+      {/* Bars */}
+      <div className="ct-ordering-sec">
+        <span className="ct-ordering-sec-label">Bars</span>
+        <p className="ct-ordering-sec-note">Per-person · includes setup · minimum 10 guests</p>
+        <div className="ct-card-grid">
+          {M.bars.map(bar => (
+            <button key={bar.id} className="ct-menu-card" onClick={() => onOpenModal({ type: 'bar', item: bar })}>
+              <div className="ct-card-name">{bar.name}</div>
+              <div className="ct-card-price">${bar.pricePerPerson}/person</div>
+              <div className="ct-card-desc">{bar.desc}</div>
+              <div className="ct-card-cta">Customize →</div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Poke Trays */}
+      <div className="ct-ordering-sec">
+        <span className="ct-ordering-sec-label">Poke Trays</span>
+        <p className="ct-ordering-sec-note">Family-style · each tray labeled with contents and allergens</p>
+        <table className="ct-tray-table">
+          <thead>
+            <tr><th></th><th>Serves 15</th><th>Serves 40</th></tr>
+          </thead>
+          <tbody>
+            {trayGroups.map(g => (
+              <tr key={g.key}>
+                <td>
+                  <span className="ct-tray-name">{g.label}</span>
+                  <span className="ct-tray-desc">{g.desc}</span>
+                </td>
+                <td>
+                  <span className="ct-tray-price">{fmt(g.s15.cents)}</span>
+                  <button className="ct-add-btn" onClick={() => addItem(g.s15.id, g.label, `serves 15 · ${g.desc}`, g.s15.cents, 1, 'tray')}>+ Add</button>
+                </td>
+                <td>
+                  <span className="ct-tray-price">{fmt(g.s40.cents)}</span>
+                  <button className="ct-add-btn" onClick={() => addItem(g.s40.id, g.label, `serves 40 · ${g.desc}`, g.s40.cents, 1, 'tray')}>+ Add</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Sides & Rice */}
+      <div className="ct-ordering-sec">
+        <span className="ct-ordering-sec-label">Sides & Rice</span>
+        <table className="ct-tray-table">
+          <thead>
+            <tr><th></th><th>Serves 15</th><th>Serves 40</th></tr>
+          </thead>
+          <tbody>
+            {sideGroups.map(g => (
+              <tr key={g.key}>
+                <td>
+                  <span className="ct-tray-name">{g.label}</span>
+                  {g.note && <span className="ct-tray-desc">{g.note}</span>}
+                </td>
+                <td>
+                  <span className="ct-tray-price">{fmt(g.s15.cents)}</span>
+                  <button className="ct-add-btn" onClick={() => addItem(g.s15.id, g.label, 'serves 15', g.s15.cents, 1, 'side')}>+ Add</button>
+                </td>
+                <td>
+                  <span className="ct-tray-price">{fmt(g.s40.cents)}</span>
+                  <button className="ct-add-btn" onClick={() => addItem(g.s40.id, g.label, 'serves 40', g.s40.cents, 1, 'side')}>+ Add</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pupus */}
+      <div className="ct-ordering-sec">
+        <span className="ct-ordering-sec-label">Pupus</span>
+
+        {/* Musubi */}
+        <div className="ct-row">
+          <div className="ct-row-info">
+            <span className="ct-row-name">Spam musubi</span>
+            <span className="ct-row-desc">House-marinated spam, sushi rice, nori</span>
+          </div>
+          <div className="ct-row-right ct-musubi-btns">
+            {M.musubi.map(m => (
+              <button key={m.id} className="ct-musubi-btn" onClick={() => addItem(m.id, 'Spam musubi', `${m.pc} pc`, m.cents, 1, 'musubi')}>
+                <span className="ct-musubi-btn-qty">{m.pc} pc</span>
+                <span className="ct-musubi-btn-price">{fmt(m.cents)}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Sushi Bake */}
+        <div className="ct-row">
+          <div className="ct-row-info">
+            <span className="ct-row-name">Sushi bake</span>
+            <span className="ct-row-desc">Baked sushi casserole over seasoned rice · served with nori</span>
+            <div className="ct-bake-pricing">
+              {M.sushiBake.sizes.map(s => (
+                <span key={s.key} className="ct-bake-pricing-sz">
+                  {s.label} (serves {s.serves}): {fmt(s.proteins[0].cents)}–{fmt(s.proteins[s.proteins.length - 1].cents)}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="ct-row-right">
+            <button className="ct-add-btn" onClick={() => onOpenModal({ type: 'bake', item: M.sushiBake })}>Customize →</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Boxes */}
+      <div className="ct-ordering-sec">
+        <span className="ct-ordering-sec-label">Boxes</span>
+        <p className="ct-ordering-sec-note">Minimum 10 boxes total · minimum 5 per build</p>
+        <div className="ct-card-grid">
+          {M.boxes.map(box => (
+            <button key={box.id} className="ct-menu-card" onClick={() => onOpenModal({ type: 'box', item: box })}>
+              <div className="ct-card-name">{box.name}</div>
+              <div className="ct-card-price">{fmt(box.cents)}/box</div>
+              <div className="ct-card-desc">{box.desc}</div>
+              <div className="ct-card-cta">Customize →</div>
+            </button>
+          ))}
+        </div>
+
+        {/* Personal bake inline */}
+        <div className="ct-row" style={{marginTop:'14px'}}>
+          <div className="ct-row-info">
+            <span className="ct-row-name">Personal sushi bake</span>
+            <span className="ct-row-desc">Single-serve baked sushi</span>
+            <select
+              className="ct-bake-select"
+              value={pbakeProtein}
+              onChange={e => setPbakeProtein(e.target.value)}
+              style={{marginTop:'6px'}}
+            >
+              {M.personalBake.proteins.map(p => (
+                <option key={p.key} value={p.key}>{p.name} — {fmt(p.cents)}</option>
+              ))}
+            </select>
+          </div>
+          <div className="ct-row-right" style={{flexDirection:'column',alignItems:'flex-end',gap:'6px'}}>
+            <div className="ct-iqc">
+              <button className="ct-iqc-btn" onClick={() => setPbakeQty(q => Math.max(1, q - 1))}>−</button>
+              <span className="ct-iqc-val">{pbakeQty}</span>
+              <button className="ct-iqc-btn" onClick={() => setPbakeQty(q => q + 1)}>+</button>
+            </div>
+            <button className="ct-add-btn" onClick={() => {
+              if (!pbakeProteinObj) return;
+              addItem(pbakeProteinObj.itemId, 'Personal sushi bake', pbakeProteinObj.name, pbakeProteinObj.cents, pbakeQty, 'pbake', { proteinKey: pbakeProtein });
+            }}>+ Add</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Extras */}
+      <div className="ct-ordering-sec">
+        <span className="ct-ordering-sec-label">Extras</span>
+        <ul className="ct-item-list">
+          {M.extras.map(item => (
+            <li key={item.id} className="ct-item-card">
+              <div className="ct-item-row">
+                <div className="ct-item-info">
+                  <span className="ct-item-name">{item.name}</span>
+                  {item.desc && <span className="ct-item-note">{item.desc}</span>}
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:'12px',flexShrink:0}}>
+                  <span className="ct-item-price">{fmt(item.cents)}</span>
+                  <button className="ct-add-btn" onClick={() => addItem(item.id, item.name, item.desc, item.cents, 1, 'extra')}>+ Add</button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+    </div>
+  );
+}
+
+/* ─────────────── CartSidebar ─────────────── */
+function CartSidebar({ cartItems, step, form, setForm, submitting, submitErr, onRemove, onChangeQty, onEdit, onCheckout, onBack, onSubmit, onClear, blackoutDates }) {
+  const subtotal    = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.qty, 0);
+  const totalGuests = cartItems.filter(ci => ci.category === 'bar').reduce((s, ci) => s + (ci.mods?.people ?? 0), 0);
+  const totalBoxes  = cartItems.filter(ci => ci.category === 'box').reduce((s, ci) => s + ci.qty, 0);
+  const overInquiry = totalGuests > C.INQUIRY_GUESTS || totalBoxes > C.INQUIRY_BOXES;
+  const boxTooFew   = totalBoxes > 0 && totalBoxes < C.BOX_MINIMUM;
+
+  const deliveryFee = useMemo(() => {
+    if (form.fulfillment !== 'delivery' || !form.deliveryCity) return 0;
+    return C.DELIVERY_ZONES[form.deliveryCity]?.fee ?? 0;
+  }, [form.fulfillment, form.deliveryCity]);
+
+  const orderMin = useMemo(() => {
+    if (form.fulfillment === 'delivery' && form.deliveryCity)
+      return C.DELIVERY_ZONES[form.deliveryCity]?.min ?? C.PICKUP_MIN_CENTS;
+    return C.PICKUP_MIN_CENTS;
+  }, [form.fulfillment, form.deliveryCity]);
+
+  const total     = subtotal + deliveryFee;
+  const meetsMin  = subtotal >= orderMin;
+  const gapCents  = Math.max(0, orderMin - subtotal);
+
+  const today      = new Date();
+  const minDateStr = new Date(today.getTime() + C.MIN_LEAD_TIME_MS).toISOString().slice(0, 10);
+  const maxDateStr = new Date(today.getTime() + 90 * 24 * 3600000).toISOString().slice(0, 10);
+  const eventBlackedOut = form.eventDate && (blackoutDates || []).includes(form.eventDate);
+  const zones = Object.keys(C.DELIVERY_ZONES);
+
+  /* ── Checkout form ── */
+  if (step === 'checkout') {
+    const canPay = !submitting && meetsMin && form.name && form.email && form.phone && form.eventDate && !eventBlackedOut && (form.fulfillment !== 'delivery' || form.deliveryCity);
+    return (
+      <>
+        <div className="ct-cart-top">
+          <button className="ct-checkout-back" onClick={onBack}>← Order</button>
+          <span className="ct-cart-heading">Checkout</span>
+        </div>
+
+        <div className="ct-checkout-summary">
+          {cartItems.map(ci => (
+            <div key={ci.cartId} className="ct-checkout-summary-row">
+              <span>{ci.label}{ci.qty > 1 ? ` ×${ci.qty}` : ''}</span>
+              <span>{fmt(ci.unitPrice * ci.qty)}</span>
+            </div>
+          ))}
+          {deliveryFee > 0 && (
+            <div className="ct-checkout-summary-row"><span>Delivery</span><span>{fmt(deliveryFee)}</span></div>
+          )}
+          <div className="ct-checkout-summary-row strong"><span>Total</span><span>{fmt(total)}</span></div>
+        </div>
+
+        <div className="ct-checkout-form">
+          <div className="ct-form-group">
+            <label className="ct-form-label">Name</label>
+            <input className="ct-form-input" required value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} placeholder="Full name" />
+          </div>
+          <div className="ct-form-two">
+            <div className="ct-form-group">
+              <label className="ct-form-label">Email</label>
+              <input className="ct-form-input" type="email" required value={form.email} onChange={e => setForm(f => ({...f, email: e.target.value}))} placeholder="you@example.com" />
+            </div>
+            <div className="ct-form-group">
+              <label className="ct-form-label">Phone</label>
+              <input className="ct-form-input" type="tel" required value={form.phone} onChange={e => setForm(f => ({...f, phone: e.target.value}))} placeholder="(555) 555-5555" />
+            </div>
+          </div>
+          <div className="ct-form-group">
+            <label className="ct-form-label">Event date</label>
+            <input className="ct-form-input" type="date" required min={minDateStr} max={maxDateStr} value={form.eventDate} onChange={e => setForm(f => ({...f, eventDate: e.target.value}))} />
+            {eventBlackedOut && <span className="ct-blackout-warn">This date is unavailable. Please choose another.</span>}
+          </div>
+          <div className="ct-form-group">
+            <label className="ct-form-label">Fulfillment</label>
+            <div className="ct-fulfillment">
+              <div className="ct-fulfillment-opts">
+                <label className="ct-fulfil-opt" onClick={() => setForm(f => ({...f, fulfillment:'pickup', deliveryCity:''}))}>
+                  <span className={`ct-fulfil-dot${form.fulfillment === 'pickup' ? ' ct-fulfil-dot--active' : ''}`} />
+                  Pickup — free
+                </label>
+                <label className="ct-fulfil-opt" onClick={() => setForm(f => ({...f, fulfillment:'delivery'}))}>
+                  <span className={`ct-fulfil-dot${form.fulfillment === 'delivery' ? ' ct-fulfil-dot--active' : ''}`} />
+                  Delivery
+                </label>
+              </div>
+              {form.fulfillment === 'delivery' && (
+                <div className="ct-city-wrap">
+                  <label>Delivery city</label>
+                  <select className="ct-city-select" required value={form.deliveryCity} onChange={e => setForm(f => ({...f, deliveryCity: e.target.value}))}>
+                    <option value="">Select city…</option>
+                    {zones.map(z => (
+                      <option key={z} value={z}>{z} (+{fmt(C.DELIVERY_ZONES[z].fee)})</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+          </div>
+          <div className="ct-form-group">
+            <label className="ct-form-label">Notes <span>(optional)</span></label>
+            <textarea className="ct-form-textarea" value={form.notes} onChange={e => setForm(f => ({...f, notes: e.target.value}))} placeholder="Dietary restrictions, event details, special requests…" rows={3} />
+          </div>
+
+          {!meetsMin && <div className="ct-min-gap" style={{marginBottom:'10px'}}>Add {fmt(gapCents)} more to reach the {fmt(orderMin)} minimum.</div>}
+          {submitErr && <div className="ct-checkout-err">{submitErr}</div>}
+
+          <button className="ct-place-btn" disabled={!canPay} onClick={onSubmit}>
+            {submitting ? 'Processing…' : `Pay ${fmtDec(total)}`}
+          </button>
+        </div>
+      </>
+    );
+  }
+
+  /* ── Cart view ── */
+  if (cartItems.length === 0) {
+    return (
+      <div className="ct-cart-empty">
+        <p>Your order is empty.</p>
+        <p>Select items from the menu to get started.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="ct-cart-top">
+        <span className="ct-cart-heading">Your order</span>
+        <button className="ct-cart-clear-btn" onClick={onClear}>Clear all</button>
+      </div>
+
+      {boxTooFew && (
+        <div className="ct-box-min-banner">
+          Box minimum is {C.BOX_MINIMUM} total. You have {totalBoxes}. Add more boxes to proceed.
+        </div>
+      )}
+
+      <div className="ct-cart-items">
+        {cartItems.map(ci => (
+          <div key={ci.cartId} className="ct-cart-item">
+            <div className="ct-cart-item-info">
+              <div className="ct-cart-item-name">{ci.label}</div>
+              {ci.detail && <div className="ct-cart-item-flavor">{ci.detail}</div>}
+            </div>
+            <div className="ct-cart-item-right">
+              <span className="ct-cart-item-price">{fmt(ci.unitPrice * ci.qty)}</span>
+              {(ci.category === 'bar' || ci.category === 'box' || ci.category === 'bake') ? (
+                <button className="ct-cart-edit-btn" onClick={() => onEdit(ci)}>Edit</button>
+              ) : (
+                <div className="ct-qty-ctrl">
+                  <button className="ct-qty-btn" onClick={() => onChangeQty(ci.cartId, -1)} disabled={ci.qty <= 1}>−</button>
+                  <span className="ct-qty-val">{ci.qty}</span>
+                  <button className="ct-qty-btn" onClick={() => onChangeQty(ci.cartId, 1)}>+</button>
+                </div>
+              )}
+              <button className="ct-item-remove" onClick={() => onRemove(ci.cartId)} aria-label={`Remove ${ci.label}`}>×</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="ct-summary">
+        <div className="ct-summary-row">
+          <span>Subtotal</span>
+          <span>{fmt(subtotal)}</span>
+        </div>
+        <div className="ct-summary-row" style={{opacity:0.38,fontSize:'11px'}}>
+          <span>Delivery calculated at checkout</span>
+        </div>
+      </div>
+
+      <div className="ct-cart-actions">
+        {overInquiry && (
+          <div className="ct-warn-banner ct-warn-banner--info" style={{marginBottom:'8px'}}>
+            Over {totalGuests > C.INQUIRY_GUESTS ? `${C.INQUIRY_GUESTS} guests` : `${C.INQUIRY_BOXES} boxes`} — please <a href="/catering/inquiry">send an inquiry</a> instead.
+          </div>
+        )}
+        {!overInquiry && (
+          <button className="ct-checkout-btn" onClick={onCheckout} disabled={boxTooFew}>
+            Proceed to checkout
+          </button>
+        )}
+        {overInquiry && (
+          <a href="/catering/inquiry" className="ct-inquiry-link">Send an inquiry →</a>
+        )}
+        <p className="ct-tax-note">Prices do not include tax.</p>
+      </div>
+    </>
+  );
+}
+
+/* ─────────────── CateringApp ─────────────── */
+function CateringApp() {
+  const [cartItems,    setCartItems]    = useState([]);
+  const [openModal,    setOpenModal]    = useState(null);
+  const [step,         setStep]         = useState('menu');
+  const [form,         setForm]         = useState({ name:'', email:'', phone:'', eventDate:'', notes:'', fulfillment:'pickup', deliveryCity:'' });
+  const [submitting,   setSubmitting]   = useState(false);
+  const [submitErr,    setSubmitErr]    = useState('');
+  const [drawerOpen,   setDrawerOpen]   = useState(false);
+  const [blackoutDates,setBlackoutDates]= useState([]);
+  const cartColRef = useRef(null);
+
+  useEffect(() => {
+    fetch('/api/blackout-dates').then(r => r.json()).then(d => setBlackoutDates(d.dates || [])).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    document.body.classList.toggle('ct-has-cart', cartItems.length > 0);
+  }, [cartItems.length]);
+
+  function addItem(line) {
+    setCartItems(prev => {
+      const idx = prev.findIndex(ci => ci.cartId === line.cartId);
+      return idx >= 0 ? prev.map((ci, i) => i === idx ? line : ci) : [...prev, line];
+    });
+  }
+  function removeItem(cartId)     { setCartItems(p => p.filter(ci => ci.cartId !== cartId)); }
+  function changeQty(cartId, d)   { setCartItems(p => p.map(ci => ci.cartId === cartId ? {...ci, qty: Math.max(1, ci.qty + d)} : ci)); }
+  function clearCart()            { setCartItems([]); setStep('menu'); }
+
+  function editItem(line) {
+    const type = line.category;
+    let item = type === 'bar' ? M.bars.find(b => b.id === line.itemId)
+             : type === 'box' ? M.boxes.find(b => b.id === line.itemId)
+             : type === 'bake' ? M.sushiBake : null;
+    if (item) setOpenModal({ type, item, editLine: line });
+  }
+
+  function scrollToCart() {
+    if (window.innerWidth >= 961) cartColRef.current?.scrollIntoView({ behavior:'smooth', block:'nearest' });
+    else setDrawerOpen(true);
+  }
+
+  async function handleSubmit() {
+    setSubmitting(true); setSubmitErr('');
+    const guestCount = cartItems.filter(ci => ci.category === 'bar').reduce((s, ci) => s + (ci.mods?.people ?? 0), 0);
+    const boxCount   = cartItems.filter(ci => ci.category === 'box').reduce((s, ci) => s + ci.qty, 0);
+    const trayCount  = cartItems.filter(ci => ci.category === 'tray').reduce((s, ci) => s + ci.qty, 0);
+    const payload = {
+      lineItems: cartItems.map(ci => ({ cartId:ci.cartId, itemId:ci.itemId, label:ci.label, detail:ci.detail, unitPrice:ci.unitPrice, qty:ci.qty, category:ci.category, mods:ci.mods })),
+      customer: { name:form.name, email:form.email, phone:form.phone },
+      eventDate: form.eventDate, fulfillment: form.fulfillment,
+      deliveryCity: form.fulfillment === 'delivery' ? form.deliveryCity : '',
+      notes: form.notes, guestCount, boxCount, trayCount,
+    };
+    try {
+      const res  = await fetch('/api/catering-order', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setSubmitErr(data.error || 'Something went wrong. Please try again.'); setSubmitting(false); return; }
+      sessionStorage.setItem('cateringOrderRef', data.referenceId || '');
+      window.location.href = data.paymentUrl || '/catering/confirmed';
+    } catch {
+      setSubmitErr('Network error. Please try again.');
+      setSubmitting(false);
+    }
+  }
+
+  const subtotal  = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.qty, 0);
+  const cartCount = cartItems.reduce((s, ci) => s + ci.qty, 0);
+
+  const cartProps = { cartItems, step, form, setForm, submitting, submitErr, onRemove:removeItem, onChangeQty:changeQty, onEdit:editItem, onCheckout:() => setStep('checkout'), onBack:() => setStep('menu'), onSubmit:handleSubmit, onClear:clearCart, blackoutDates };
+
+  return (
+    <>
+      {openModal?.type === 'bar'  && <BarModal       bar={openModal.item}  onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
+      {openModal?.type === 'box'  && <BoxModal       box={openModal.item}  onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
+      {openModal?.type === 'bake' && <SushiBakeModal                        onAdd={addItem} onClose={() => setOpenModal(null)} editLine={openModal.editLine} />}
+
+      {drawerOpen && <div className="ct-drawer-overlay open" onClick={() => setDrawerOpen(false)} />}
+
+      <div className="ct-order-layout">
+        <div className="ct-menu-col">
+          <CateringMenu onOpenModal={setOpenModal} onAddDirect={addItem} scrollToCart={scrollToCart} />
+        </div>
+        <div className="ct-cart-col" ref={cartColRef}>
+          <div className="ct-cart-panel">
+            <CartSidebar {...cartProps} />
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile bar */}
+      <div className={`ct-m-bar${cartCount > 0 ? ' ct-m-bar--show' : ''}`} onClick={() => setDrawerOpen(true)} role="button" tabIndex={0} aria-label="View your order" onKeyDown={e => e.key === 'Enter' && setDrawerOpen(true)}>
+        <span className="ct-m-bar-left">{cartCount} item{cartCount !== 1 ? 's' : ''}</span>
+        <span className="ct-m-bar-right">
+          <span className="ct-m-bar-total">{fmt(subtotal)}</span>
+          <span style={{fontSize:'11px',opacity:0.5,marginLeft:'4px'}}>View →</span>
+        </span>
+      </div>
+
+      {/* Mobile drawer */}
+      <div className={`ct-m-drawer${drawerOpen ? ' open' : ''}`} role="dialog" aria-modal="true" aria-label="Your order">
+        <div className="ct-m-drawer-handle" aria-hidden="true" />
+        <div className="ct-m-drawer-hd">
+          <span className="ct-m-drawer-title">Your order</span>
+          <button className="ct-m-drawer-close" onClick={() => setDrawerOpen(false)} aria-label="Close">×</button>
+        </div>
+        <div className="ct-m-drawer-body">
+          <CartSidebar {...cartProps} />
+        </div>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('catering-app-root')).render(<CateringApp />);
 </script>
 
 </body>
