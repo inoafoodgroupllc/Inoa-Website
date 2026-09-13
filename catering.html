@@ -1498,22 +1498,18 @@ function BarModal({ bar, onAdd, onClose, editLine }) {
 
 /* ─────────────── TrayModal ─────────────── */
 function TrayModal({ tray, onAdd, onClose, editLine }) {
-  const [size,    setSize]    = useState(editLine?.mods?.size    ?? '15');
-  const [qty,     setQty]     = useState(editLine?.qty           ?? 1);
-  const [flavors, setFlavors] = useState(editLine?.mods?.flavors ?? []);
+  const [size,   setSize]   = useState(editLine?.mods?.size         ?? '15');
+  const [qty,    setQty]    = useState(editLine?.qty                  ?? 1);
+  const [flavor, setFlavor] = useState(editLine?.mods?.flavors?.[0]  ?? '');
 
   const item  = size === '15' ? tray.s15 : tray.s40;
   const label = size === '15' ? 'serves 15' : 'serves 40';
   const total = (item?.cents ?? 0) * qty;
   const hasFlavors = tray.flavorList.length > 0;
 
-  function toggleFlavor(name) {
-    setFlavors(p => p.includes(name) ? p.filter(x => x !== name) : p.length < tray.maxFlavors ? [...p, name] : p);
-  }
-
   function handleAdd() {
     if (!item) return;
-    const flavorDetail = hasFlavors && flavors.length > 0 ? flavors.join(', ') : tray.desc;
+    const flavorDetail = hasFlavors && flavor ? flavor : tray.desc;
     onAdd({
       cartId:    editLine?.cartId ?? uid(),
       itemId:    item.id,
@@ -1522,7 +1518,7 @@ function TrayModal({ tray, onAdd, onClose, editLine }) {
       unitPrice: item.cents,
       qty,
       category:  'tray',
-      mods:      { size, flavors },
+      mods:      { size, flavors: flavor ? [flavor] : [] },
     });
     onClose();
   }
@@ -1560,22 +1556,15 @@ function TrayModal({ tray, onAdd, onClose, editLine }) {
 
           {hasFlavors && (
             <div className="ct-mgroup">
-              <span className="ct-mgroup-label">
-                Choose up to {tray.maxFlavors} proteins · {flavors.length}/{tray.maxFlavors} selected
-              </span>
-              <div className="ct-check-list">
-                {tray.flavorList.map(fl => {
-                  const sel = flavors.includes(fl.name);
-                  const dis = !sel && flavors.length >= tray.maxFlavors;
-                  return (
-                    <label key={fl.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}${dis ? ' ct-check-item--disabled' : ''}`}>
-                      <input type="checkbox" checked={sel} disabled={dis} onChange={() => toggleFlavor(fl.name)} className="sr-only" />
-                      <span className="ct-check-box">{sel && <CheckMark />}</span>
-                      <span className="ct-check-name">{fl.name}</span>
-                      {fl.note && <span className="ct-check-note">{fl.note}</span>}
-                    </label>
-                  );
-                })}
+              <span className="ct-mgroup-label">Select protein</span>
+              <div className="ct-radio-list">
+                {tray.flavorList.map(fl => (
+                  <label key={fl.name} className={`ct-radio-item${flavor === fl.name ? ' ct-radio-item--selected' : ''}`} onClick={() => setFlavor(fl.name)} style={{cursor:'pointer'}}>
+                    <span className="ct-radio-dot" />
+                    <span className="ct-radio-label">{fl.name}</span>
+                    {fl.note && <span className="ct-check-note" style={{marginLeft:'auto'}}>{fl.note}</span>}
+                  </label>
+                ))}
               </div>
             </div>
           )}
@@ -1602,22 +1591,18 @@ function TrayModal({ tray, onAdd, onClose, editLine }) {
 
 /* ─────────────── SideModal ─────────────── */
 function SideModal({ side, onAdd, onClose, editLine }) {
-  const [size,    setSize]    = useState(editLine?.mods?.size    ?? '15');
-  const [qty,     setQty]     = useState(editLine?.qty           ?? 1);
-  const [options, setOptions] = useState(editLine?.mods?.options ?? []);
+  const [size,   setSize]   = useState(editLine?.mods?.size          ?? '15');
+  const [qty,    setQty]    = useState(editLine?.qty                  ?? 1);
+  const [option, setOption] = useState(editLine?.mods?.options?.[0]  ?? '');
 
   const item       = size === '15' ? side.s15 : side.s40;
   const label      = size === '15' ? 'serves 15' : 'serves 40';
   const total      = (item?.cents ?? 0) * qty;
   const hasOptions = side.optionList.length > 0;
 
-  function toggleOption(name) {
-    setOptions(p => p.includes(name) ? p.filter(x => x !== name) : [...p, name]);
-  }
-
   function handleAdd() {
     if (!item) return;
-    const optionDetail = hasOptions && options.length > 0 ? options.join(', ') : side.note;
+    const optionDetail = hasOptions && option ? option : side.note;
     onAdd({
       cartId:    editLine?.cartId ?? uid(),
       itemId:    item.id,
@@ -1626,7 +1611,7 @@ function SideModal({ side, onAdd, onClose, editLine }) {
       unitPrice: item.cents,
       qty,
       category:  'side',
-      mods:      { size, options },
+      mods:      { size, options: option ? [option] : [] },
     });
     onClose();
   }
@@ -1664,18 +1649,14 @@ function SideModal({ side, onAdd, onClose, editLine }) {
 
           {hasOptions && (
             <div className="ct-mgroup">
-              <span className="ct-mgroup-label">Items included · {options.length}/{side.optionList.length} selected</span>
-              <div className="ct-check-list">
-                {side.optionList.map(opt => {
-                  const sel = options.includes(opt.name);
-                  return (
-                    <label key={opt.name} className={`ct-check-item${sel ? ' ct-check-item--selected' : ''}`}>
-                      <input type="checkbox" checked={sel} onChange={() => toggleOption(opt.name)} className="sr-only" />
-                      <span className="ct-check-box">{sel && <CheckMark />}</span>
-                      <span className="ct-check-name">{opt.name}</span>
-                    </label>
-                  );
-                })}
+              <span className="ct-mgroup-label">Select item</span>
+              <div className="ct-radio-list">
+                {side.optionList.map(opt => (
+                  <label key={opt.name} className={`ct-radio-item${option === opt.name ? ' ct-radio-item--selected' : ''}`} onClick={() => setOption(opt.name)} style={{cursor:'pointer'}}>
+                    <span className="ct-radio-dot" />
+                    <span className="ct-radio-label">{opt.name}</span>
+                  </label>
+                ))}
               </div>
             </div>
           )}
