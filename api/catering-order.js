@@ -4,7 +4,7 @@
 import crypto from 'crypto';
 
 const MIN_LEAD_TIME_MS = 48 * 60 * 60 * 1000;
-const BOX_MINIMUM      = 10;
+const BOX_MINIMUM      = 5;
 const INQUIRY_GUESTS   = 50;
 const INQUIRY_BOXES    = 30;
 const PENDING_TTL_MS   = 30 * 60 * 1000;
@@ -364,7 +364,7 @@ export default async function handler(req, res) {
       },
     },
     checkout_options: {
-      redirect_url:             `${siteUrl}/catering/confirmed`,
+      redirect_url:             `${siteUrl}/catering/confirmed?referenceId=${encodeURIComponent(referenceId)}`,
       allow_tipping:            false,
       ask_for_shipping_address: false,
       merchant_support_email:   'clyde.ccollado@gmail.com',

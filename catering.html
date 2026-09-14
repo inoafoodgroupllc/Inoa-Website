@@ -2345,7 +2345,9 @@ function CateringApp() {
       const res  = await fetch('/api/catering-order', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setSubmitErr(data.error || 'Something went wrong. Please try again.'); setSubmitting(false); return; }
-      sessionStorage.setItem('cateringOrderRef', data.referenceId || '');
+      sessionStorage.setItem('inoa_catering_reference', data.referenceId || '');
+      sessionStorage.setItem('inoa_catering_email',     form.email       || '');
+      sessionStorage.setItem('inoa_catering_date',      form.eventDate   || '');
       try { localStorage.removeItem('inoa_catering_cart'); localStorage.removeItem('inoa_catering_form'); } catch {}
       window.location.href = data.paymentUrl || '/catering/confirmed';
     } catch {

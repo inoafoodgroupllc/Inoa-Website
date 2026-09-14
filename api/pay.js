@@ -57,6 +57,13 @@ const ADDON_PRICES = {
   'Wasabi':               75,
 };
 
+const PROTEIN_PRICES = {
+  'Salmon':  300,
+  'Shrimp':  300,
+  'Ahi':     500,
+  'Scallop': 500,
+};
+
 function pickupAtISO(date, timeLabel) {
   const start = timeLabel.split('–')[0].trim();
   const m = start.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
@@ -107,8 +114,12 @@ export default async function handler(req, res) {
         const addonCents = ADDON_PRICES[addon.name];
         if (addonCents !== undefined) totalCents += addonCents;
       }
+      if (ci.modifiers?.protein?.name) {
+        totalCents += PROTEIN_PRICES[ci.modifiers.protein.name] ?? 0;
+      }
 
       const modParts = [];
+      if (ci.modifiers?.protein?.name && ci.modifiers.protein.name !== 'Regular (crab)') modParts.push(ci.modifiers.protein.name);
       if (ci.modifiers?.flavors?.length)  modParts.push(ci.modifiers.flavors.join(' + '));
       if (ci.modifiers?.sides?.length)    modParts.push(ci.modifiers.sides.join(', '));
       if (ci.modifiers?.fish)             modParts.push(ci.modifiers.fish);
