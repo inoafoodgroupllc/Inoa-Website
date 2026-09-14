@@ -2245,7 +2245,7 @@ function CartSidebar({ cartItems, step, form, setForm, submitting, submitErr, on
           </div>
         )}
         {!overInquiry && (
-          <button className="ct-checkout-btn" onClick={onCheckout} disabled={boxTooFew}>
+          <button className="ct-checkout-btn" onClick={onCheckout} disabled={boxTooFew || !meetsMin}>
             Proceed to checkout
           </button>
         )}
@@ -2260,10 +2260,19 @@ function CartSidebar({ cartItems, step, form, setForm, submitting, submitErr, on
 
 /* ─────────────── CateringApp ─────────────── */
 function CateringApp() {
-  const [cartItems,    setCartItems]    = useState([]);
+  const [cartItems,    setCartItems]    = useState(() => {
+    try { return JSON.parse(localStorage.getItem('inoa_catering_cart') || '[]'); } catch { return []; }
+  });
   const [openModal,    setOpenModal]    = useState(null);
   const [step,         setStep]         = useState('menu');
-  const [form,         setForm]         = useState({ name:'', email:'', phone:'', eventDate:'', notes:'', fulfillment:'pickup', deliveryCity:'' });
+  const [form,         setForm]         = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem('inoa_catering_form') || 'null')
+        || { name:'', email:'', phone:'', eventDate:'', notes:'', fulfillment:'pickup', deliveryCity:'' };
+    } catch {
+      return { name:'', email:'', phone:'', eventDate:'', notes:'', fulfillment:'pickup', deliveryCity:'' };
+    }
+  });
   const [submitting,   setSubmitting]   = useState(false);
   const [submitErr,    setSubmitErr]    = useState('');
   const [drawerOpen,   setDrawerOpen]   = useState(false);
@@ -2277,6 +2286,14 @@ function CateringApp() {
   useEffect(() => {
     document.body.classList.toggle('ct-has-cart', cartItems.length > 0);
   }, [cartItems.length]);
+
+  useEffect(() => {
+    try { localStorage.setItem('inoa_catering_cart', JSON.stringify(cartItems)); } catch {}
+  }, [cartItems]);
+
+  useEffect(() => {
+    try { localStorage.setItem('inoa_catering_form', JSON.stringify(form)); } catch {}
+  }, [form]);
 
   function addItem(line) {
     setCartItems(prev => {
@@ -2329,6 +2346,7 @@ function CateringApp() {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) { setSubmitErr(data.error || 'Something went wrong. Please try again.'); setSubmitting(false); return; }
       sessionStorage.setItem('cateringOrderRef', data.referenceId || '');
+      try { localStorage.removeItem('inoa_catering_cart'); localStorage.removeItem('inoa_catering_form'); } catch {}
       window.location.href = data.paymentUrl || '/catering/confirmed';
     } catch {
       setSubmitErr('Network error. Please try again.');
