@@ -767,11 +767,7 @@
 
     // ── Form open / window logic ──────────────────────────────────────────────
     function isFormOpen() {
-      const now = new Date();
-      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key < '2026-08-23') return false; // closed through Aug 22; reopens Sun Aug 23
-      const d = now.getDay();
-      return d === 0 || d === 3;
+      return false; // closed indefinitely
     }
 
     function getNextOpening() {
