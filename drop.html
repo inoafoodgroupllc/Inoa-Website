@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>hawaii ahi drop — inoa</title>
+  <meta name="description" content="Limited one-time drop. Fresh Hawaii ahi from the Honolulu fish auction. Half-pound poke or bundle. Friday Sept 25 pickup in Scotts Valley.">
+  <meta name="robots" content="noindex">
+  <link rel="canonical" href="https://inoa.kitchen/drop">
+  <meta property="og:title" content="Hawaii Ahi Drop — inoa">
+  <meta property="og:description" content="Fresh Hawaii ahi from the Honolulu fish auction. Limited portions. Friday Sept 25 pickup in Scotts Valley, CA.">
+  <meta property="og:image" content="https://inoa.kitchen/og-image.png">
+  <meta property="og:url" content="https://inoa.kitchen/drop">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8e0d0;
+      --driftwood: #8b7355;
+      --ogo:       #4a7c6f;
+      --err:       #b87a5a;
+    }
+
+    body { background: var(--cream); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; min-height: 100vh; }
+
+    /* ── Grain ─────────────────────────────────────────────── */
+    .grain { position: fixed; inset: -50%; width: 200%; height: 200%; opacity: 0.025; pointer-events: none; z-index: 9999; }
+
+    /* ── Page intro ─────────────────────────────────────────── */
+    .page-intro { position: fixed; inset: 0; background: var(--ink); z-index: 500; pointer-events: none; animation: curtain-lift 1.1s cubic-bezier(0.76,0,0.24,1) 0.1s both; }
+    @keyframes curtain-lift { 0% { clip-path: inset(0 0 0% 0); } 100% { clip-path: inset(0 0 100% 0); } }
+
+    /* ── Nav ────────────────────────────────────────────────── */
+    .drop-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 24px;
+      background: rgba(245,240,232,0.92);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(26,26,26,0.06);
+    }
+    .drop-nav-logo { height: 22px; display: block; }
+    .drop-nav-back { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--driftwood); text-decoration: none; opacity: 0.75; }
+    .drop-nav-back:hover { opacity: 1; }
+
+    /* ── Content wrapper ────────────────────────────────────── */
+    .drop-wrap { padding-top: 60px; padding-bottom: 140px; max-width: 520px; margin: 0 auto; }
+
+    /* ── Hero ───────────────────────────────────────────────── */
+    .drop-hero { padding: 44px 24px 32px; }
+    .drop-eyebrow { font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--driftwood); opacity: 0.65; margin-bottom: 16px; }
+    .drop-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(52px, 13vw, 80px); font-weight: 300; line-height: 0.92; letter-spacing: -0.03em; color: var(--ink); margin-bottom: 22px; }
+    .drop-title em { font-style: italic; }
+    .drop-sourcing { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: var(--ink); opacity: 0.48; line-height: 1.6; margin-bottom: 24px; }
+
+    /* ── Portions counter ───────────────────────────────────── */
+    .drop-portions { display: flex; align-items: center; gap: 9px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); margin-bottom: 28px; }
+    .portions-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ogo); animation: pdot 2.2s ease-in-out infinite; flex-shrink: 0; }
+    @keyframes pdot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+    .portions-soldout-dot { background: var(--err); animation: none; }
+
+    /* ── Pickup block ───────────────────────────────────────── */
+    .drop-pickup { background: var(--sand); border-radius: 6px; padding: 16px 18px; font-size: 12px; color: var(--ink); line-height: 1.7; }
+    .drop-pickup-row { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 4px; }
+    .drop-pickup-row:last-child { margin-bottom: 0; }
+    .drop-pickup-icon { opacity: 0.35; font-size: 13px; flex-shrink: 0; padding-top: 1px; }
+    .drop-pickup-text strong { font-weight: 500; }
+    .drop-pickup-text { opacity: 0.72; }
+
+    /* ── Bundle section ─────────────────────────────────────── */
+    .bundle-section { padding: 28px 24px 0; }
+    .section-label { font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--driftwood); opacity: 0.65; margin-bottom: 14px; }
+    .bundle-card {
+      background: #ede6d8;
+      border: 1px solid rgba(139,115,85,0.22);
+      border-radius: 10px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.07), 0 16px 40px rgba(0,0,0,0.04);
+      margin-bottom: 6px;
+    }
+    .bundle-price-row { display: flex; align-items: baseline; gap: 14px; margin-bottom: 4px; }
+    .bundle-price { font-family: 'Cormorant Garamond', serif; font-size: 56px; font-weight: 300; line-height: 1; color: var(--ink); }
+    .bundle-orig { font-size: 22px; font-family: 'Cormorant Garamond', serif; color: var(--ink); opacity: 0.32; text-decoration: line-through; }
+    .bundle-includes { font-size: 11px; color: var(--ink); opacity: 0.5; margin-bottom: 22px; letter-spacing: 0.02em; }
+    .bundle-radios { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+    .bundle-radio {
+      padding: 9px 16px; border-radius: 24px;
+      font-size: 12px; font-weight: 500; cursor: pointer;
+      border: 1.5px solid rgba(139,115,85,0.25);
+      background: rgba(245,240,232,0.6);
+      color: var(--ink); opacity: 0.55;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+      user-select: none;
+    }
+    .bundle-radio.sel { background: var(--ink); color: var(--cream); border-color: var(--ink); opacity: 1; }
+    .bundle-add-btn {
+      width: 100%; padding: 14px;
+      background: var(--ink); color: var(--cream);
+      border: none; border-radius: 5px;
+      font-size: 11px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer;
+      transition: opacity 0.15s ease, transform 0.12s ease;
+    }
+    .bundle-add-btn:hover { opacity: 0.85; }
+    .bundle-add-btn:active { transform: scale(0.98); }
+    .bundle-in-cart { font-size: 11px; color: var(--ogo); margin-top: 10px; text-align: center; letter-spacing: 0.05em; }
+
+    /* ── À la carte ─────────────────────────────────────────── */
+    .alacarte-section { padding: 32px 24px 0; }
+    .alacarte-divider { height: 1px; background: rgba(26,26,26,0.07); margin: 4px 0; }
+    .alacarte-item { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(26,26,26,0.07); gap: 10px; }
+    .alacarte-item:last-child { border-bottom: none; }
+    .alacarte-info { flex: 1; min-width: 0; }
+    .alacarte-name { font-size: 14px; font-weight: 500; color: var(--ink); }
+    .alacarte-desc { font-size: 11px; color: var(--ink); opacity: 0.45; margin-top: 1px; }
+    .alacarte-tags { display: inline-flex; gap: 4px; margin-top: 3px; }
+    .alacarte-tag { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--driftwood); border: 1px solid rgba(139,115,85,0.3); border-radius: 2px; padding: 1px 4px; }
+    .alacarte-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .alacarte-price { font-size: 13px; color: var(--ink); opacity: 0.6; min-width: 28px; text-align: right; }
+    .alacarte-qty { display: flex; align-items: center; gap: 7px; }
+    .alacarte-btn {
+      width: 30px; height: 30px; border-radius: 50%;
+      border: 1.5px solid rgba(26,26,26,0.2);
+      background: transparent; font-size: 17px; line-height: 1;
+      color: var(--ink); cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: border-color 0.15s ease;
+    }
+    .alacarte-btn:hover { border-color: var(--ink); }
+    .alacarte-num { font-size: 13px; min-width: 14px; text-align: center; font-weight: 500; }
+
+    /* ── Cart bar ───────────────────────────────────────────── */
+    .cart-bar {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+      background: rgba(245,240,232,0.96);
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid rgba(26,26,26,0.09);
+      padding: 0 16px;
+    }
+    .cart-bar-preview { max-width: 520px; margin: 0 auto; padding: 10px 0 0; }
+    .cart-line { display: flex; justify-content: space-between; font-size: 11px; color: var(--ink); opacity: 0.6; padding: 2px 0; }
+    .cart-line-name { max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .cart-bar-main { max-width: 520px; margin: 0 auto; display: flex; align-items: center; gap: 12px; padding: 10px 0 16px; }
+    .cart-bar-count { font-size: 11px; color: var(--ink); opacity: 0.45; white-space: nowrap; flex-shrink: 0; }
+    .cart-bar-total { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--ink); flex: 1; }
+    .cart-bar-btn {
+      padding: 12px 22px;
+      background: var(--ink); color: var(--cream);
+      border: none; border-radius: 4px;
+      font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+      cursor: pointer; white-space: nowrap;
+      transition: opacity 0.15s ease;
+    }
+    .cart-bar-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .cart-bar-btn:not(:disabled):hover { opacity: 0.82; }
+    .cart-toggle { font-size: 10px; text-decoration: underline; color: var(--ink); opacity: 0.4; background: none; border: none; cursor: pointer; white-space: nowrap; flex-shrink: 0; padding: 0; }
+
+    /* ── Closed / sold-out ──────────────────────────────────── */
+    .drop-status-page { min-height: calc(100vh - 60px); display: flex; flex-direction: column; justify-content: center; padding: 48px 24px; max-width: 520px; margin: 0 auto; }
+    .drop-status-eyebrow { font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--driftwood); opacity: 0.65; margin-bottom: 28px; }
+    .drop-status-heading { font-family: 'Cormorant Garamond', serif; font-size: clamp(40px,11vw,68px); font-weight: 300; letter-spacing: -0.02em; line-height: 1.02; color: var(--ink); margin-bottom: 18px; }
+    .drop-status-sub { font-size: 13px; color: var(--ink); opacity: 0.45; line-height: 1.7; margin-bottom: 44px; }
+    .drop-status-link { display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(26,26,26,0.28); padding-bottom: 2px; }
+    .drop-status-link:hover { border-color: var(--ink); }
+    .drop-status-links { display: flex; gap: 24px; flex-wrap: wrap; }
+
+    /* ── Checkout ───────────────────────────────────────────── */
+    .co-page { max-width: 520px; margin: 0 auto; padding: 32px 24px 140px; }
+    .co-heading { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .co-sub { font-size: 11px; color: var(--ink); opacity: 0.4; letter-spacing: 0.05em; margin-bottom: 28px; }
+    .co-order-review { background: var(--sand); border-radius: 6px; padding: 16px; margin-bottom: 24px; }
+    .co-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; color: var(--ink); padding: 3px 0; }
+    .co-row-name { opacity: 0.75; max-width: 72%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .co-row-price { opacity: 0.55; flex-shrink: 0; }
+    .co-sep { border: none; border-top: 1px solid rgba(26,26,26,0.1); margin: 8px 0; }
+    .co-total-row { display: flex; justify-content: space-between; font-size: 14px; font-weight: 500; color: var(--ink); padding: 3px 0; }
+    .co-section-hd { font-size: 9px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--driftwood); opacity: 0.65; margin: 24px 0 12px; }
+    .co-pickup-info { background: var(--sand); border-radius: 6px; padding: 14px 16px; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+    .co-pickup-date { font-weight: 500; }
+    .co-pickup-addr { font-size: 11px; opacity: 0.5; margin-top: 2px; }
+    .co-slot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; max-height: 250px; overflow-y: auto; margin-bottom: 4px; -webkit-overflow-scrolling: touch; }
+    .co-slot { padding: 9px 4px; font-size: 11px; text-align: center; border: 1.5px solid rgba(26,26,26,0.14); border-radius: 4px; background: transparent; cursor: pointer; color: var(--ink); line-height: 1.3; transition: background 0.12s ease, color 0.12s ease; }
+    .co-slot.sel { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .co-slot:disabled { opacity: 0.18; cursor: not-allowed; }
+    .co-slot-err { font-size: 11px; color: var(--err); margin-top: 4px; }
+    .co-conflict { background: #fff3cd; border: 1px solid #e0c06a; border-radius: 4px; padding: 10px 14px; font-size: 12px; color: #7a5620; margin-bottom: 14px; line-height: 1.5; }
+    .co-field { margin-bottom: 13px; }
+    .co-field-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .co-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.45; margin-bottom: 5px; display: block; }
+    .co-input { width: 100%; padding: 10px 12px; font-size: 14px; font-family: inherit; background: transparent; border: 1px solid rgba(26,26,26,0.18); border-radius: 3px; color: var(--ink); outline: none; -webkit-appearance: none; }
+    .co-input:focus { border-color: var(--ogo); }
+    .co-input.err { border-color: var(--err); }
+    .co-err-msg { font-size: 11px; color: var(--err); margin-top: 3px; }
+    .co-submit { width: 100%; margin-top: 28px; padding: 15px; background: var(--ink); color: var(--cream); border: none; border-radius: 4px; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; }
+    .co-submit:disabled { opacity: 0.35; cursor: not-allowed; }
+    .co-back { display: block; text-align: center; margin-top: 14px; font-size: 11px; color: var(--ink); opacity: 0.4; cursor: pointer; text-decoration: underline; background: none; border: none; width: 100%; }
+
+    /* ── Payment ─────────────────────────────────────────────── */
+    .pv-page { max-width: 520px; margin: 0 auto; padding: 32px 24px 140px; }
+    .pv-heading { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 300; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .pv-sub { font-size: 11px; color: var(--ink); opacity: 0.4; letter-spacing: 0.05em; margin-bottom: 24px; }
+    .pv-who { background: var(--sand); border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; font-size: 12px; line-height: 1.7; color: var(--ink); }
+    .pv-who-name { font-weight: 500; font-size: 14px; }
+    .pv-who-detail { opacity: 0.5; font-size: 11px; }
+    .pv-totals { background: var(--sand); border-radius: 6px; padding: 14px 16px; margin-bottom: 20px; }
+    .pv-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink); padding: 3px 0; }
+    .pv-row-label { opacity: 0.72; max-width: 72%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pv-row-amt { opacity: 0.6; flex-shrink: 0; }
+    .pv-sep { border: none; border-top: 1px solid rgba(26,26,26,0.1); margin: 8px 0; }
+    .pv-grand { display: flex; justify-content: space-between; font-size: 15px; font-weight: 500; color: var(--ink); padding: 3px 0; }
+    .tip-label-hd { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.45; margin-bottom: 8px; display: block; }
+    .tip-row { display: flex; gap: 6px; margin-bottom: 20px; }
+    .tip-btn { flex: 1; padding: 9px 4px; font-size: 12px; text-align: center; border: 1.5px solid rgba(26,26,26,0.14); border-radius: 4px; background: transparent; cursor: pointer; color: var(--ink); transition: background 0.12s ease, color 0.12s ease; }
+    .tip-btn.sel { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+    .sq-card-wrap { border: 1px solid rgba(26,26,26,0.15); border-radius: 4px; padding: 12px; min-height: 62px; margin-bottom: 12px; }
+    .express-divider { text-align: center; font-size: 11px; color: var(--ink); opacity: 0.35; margin: 12px 0; letter-spacing: 0.06em; }
+    #gp-button { min-height: 44px; margin-bottom: 10px; }
+    .apple-btn { width: 100%; height: 44px; background: #000; border-radius: 4px; border: none; cursor: pointer; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; letter-spacing: 0.02em; }
+    .pay-btn { width: 100%; padding: 15px; background: var(--ink); color: var(--cream); border: none; border-radius: 4px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; margin-top: 4px; }
+    .pay-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .pay-error { font-size: 12px; color: var(--err); text-align: center; margin-top: 12px; line-height: 1.5; }
+    .pay-back { display: block; text-align: center; margin-top: 14px; font-size: 11px; color: var(--ink); opacity: 0.4; cursor: pointer; text-decoration: underline; background: none; border: none; width: 100%; }
+
+    /* ── Utilities ─────────────────────────────────────────── */
+    @media (min-width: 560px) {
+      .drop-hero { padding: 56px 32px 40px; }
+      .bundle-section, .alacarte-section { padding-left: 32px; padding-right: 32px; }
+      .co-page, .pv-page { padding-left: 32px; padding-right: 32px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-intro"></div>
+
+  <nav class="drop-nav">
+    <a href="/home">
+      <img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="drop-nav-logo">
+    </a>
+    <a href="/home" class="drop-nav-back">← back</a>
+  </nav>
+
+  <div id="drop-root"></div>
+
+  <!-- Grain -->
+  <svg class="grain" aria-hidden="true">
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noise)"/>
+  </svg>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
+  <!-- React -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef, useMemo } = React;
+
+    // ── Constants ────────────────────────────────────────────────────────────
+    const DROP_DATE     = '2026-09-25';
+    const MAX_PORTIONS  = 45;
+    const SLOT_HOLD_MS  = 60 * 60 * 1000;
+
+    const DROP_AHI = [
+      { id: 1001, name: 'Hawaiian Ahi ½lb', desc: 'sea salt, sweet onion, ogo', price: 20, tags: ['GF'] },
+      { id: 1002, name: 'Shoyu Ahi ½lb',    desc: 'classic shoyu, sweet onion, green onion', price: 20, tags: [] },
+      { id: 1003, name: 'Spicy Ahi ½lb',    desc: 'spicy mayo, green onion, tobiko', price: 20, tags: ['GF'] },
+    ];
+    const DROP_SIDES = [
+      { id: 1004, name: 'Seasoned sushi rice', desc: '', price: 5, tags: [] },
+      { id: 1005, name: 'Seaweed salad',       desc: '', price: 5, tags: [] },
+    ];
+    const AHI_STYLES = ['Hawaiian Ahi', 'Shoyu Ahi', 'Spicy Ahi'];
+
+    // ── Firebase ─────────────────────────────────────────────────────────────
+    const FIREBASE_CONFIG = {
+      apiKey:            'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths',
+      authDomain:        'inoa-times.firebaseapp.com',
+      projectId:         'inoa-times',
+      storageBucket:     'inoa-times.firebasestorage.app',
+      messagingSenderId: '138256976412',
+      appId:             '1:138256976412:web:274a99117dc4d822142add9',
+    };
+    let db = null;
+    try { firebase.initializeApp(FIREBASE_CONFIG); db = firebase.firestore(); }
+    catch (e) { console.error('[inoa] Firebase init failed:', e); }
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function isFormOpen() {
+      return Date.now() < new Date('2026-09-25T19:30:00Z').getTime();
+    }
+
+    function getTimeSlots() {
+      const startHour = 14;
+      const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
+      const out = [];
+      for (let min = 0; min < 240; min += 5) {
+        const h  = startHour + Math.floor(min / 60),       m  = min % 60;
+        const eh = startHour + Math.floor((min + 5) / 60), em = (min + 5) % 60;
+        out.push({
+          label: `${fmt(h,m)} – ${fmt(eh,em)}`,
+          key:   `${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}`,
+        });
+      }
+      return out;
+    }
+    const TIME_SLOTS = getTimeSlots();
+
+    function uid() { return Math.random().toString(36).slice(2,10); }
+    function fmtMoney(n) { return `$${n.toFixed(2)}`; }
+
+    // ── useBookedSlots hook ───────────────────────────────────────────────────
+    function useBookedSlots(date) {
+      const [booked,  setBooked]  = useState(new Set());
+      const [loading, setLoading] = useState(false);
+      useEffect(() => {
+        if (!date || !db) { setBooked(new Set()); return; }
+        setLoading(true);
+        const unsub = db.collection('slots').where('date','==',date).onSnapshot(
+          snap => {
+            const now = Date.now();
+            const keys = new Set();
+            snap.docs.forEach(d => {
+              const data = d.data();
+              if (data.status === 'paid') {
+                keys.add(data.slotKey);
+              } else if (data.status === 'reserved') {
+                const ts = data.reservedAt?.toDate?.()?.getTime?.() || 0;
+                if (now - ts < SLOT_HOLD_MS) keys.add(data.slotKey);
+              } else {
+                keys.add(data.slotKey);
+              }
+            });
+            setBooked(keys);
+            setLoading(false);
+          },
+          err => { console.error('[inoa] slots error:', err); setLoading(false); }
+        );
+        return () => unsub();
+      }, [date]);
+      return { booked, loading };
+    }
+
+    // ── ClosedView ────────────────────────────────────────────────────────────
+    function ClosedView() {
+      return (
+        <div className="drop-status-page">
+          <div className="drop-status-eyebrow">D &nbsp;R &nbsp;O &nbsp;P</div>
+          <h2 className="drop-status-heading">the order window<br/>has closed</h2>
+          <p className="drop-status-sub">
+            This was a one-time drop. The order form closed at 12:30 PM on Friday, Sept 25.
+            <br/>Follow us on Instagram for the next one.
+          </p>
+          <div className="drop-status-links">
+            <a href="/home" className="drop-status-link">back to home</a>
+            <a href="/menu" className="drop-status-link">view menu</a>
+          </div>
+        </div>
+      );
+    }
+
+    // ── SoldOutView ───────────────────────────────────────────────────────────
+    function SoldOutView() {
+      return (
+        <div className="drop-status-page">
+          <div className="drop-status-eyebrow">D &nbsp;R &nbsp;O &nbsp;P</div>
+          <h2 className="drop-status-heading">sold out</h2>
+          <p className="drop-status-sub">
+            All 45 portions from the Honolulu fish auction have been claimed.
+            <br/>Thank you — this fish doesn't last long.
+            <br/>Follow us on Instagram for the next drop.
+          </p>
+          <div className="drop-status-links">
+            <a href="/home" className="drop-status-link">back to home</a>
+            <a href="/menu" className="drop-status-link">view menu</a>
+          </div>
+        </div>
+      );
+    }
+
+    // ── DropPage root ─────────────────────────────────────────────────────────
+    function DropPage() {
+      const [formOpen,  setFormOpen]  = useState(isFormOpen);
+      const [view,      setView]      = useState('menu');
+      const [cartItems, setCartItems] = useState([]);
+      const [bundleAhi, setBundleAhi] = useState('Hawaiian Ahi');
+      const [details,   setDetails]   = useState({ firstName:'', lastName:'', phone:'', email:'', time:'', notes:'' });
+      const [errors,    setErrors]    = useState({});
+      const [submitting,   setSubmitting]   = useState(false);
+      const [slotConflict, setSlotConflict] = useState(false);
+      const [reservedSlotDocId, setReservedSlotDocId] = useState(null);
+      const [cartExpanded, setCartExpanded] = useState(false);
+
+      const { booked, loading: slotsLoading } = useBookedSlots(DROP_DATE);
+      const soldOut  = booked.size >= MAX_PORTIONS;
+      const remaining = Math.max(0, MAX_PORTIONS - booked.size);
+
+      // Check form open every 30s
+      useEffect(() => {
+        const id = setInterval(() => setFormOpen(isFormOpen()), 30000);
+        return () => clearInterval(id);
+      }, []);
+
+      // Cart totals
+      const subtotal   = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
+      const totalItems = cartItems.reduce((s, ci) => s + ci.quantity, 0);
+      const taxAmount  = Math.round(subtotal * 0.0975 * 100) / 100;
+      const orderTotal = subtotal + taxAmount;
+
+      // Cart management
+      function addBundle() {
+        const ex = cartItems.find(ci => ci.itemId === 1006);
+        if (ex) {
+          setCartItems(cartItems.map(ci =>
+            ci.itemId === 1006
+              ? { ...ci, modifiers: { flavors: [bundleAhi] } }
+              : ci
+          ));
+        } else {
+          setCartItems([...cartItems, {
+            cartId: uid(), itemId: 1006, name: 'Hawaii Ahi Bundle',
+            basePrice: 28, modifiers: { flavors: [bundleAhi] },
+            quantity: 1, unitPrice: 28,
+          }]);
+        }
+      }
+
+      function addAla(item) {
+        const ex = cartItems.find(ci => ci.itemId === item.id);
+        if (ex) {
+          setCartItems(cartItems.map(ci =>
+            ci.itemId === item.id ? { ...ci, quantity: ci.quantity + 1 } : ci
+          ));
+        } else {
+          setCartItems([...cartItems, {
+            cartId: uid(), itemId: item.id, name: item.name,
+            basePrice: item.price, modifiers: {}, quantity: 1, unitPrice: item.price,
+          }]);
+        }
+      }
+
+      function removeAla(item) {
+        const ex = cartItems.find(ci => ci.itemId === item.id);
+        if (!ex) return;
+        if (ex.quantity <= 1) setCartItems(cartItems.filter(ci => ci.itemId !== item.id));
+        else setCartItems(cartItems.map(ci => ci.itemId === item.id ? { ...ci, quantity: ci.quantity - 1 } : ci));
+      }
+
+      function getQty(itemId) { return cartItems.find(ci => ci.itemId === itemId)?.quantity || 0; }
+
+      function scrollTop() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
+
+      // ── Checkout submission ──────────────────────────────────────────────────
+      async function handleCheckout() {
+        setSlotConflict(false);
+        const e = {};
+        if (!details.firstName?.trim())  e.firstName = 'required';
+        if (!details.lastName?.trim())   e.lastName  = 'required';
+        if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'valid phone required';
+        if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'valid email required';
+        if (!details.time) e.time = 'please select a pickup time';
+        setErrors(e);
+        if (Object.keys(e).length > 0) return;
+
+        setSubmitting(true);
+
+        // Reserve slot in Firestore
+        if (db) {
+          const selectedSlot = TIME_SLOTS.find(s => s.label === details.time);
+          if (selectedSlot) {
+            const slotDocId = `${DROP_DATE}_${selectedSlot.key}`;
+            if (slotDocId !== reservedSlotDocId) {
+              const slotRef = db.collection('slots').doc(slotDocId);
+              try {
+                await db.runTransaction(async t => {
+                  const doc = await t.get(slotRef);
+                  if (doc.exists) {
+                    const data = doc.data();
+                    const isExpired = data.status === 'reserved' &&
+                      (Date.now() - (data.reservedAt?.toDate?.()?.getTime?.() || 0)) >= SLOT_HOLD_MS;
+                    if (!isExpired) throw new Error('SLOT_TAKEN');
+                  }
+                  t.set(slotRef, {
+                    date:          DROP_DATE,
+                    slotKey:       selectedSlot.key,
+                    slotLabel:     details.time,
+                    status:        'reserved',
+                    reservedAt:    firebase.firestore.FieldValue.serverTimestamp(),
+                    customerName:  `${details.firstName} ${details.lastName}`,
+                    squareOrderId: null,
+                  });
+                });
+                setReservedSlotDocId(slotDocId);
+              } catch (err) {
+                if (err.message === 'SLOT_TAKEN') { setSlotConflict(true); setSubmitting(false); return; }
+                console.error('[inoa] slot reservation error:', err);
+                setSubmitting(false);
+                return;
+              }
+            }
+          }
+        }
+
+        setSubmitting(false);
+        setView('payment');
+        scrollTop();
+      }
+
+      // ── Conditional renders ──────────────────────────────────────────────────
+      if (!formOpen) return <ClosedView />;
+      if (soldOut)   return <SoldOutView />;
+
+      if (view === 'checkout') {
+        return (
+          <CheckoutView
+            cartItems={cartItems}
+            subtotal={subtotal}
+            taxAmount={taxAmount}
+            orderTotal={orderTotal}
+            details={details}
+            setDetails={setDetails}
+            errors={errors}
+            submitting={submitting}
+            slotConflict={slotConflict}
+            booked={booked}
+            slotsLoading={slotsLoading}
+            onSubmit={handleCheckout}
+            onBack={() => { setView('menu'); scrollTop(); }}
+          />
+        );
+      }
+
+      if (view === 'payment') {
+        return (
+          <PaymentView
+            cartItems={cartItems}
+            details={details}
+            subtotal={subtotal}
+            taxAmount={taxAmount}
+            orderTotal={orderTotal}
+            onBack={() => { setView('checkout'); scrollTop(); }}
+          />
+        );
+      }
+
+      // ── Menu view ──────────────────────────────────────────────────────────
+      const bundleInCart = cartItems.find(ci => ci.itemId === 1006);
+
+      return (
+        <div className="drop-wrap">
+
+          {/* Hero */}
+          <section className="drop-hero">
+            <p className="drop-eyebrow">L I M I T E D &nbsp;&nbsp; D R O P</p>
+            <h1 className="drop-title">hawaii<br/><em>ahi</em><br/>drop</h1>
+            <p className="drop-sourcing">
+              from the honolulu fish auction · arrived this morning · santa cruz, sept 25
+            </p>
+
+            {/* Portions remaining */}
+            <div className="drop-portions">
+              <span className="portions-dot"></span>
+              {remaining} {remaining === 1 ? 'portion' : 'portions'} remaining
+            </div>
+
+            {/* Pickup block */}
+            <div className="drop-pickup">
+              <div className="drop-pickup-row">
+                <span className="drop-pickup-icon">📅</span>
+                <span className="drop-pickup-text">
+                  <strong>friday, september 25 · 2 – 6 pm</strong>
+                </span>
+              </div>
+              <div className="drop-pickup-row">
+                <span className="drop-pickup-icon">📍</span>
+                <span className="drop-pickup-text">
+                  100 Enterprise Way Suite D-340, Scotts Valley, CA 95066
+                  <br/>curbside pickup available in the lot
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* Bundle */}
+          <section className="bundle-section">
+            <p className="section-label">The Bundle — best value</p>
+            <div className="bundle-card">
+              <div className="bundle-price-row">
+                <span className="bundle-price">$28</span>
+                <span className="bundle-orig">$30</span>
+              </div>
+              <p className="bundle-includes">½lb ahi · seasoned rice · seaweed salad</p>
+              <div className="bundle-radios">
+                {AHI_STYLES.map(s => (
+                  <span
+                    key={s}
+                    className={`bundle-radio${bundleAhi === s ? ' sel' : ''}`}
+                    onClick={() => setBundleAhi(s)}
+                  >{s}</span>
+                ))}
+              </div>
+              <button className="bundle-add-btn" onClick={addBundle}>
+                {bundleInCart ? 'update bundle' : 'add to order'}
+              </button>
+              {bundleInCart && (
+                <p className="bundle-in-cart">
+                  ✓ bundle in cart — {bundleInCart.modifiers?.flavors?.[0]}
+                </p>
+              )}
+            </div>
+          </section>
+
+          {/* À la carte */}
+          <section className="alacarte-section">
+            <p className="section-label">À la carte</p>
+
+            {DROP_AHI.map(item => (
+              <div className="alacarte-item" key={item.id}>
+                <div className="alacarte-info">
+                  <div className="alacarte-name">{item.name}</div>
+                  <div className="alacarte-desc">{item.desc}</div>
+                  {item.tags.length > 0 && (
+                    <div className="alacarte-tags">
+                      {item.tags.map(t => <span key={t} className="alacarte-tag">{t}</span>)}
+                    </div>
+                  )}
+                </div>
+                <div className="alacarte-right">
+                  <span className="alacarte-price">${item.price}</span>
+                  <div className="alacarte-qty">
+                    <button className="alacarte-btn" onClick={() => removeAla(item)} disabled={getQty(item.id) === 0}>−</button>
+                    <span className="alacarte-num">{getQty(item.id)}</span>
+                    <button className="alacarte-btn" onClick={() => addAla(item)}>+</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+
+            <div className="alacarte-divider"></div>
+
+            {DROP_SIDES.map(item => (
+              <div className="alacarte-item" key={item.id}>
+                <div className="alacarte-info">
+                  <div className="alacarte-name">{item.name}</div>
+                </div>
+                <div className="alacarte-right">
+                  <span className="alacarte-price">${item.price}</span>
+                  <div className="alacarte-qty">
+                    <button className="alacarte-btn" onClick={() => removeAla(item)} disabled={getQty(item.id) === 0}>−</button>
+                    <span className="alacarte-num">{getQty(item.id)}</span>
+                    <button className="alacarte-btn" onClick={() => addAla(item)}>+</button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </section>
+
+          {/* Cart bar */}
+          {totalItems > 0 && (
+            <div className="cart-bar">
+              {cartExpanded && (
+                <div className="cart-bar-preview">
+                  {cartItems.map(ci => (
+                    <div key={ci.cartId} className="cart-line">
+                      <span className="cart-line-name">
+                        {ci.name}{ci.modifiers?.flavors?.[0] ? ` (${ci.modifiers.flavors[0]})` : ''}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
+                      </span>
+                      <span>{fmtMoney(ci.unitPrice * ci.quantity)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div className="cart-bar-main">
+                <button className="cart-toggle" onClick={() => setCartExpanded(x => !x)}>
+                  {cartExpanded ? 'hide' : 'show'} cart
+                </button>
+                <span className="cart-bar-count">{totalItems} {totalItems === 1 ? 'item' : 'items'}</span>
+                <span className="cart-bar-total">{fmtMoney(subtotal)}</span>
+                <button className="cart-bar-btn" onClick={() => { setView('checkout'); scrollTop(); }}>
+                  checkout
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // ── CheckoutView ──────────────────────────────────────────────────────────
+    function CheckoutView({ cartItems, subtotal, taxAmount, orderTotal, details, setDetails, errors, submitting, slotConflict, booked, slotsLoading, onSubmit, onBack }) {
+      function field(key) { return details[key] || ''; }
+      function set(key, val) { setDetails(d => ({ ...d, [key]: val })); }
+
+      return (
+        <div className="co-page">
+          <h2 className="co-heading">pickup details</h2>
+          <p className="co-sub">step 1 of 2</p>
+
+          {/* Order review */}
+          <div className="co-order-review">
+            {cartItems.map(ci => (
+              <div key={ci.cartId} className="co-row">
+                <span className="co-row-name">
+                  {ci.name}{ci.modifiers?.flavors?.[0] ? ` (${ci.modifiers.flavors[0]})` : ''}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
+                </span>
+                <span className="co-row-price">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
+              </div>
+            ))}
+            <hr className="co-sep"/>
+            <div className="co-row">
+              <span className="co-row-name">tax (9.75%)</span>
+              <span className="co-row-price">{fmtMoney(taxAmount)}</span>
+            </div>
+            <div className="co-total-row">
+              <span>total</span>
+              <span>{fmtMoney(orderTotal)}</span>
+            </div>
+          </div>
+
+          {/* Pickup info */}
+          <div className="co-section-hd">pickup</div>
+          <div className="co-pickup-info">
+            <div className="co-pickup-date">friday, september 25 · 2 – 6 pm</div>
+            <div className="co-pickup-addr">100 Enterprise Way Suite D-340, Scotts Valley · curbside available</div>
+          </div>
+
+          {/* Time slot */}
+          <div className="co-section-hd">choose your time</div>
+          {slotConflict && (
+            <div className="co-conflict">
+              That slot was just taken — please choose another time.
+            </div>
+          )}
+          <div className="co-slot-grid">
+            {TIME_SLOTS.map(s => (
+              <button
+                key={s.key}
+                className={`co-slot${details.time === s.label ? ' sel' : ''}`}
+                disabled={booked.has(s.key)}
+                onClick={() => set('time', s.label)}
+              >
+                {s.label.split(' – ')[0]}
+              </button>
+            ))}
+          </div>
+          {errors.time && <div className="co-slot-err">{errors.time}</div>}
+
+          {/* Customer fields */}
+          <div className="co-section-hd">your info</div>
+          <div className="co-field co-field-2">
+            <div>
+              <label className="co-label">First name</label>
+              <input
+                className={`co-input${errors.firstName ? ' err' : ''}`}
+                value={field('firstName')}
+                onChange={e => set('firstName', e.target.value)}
+                autoComplete="given-name"
+              />
+              {errors.firstName && <div className="co-err-msg">{errors.firstName}</div>}
+            </div>
+            <div>
+              <label className="co-label">Last name</label>
+              <input
+                className={`co-input${errors.lastName ? ' err' : ''}`}
+                value={field('lastName')}
+                onChange={e => set('lastName', e.target.value)}
+                autoComplete="family-name"
+              />
+              {errors.lastName && <div className="co-err-msg">{errors.lastName}</div>}
+            </div>
+          </div>
+          <div className="co-field">
+            <label className="co-label">Phone</label>
+            <input
+              className={`co-input${errors.phone ? ' err' : ''}`}
+              type="tel"
+              value={field('phone')}
+              onChange={e => set('phone', e.target.value)}
+              autoComplete="tel"
+              placeholder="(831) 555-0100"
+            />
+            {errors.phone && <div className="co-err-msg">{errors.phone}</div>}
+          </div>
+          <div className="co-field">
+            <label className="co-label">Email</label>
+            <input
+              className={`co-input${errors.email ? ' err' : ''}`}
+              type="email"
+              value={field('email')}
+              onChange={e => set('email', e.target.value)}
+              autoComplete="email"
+            />
+            {errors.email && <div className="co-err-msg">{errors.email}</div>}
+          </div>
+          <div className="co-field">
+            <label className="co-label">Notes (optional)</label>
+            <input
+              className="co-input"
+              value={field('notes')}
+              onChange={e => set('notes', e.target.value)}
+              placeholder="allergies, special instructions…"
+            />
+          </div>
+
+          <button className="co-submit" onClick={onSubmit} disabled={submitting}>
+            {submitting ? 'reserving slot…' : 'continue to payment'}
+          </button>
+          <button className="co-back" onClick={onBack}>← back to menu</button>
+        </div>
+      );
+    }
+
+    // ── PaymentView ───────────────────────────────────────────────────────────
+    function PaymentView({ cartItems, details, subtotal, taxAmount, orderTotal, onBack }) {
+      const [tipPct,    setTipPct]    = useState(0);
+      const [card,      setCard]      = useState(null);
+      const [hasGP,     setHasGP]     = useState(false);
+      const [hasAP,     setHasAP]     = useState(false);
+      const [paying,    setPaying]    = useState(false);
+      const [error,     setError]     = useState('');
+      const apRef  = useRef(null);
+      const prRef  = useRef(null);
+      const TIP_OPTIONS = [{ label: 'none', pct: 0 }, { label: '15%', pct: 15 }, { label: '20%', pct: 20 }, { label: '25%', pct: 25 }];
+
+      const tipAmount  = tipPct > 0 ? Math.round(orderTotal * tipPct / 100 * 100) / 100 : 0;
+      const grandTotal = orderTotal + tipAmount;
+      const tipCents   = Math.round(tipAmount * 100);
+
+      useEffect(() => {
+        let mounted = true;
+        let cardInstance = null;
+
+        async function initSquare() {
+          const cfg = await fetch('/api/config').then(r => r.json());
+          if (!cfg.applicationId) { setError('Square not configured. Contact inoa.'); return; }
+          if (!window.Square) {
+            await new Promise((resolve, reject) => {
+              const src = cfg.env === 'production'
+                ? 'https://web.squarecdn.com/v1/square.js'
+                : 'https://sandbox.web.squarecdn.com/v1/square.js';
+              const s = document.createElement('script');
+              s.src = src; s.onload = resolve; s.onerror = reject;
+              document.head.appendChild(s);
+            });
+          }
+          if (!mounted) return;
+          const payments = window.Square.payments(cfg.applicationId, cfg.locationId);
+          const pr = payments.paymentRequest({
+            countryCode: 'US', currencyCode: 'USD',
+            total: { amount: grandTotal.toFixed(2), label: 'inoa' },
+          });
+          prRef.current = pr;
+
+          try {
+            const gp = await payments.googlePay(pr);
+            await gp.attach('#gp-button');
+            gp.addEventListener('ontokenization', ({ detail: { tokenResult } }) => {
+              if (tokenResult?.status === 'OK') submitPayment(tokenResult.token);
+            });
+            if (mounted) setHasGP(true);
+          } catch (_) {}
+
+          try {
+            const ap = await payments.applePay(pr);
+            apRef.current = ap;
+            if (mounted) setHasAP(true);
+          } catch (apErr) { console.warn('[inoa] Apple Pay:', apErr?.message); }
+
+          cardInstance = await payments.card({
+            style: {
+              '.input-container':          { borderColor: 'rgba(26,26,26,0.15)', borderRadius: '2px' },
+              '.input-container.is-focus': { borderColor: '#4a7c6f' },
+              '.input-container.is-error': { borderColor: '#b87a5a' },
+              'input':                     { color: '#1a1a1a', fontSize: '14px' },
+            },
+          });
+          await cardInstance.attach('#sq-card');
+          if (mounted) setCard(cardInstance);
+        }
+
+        initSquare().catch(err => {
+          console.error('[inoa] Square init:', err);
+          if (mounted) setError('Failed to load payment form. Please refresh and try again.');
+        });
+        return () => { mounted = false; if (cardInstance) cardInstance.destroy().catch(() => {}); };
+      }, []);
+
+      async function submitPayment(token) {
+        setPaying(true); setError('');
+        try {
+          const res = await fetch('/api/pay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              cartItems: cartItems.map(ci => ({
+                itemId: ci.itemId, name: ci.name,
+                modifiers: ci.modifiers, quantity: ci.quantity,
+              })),
+              details: {
+                date:  DROP_DATE,
+                time:  details.time,
+                firstName: details.firstName, lastName: details.lastName,
+                phone: details.phone, email: details.email,
+                notes: details.notes || '',
+                voucher: '', ucscStudent: false, promoCode: '', promoDiscount: 0, promoFreeMusubi: false,
+              },
+              sourceId: token,
+              tipCents,
+            }),
+          });
+          const data = await res.json();
+          if (!res.ok || !data.success) {
+            if (data.error === 'slot_taken') {
+              setError('That pickup time was just taken. Please go back and choose a different slot.');
+            } else if (data.error === 'sold_out') {
+              setError('Sorry — this drop just sold out. Thank you for your interest.');
+            } else {
+              setError(data.detail || data.error || 'Payment failed. Please try again.');
+            }
+            setPaying(false);
+            return;
+          }
+          sessionStorage.setItem('inoa_pickup_date', DROP_DATE);
+          sessionStorage.setItem('inoa_pickup_time', details.time);
+          window.location.href = '/confirmation';
+        } catch (err) {
+          setError('An unexpected error occurred. Please try again.');
+          setPaying(false);
+        }
+      }
+
+      async function handleCardPay() {
+        if (!card) return;
+        setPaying(true); setError('');
+        const result = await card.tokenize().catch(() => null);
+        if (!result || result.status !== 'OK') {
+          setError(result?.errors?.map(e => e.message).join(' · ') || 'Card validation failed.');
+          setPaying(false);
+          return;
+        }
+        submitPayment(result.token);
+      }
+
+      async function handleApplePay() {
+        if (!apRef.current || paying) return;
+        setPaying(true); setError('');
+        const result = await apRef.current.tokenize().catch(err => ({ status: 'ERROR', errors: [{ message: err?.message || 'cancelled' }] }));
+        if (result?.status === 'OK') { submitPayment(result.token); }
+        else { setError(result?.errors?.map(e => e.message).join(' · ') || 'Apple Pay cancelled.'); setPaying(false); }
+      }
+
+      return (
+        <div className="pv-page">
+          <h2 className="pv-heading">payment</h2>
+          <p className="pv-sub">step 2 of 2</p>
+
+          {/* Paying-as */}
+          <div className="pv-who">
+            <div className="pv-who-name">{details.firstName}{details.lastName ? ' ' + details.lastName : ''}</div>
+            <div className="pv-who-detail">{details.phone}{details.phone && details.email ? ' · ' : ''}{details.email}</div>
+            <div className="pv-who-detail">pickup · fri sept 25 · {details.time}</div>
+          </div>
+
+          {/* Order total */}
+          <div className="pv-totals">
+            {cartItems.map(ci => (
+              <div key={ci.cartId} className="pv-row">
+                <span className="pv-row-label">
+                  {ci.name}{ci.modifiers?.flavors?.[0] ? ` (${ci.modifiers.flavors[0]})` : ''}{ci.quantity > 1 ? ` ×${ci.quantity}` : ''}
+                </span>
+                <span className="pv-row-amt">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
+              </div>
+            ))}
+            <hr className="pv-sep"/>
+            <div className="pv-row">
+              <span className="pv-row-label">tax (9.75%)</span>
+              <span className="pv-row-amt">{fmtMoney(taxAmount)}</span>
+            </div>
+            {tipAmount > 0 && (
+              <div className="pv-row">
+                <span className="pv-row-label">tip ({tipPct}%)</span>
+                <span className="pv-row-amt">{fmtMoney(tipAmount)}</span>
+              </div>
+            )}
+            <div className="pv-grand">
+              <span>total</span>
+              <span>{fmtMoney(grandTotal)}</span>
+            </div>
+          </div>
+
+          {/* Tip */}
+          <span className="tip-label-hd">tip (optional)</span>
+          <div className="tip-row">
+            {TIP_OPTIONS.map(o => (
+              <button
+                key={o.label}
+                className={`tip-btn${tipPct === o.pct ? ' sel' : ''}`}
+                onClick={() => setTipPct(o.pct)}
+              >{o.label}</button>
+            ))}
+          </div>
+
+          {/* Express pay */}
+          {(hasGP || hasAP) && (
+            <>
+              {hasAP && (
+                <button className="apple-btn" onClick={handleApplePay} disabled={paying}>
+                  <svg width="50" height="20" viewBox="0 0 50 20" fill="none">
+                    <text x="0" y="15" fill="white" fontSize="14" fontFamily="-apple-system">Pay</text>
+                  </svg>
+                </button>
+              )}
+              {hasGP && <div id="gp-button"></div>}
+              <div className="express-divider">or pay by card</div>
+            </>
+          )}
+
+          {/* Card widget */}
+          <div className="sq-card-wrap" id="sq-card"></div>
+
+          {error && <div className="pay-error">{error}</div>}
+
+          <button className="pay-btn" onClick={handleCardPay} disabled={paying || !card}>
+            {paying ? 'processing…' : `pay ${fmtMoney(grandTotal)}`}
+          </button>
+
+          <button className="pay-back" onClick={onBack}>← back</button>
+        </div>
+      );
+    }
+
+    // ── Mount ─────────────────────────────────────────────────────────────────
+    ReactDOM.createRoot(document.getElementById('drop-root')).render(<DropPage />);
+  </script>
+</body>
+</html>

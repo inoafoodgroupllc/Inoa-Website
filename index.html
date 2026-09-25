@@ -11,14 +11,20 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
+  <meta name="description" content="Fresh Hawaiian poke bowls and sushi made daily in Scotts Valley, CA. Pre-order pickup available. Catering for events across Santa Cruz County and the South Bay.">
+  <link rel="canonical" href="https://inoa.kitchen/home">
+
   <!-- Open Graph -->
-  <meta property="og:title" content="inoa — poke · sushi · santa cruz">
-  <meta property="og:description" content="Fresh poke and sushi made daily in Scotts Valley, CA. Pre-order now.">
-  <meta property="og:image" content="https://inoa.kitchen/og-image.png">
-  <meta property="og:url" content="https://inoa.kitchen/home">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://inoa.kitchen/og-image.png">
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="inoa">
+  <meta property="og:url"         content="https://inoa.kitchen/home">
+  <meta property="og:title"       content="inoa — poke · sushi · santa cruz">
+  <meta property="og:description" content="Fresh Hawaiian poke bowls and sushi made daily in Scotts Valley, CA. Pre-order pickup available. Catering for events across Santa Cruz County and the South Bay.">
+  <meta property="og:image"       content="https://inoa.kitchen/og-image.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="inoa — poke · sushi · santa cruz">
+  <meta name="twitter:description" content="Fresh Hawaiian poke bowls and sushi made daily in Scotts Valley, CA. Pre-order pickup available. Catering for events across Santa Cruz County and the South Bay.">
+  <meta name="twitter:image"       content="https://inoa.kitchen/og-image.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1488,7 +1494,7 @@
     "name": "inoa Catering",
     "description": "Hawaiian-inspired poke catering in Santa Cruz and the Bay Area. Poke bars, catering boxes, sushi bakes, and poke trays for events, corporate lunches, and private parties.",
     "url": "https://inoa.kitchen/catering",
-    "telephone": "",
+    "telephone": "+19253916589",
     "image": "https://inoa.kitchen/brand_assets/DSC04159%202.JPG",
     "priceRange": "$$",
     "servesCuisine": ["Hawaiian", "Poke", "Japanese", "Seafood"],
@@ -1501,9 +1507,12 @@
       { "@type": "City", "name": "San Jose" }
     ],
     "parentOrganization": {
-      "@type": "Restaurant",
+      "@type": ["Restaurant", "LocalBusiness"],
       "name": "inoa",
       "url": "https://inoa.kitchen",
+      "menu": "https://inoa.kitchen/menu",
+      "priceRange": "$$",
+      "servesCuisine": ["Hawaiian", "Poke", "Japanese", "Sushi"],
       "address": {
         "@type": "PostalAddress",
         "streetAddress": "100 Enterprise Way",
@@ -1511,6 +1520,11 @@
         "addressRegion": "CA",
         "postalCode": "95066",
         "addressCountry": "US"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 37.0515,
+        "longitude": -122.0179
       }
     },
     "hasOfferCatalog": {
@@ -1585,7 +1599,7 @@
       <li><a href="#story">about</a></li>
       <li><a href="#find-us">find us</a></li>
     </ul>
-    <a href="/order" class="btn-nav">order now</a>
+    <a href="/catering" class="btn-nav">catering</a>
     <button class="nav-hamburger" id="nav-hamburger" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav">
       <svg width="22" height="15" viewBox="0 0 22 15" fill="none" aria-hidden="true">
         <line x1="0" y1="1" x2="22" y2="1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
@@ -1636,7 +1650,7 @@
         A UC Santa Cruz student's solution to a beach town lacking real authentic poke. Made fresh. Every time.
       </p>
       <div class="hero-actions">
-        <a href="/order" class="btn-primary">order now</a>
+        <a href="/catering" class="btn-primary">order catering</a>
       </div>
     </div>
 
@@ -1658,31 +1672,15 @@
         orders are open
       </div>
       <a href="/order" class="orders-cta">pre-order now</a>
-      <p class="orders-closes">closes tonight at midnight</p>
+      <p class="orders-closes">closes monday at 6 pm</p>
     </div>
 
     <div class="orders-closed-state" id="orders-closed">
-      <p class="orders-eyebrow">N E X T &nbsp;&nbsp; O R D E R S</p>
-      <p class="orders-next-date" id="orders-next-date"></p>
-      <div class="orders-timer">
-        <div class="orders-timer-block">
-          <span class="orders-timer-num" id="ocd-days">00</span>
-          <span class="orders-timer-lbl">days</span>
-        </div>
-        <div class="orders-timer-block">
-          <span class="orders-timer-num" id="ocd-hours">00</span>
-          <span class="orders-timer-lbl">hours</span>
-        </div>
-        <div class="orders-timer-block">
-          <span class="orders-timer-num" id="ocd-mins">00</span>
-          <span class="orders-timer-lbl">mins</span>
-        </div>
-        <div class="orders-timer-block">
-          <span class="orders-timer-num" id="ocd-secs">00</span>
-          <span class="orders-timer-lbl">secs</span>
-        </div>
-      </div>
-      <p class="orders-tagline">orders open every sunday and wednesday</p>
+      <p class="orders-eyebrow">L I M I T E D &nbsp;&nbsp; D R O P</p>
+      <p class="orders-next-date" style="font-size:clamp(32px,5vw,68px); font-family:'Cormorant Garamond',serif; font-weight:300; letter-spacing:-0.03em; line-height:0.95; margin-bottom:20px;">hawaii<br><em>ahi</em><br>drop</p>
+      <p class="orders-tagline" style="margin-bottom:32px; opacity:0.45;">from the honolulu fish auction &nbsp;·&nbsp; friday sept 25 &nbsp;·&nbsp; scotts valley</p>
+      <a href="/drop" class="orders-cta">order the drop</a>
+      <p class="orders-closes">pickup 2 – 6 pm &nbsp;·&nbsp; 45 portions only</p>
     </div>
 
   </section>
@@ -1875,7 +1873,7 @@
       </div>
 
       <div class="fu fu-d3">
-        <a href="/order" class="btn-primary-light">order now</a>
+        <a href="/catering" class="btn-primary-light">order catering</a>
       </div>
     </div>
 
@@ -1917,6 +1915,9 @@
       <li><a href="#" aria-label="inoa on instagram">instagram</a></li>
     </ul>
     <p class="footer-copy">© 2026 inoa</p>
+    <p class="footer-copy" style="margin-top:6px; font-size:11px; opacity:0.45;">
+      100 Enterprise Way, Scotts Valley, CA 95066 &middot; <a href="tel:+19253916589" style="color:inherit;">(925) 391-6589</a>
+    </p>
   </footer>
 
   <div class="legal-footer">
@@ -2009,32 +2010,16 @@
     // ── Orders countdown ──
     (function() {
       function isOpen() {
-        var now = new Date();
-        // Temporary: Mon Apr 6 2026 — open until 2:00 PM
-        var isMon6Apr = now.getFullYear() === 2026 && now.getMonth() === 3 && now.getDate() === 6;
-        if (isMon6Apr && now.getHours() < 14) return true;
-        var d = now.getDay();
-        return d === 0 || d === 3;
+        const now = new Date();
+        const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+        if (y === 2026 && m === 8) { // September
+          if (d === 20) return true;
+          if (d === 21 && now.getHours() < 18) return true;
+        }
+        return false;
       }
-      function getNextOpening() {
-        var now  = new Date();
-        var day  = now.getDay();
-        var toSun = (7 - day) % 7 || 7;
-        var toWed = (3 - day + 7) % 7 || 7;
-        var next  = new Date(now);
-        next.setDate(now.getDate() + Math.min(toSun, toWed));
-        next.setHours(0, 0, 0, 0);
-        return next;
-      }
-      function pad(n) { return String(n).padStart(2, '0'); }
-
       var openEl   = document.getElementById('orders-open');
       var closedEl = document.getElementById('orders-closed');
-      var dateEl   = document.getElementById('orders-next-date');
-      var daysEl   = document.getElementById('ocd-days');
-      var hoursEl  = document.getElementById('ocd-hours');
-      var minsEl   = document.getElementById('ocd-mins');
-      var secsEl   = document.getElementById('ocd-secs');
 
       function tick() {
         if (isOpen()) {
@@ -2043,17 +2028,9 @@
         } else {
           openEl.classList.remove('visible');
           closedEl.classList.add('visible');
-          var next = getNextOpening();
-          var diff = Math.max(0, next - new Date());
-          daysEl.textContent  = pad(Math.floor(diff / 86400000));
-          hoursEl.textContent = pad(Math.floor((diff % 86400000) / 3600000));
-          minsEl.textContent  = pad(Math.floor((diff % 3600000)  / 60000));
-          secsEl.textContent  = pad(Math.floor((diff % 60000)    / 1000));
-          dateEl.textContent  = next.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' }).toLowerCase();
         }
       }
       tick();
-      setInterval(tick, 1000);
     })();
   </script>
 

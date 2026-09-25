@@ -10,13 +10,18 @@
   <link rel="icon" type="image/x-icon" href="/favicon.ico">
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 
-  <meta property="og:title" content="pre-order — inoa">
-  <meta property="og:description" content="Place a pre-order for fresh poke and sushi from inoa in Scotts Valley, CA.">
-  <meta property="og:image" content="https://inoa.kitchen/og-image.png">
-  <meta property="og:url" content="https://inoa.kitchen/order">
-  <meta property="og:type" content="website">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:image" content="https://inoa.kitchen/og-image.png">
+  <meta name="description" content="Pre-order fresh poke bowls and sushi from inoa in Scotts Valley, CA. Choose your flavors, sides, and pickup time.">
+  <link rel="canonical" href="https://inoa.kitchen/order">
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="inoa">
+  <meta property="og:url"         content="https://inoa.kitchen/order">
+  <meta property="og:title"       content="pre-order — inoa">
+  <meta property="og:description" content="Pre-order fresh poke bowls and sushi from inoa in Scotts Valley, CA. Choose your flavors, sides, and pickup time.">
+  <meta property="og:image"       content="https://inoa.kitchen/og-image.png">
+  <meta name="twitter:card"        content="summary_large_image">
+  <meta name="twitter:title"       content="pre-order — inoa">
+  <meta name="twitter:description" content="Pre-order fresh poke bowls and sushi from inoa in Scotts Valley, CA. Choose your flavors, sides, and pickup time.">
+  <meta name="twitter:image"       content="https://inoa.kitchen/og-image.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -483,6 +488,8 @@
     .po-cd-num { font-family: 'Cormorant Garamond', serif; font-size: 44px; font-weight: 300; line-height: 1; color: var(--ink); letter-spacing: -0.02em; margin-bottom: 9px; font-variant-numeric: tabular-nums; }
     .po-cd-lbl { font-size: 8px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); opacity: 0.3; }
     .po-closed-next { font-size: 11px; color: var(--ink); opacity: 0.36; letter-spacing: 0.06em; }
+    .po-drop-cta { display: inline-block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(26,26,26,0.28); padding-bottom: 3px; margin-bottom: 20px; transition: opacity 0.2s ease; }
+    .po-drop-cta:hover { opacity: 0.5; }
 
     /* ── Payment view ── */
     .tip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
@@ -710,7 +717,7 @@
 
     // ── Per-date time slot override (start hour may differ by date) ──────────
     function getTimeSlotsForDate(dateKey) {
-      const DATE_START_HOUR = { '2026-08-10': 14 }; // Mon Aug 10: 2–6 PM
+      const DATE_START_HOUR = { '2026-08-10': 14, '2026-09-21': 14 }; // 2–6 PM
       const startHour = DATE_START_HOUR[dateKey] ?? 12;
       const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
       const out = [];
@@ -767,7 +774,13 @@
 
     // ── Form open / window logic ──────────────────────────────────────────────
     function isFormOpen() {
-      return false; // closed indefinitely
+      const now = new Date();
+      const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+      if (y === 2026 && m === 8) { // September
+        if (d === 20) return true;                         // Sun Sep 20 — order window
+        if (d === 21 && now.getHours() < 18) return true; // Mon Sep 21 until 6 PM
+      }
+      return false;
     }
 
     function getNextOpening() {
@@ -800,6 +813,7 @@
       let offsets = openDay === 0 ? [1,2] : [1,2,3];
       if (anchorKey === '2026-08-09') offsets = [1];    // Mon only — Tue removed
       if (anchorKey === '2026-08-12') offsets = [2,3];  // Thu removed — Fri+Sat only
+      if (anchorKey === '2026-09-20') offsets = [1];    // Mon Sep 21 only
       return offsets.map(off => {
         const d = new Date(anchor);
         d.setDate(anchor.getDate() + off);
@@ -840,36 +854,17 @@
 
     // ── ClosedView ────────────────────────────────────────────────────────────
     function ClosedView({ onOpen }) {
-      const [, setTick] = useState(0);
       useEffect(() => {
-        const id = setInterval(() => {
-          if (isFormOpen()) { onOpen(); return; }
-          setTick(t => t + 1);
-        }, 1000);
+        const id = setInterval(() => { if (isFormOpen()) onOpen(); }, 30000);
         return () => clearInterval(id);
       }, []);
-      const next  = getNextOpening();
-      const diff  = Math.max(0, next - new Date());
-      const days  = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const mins  = Math.floor((diff % 3600000)  / 60000);
-      const secs  = Math.floor((diff % 60000)    / 1000);
-      const units = [{ v:days, l:'days' },{ v:hours, l:'hrs' },{ v:mins, l:'min' },{ v:secs, l:'sec' }];
-      const nextLabel = next.toLocaleDateString('en-US',{ weekday:'long', month:'long', day:'numeric' }).toLowerCase();
       return (
         <div className="po-closed">
-          <div className="po-closed-label">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</div>
-          <h2 className="po-closed-heading">pre-orders are<br/>currently closed</h2>
-          <p className="po-closed-sub">the order form opens every sunday and wednesday</p>
-          <div className="po-countdown">
-            {units.map(({ v, l }) => (
-              <div key={l} className="po-cd-block">
-                <span className="po-cd-num">{String(v).padStart(2,'0')}</span>
-                <span className="po-cd-lbl">{l}</span>
-              </div>
-            ))}
-          </div>
-          <p className="po-closed-next">next opening — {nextLabel}</p>
+          <div className="po-closed-label">L I M I T E D &nbsp; D R O P</div>
+          <h2 className="po-closed-heading" style={{lineHeight:'0.95',marginBottom:'16px'}}>hawaii<br/><em>ahi</em><br/>drop</h2>
+          <p className="po-closed-sub">from the honolulu fish auction · friday sept 25 · pickup 2 – 6 pm</p>
+          <a href="/drop" className="po-drop-cta">order the drop →</a>
+          <p className="po-closed-next">scotts valley · 45 portions only</p>
         </div>
       );
     }

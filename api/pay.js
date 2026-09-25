@@ -47,6 +47,13 @@ const CATALOG = {
   707: { name: 'Seasoned Sushi Rice',    cents:  400 },
   // DRINKS
   801: { name: 'Hawaiian Sun',            cents:  300 },
+  // HAWAII AHI DROP (one-time)
+  1001: { name: 'Hawaiian Ahi ½lb',       cents: 2000 },
+  1002: { name: 'Shoyu Ahi ½lb',          cents: 2000 },
+  1003: { name: 'Spicy Ahi ½lb',          cents: 2000 },
+  1004: { name: 'Seasoned Sushi Rice',    cents:  500 },
+  1005: { name: 'Seaweed Salad',          cents:  500 },
+  1006: { name: 'Hawaii Ahi Bundle',      cents: 2800 },
 };
 
 const ADDON_PRICES = {

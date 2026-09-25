@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /confirmation
+Disallow: /catering/confirmed
+
+Sitemap: https://inoa.kitchen/sitemap.xml

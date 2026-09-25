@@ -22,13 +22,16 @@
   <meta name="twitter:image" content="https://inoa.kitchen/og-image.png">
 
   <!-- JSON-LD -->
+  <link rel="canonical" href="https://inoa.kitchen/catering">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "FoodEstablishment",
+    "@type": ["Restaurant", "LocalBusiness"],
     "name": "inoa",
     "url": "https://inoa.kitchen",
     "telephone": "+19253916589",
+    "priceRange": "$$",
+    "menu": "https://inoa.kitchen/menu",
     "servesCuisine": ["Hawaiian", "Poke", "Sushi"],
     "address": {
       "@type": "PostalAddress",
@@ -37,6 +40,11 @@
       "addressRegion": "CA",
       "postalCode": "95066",
       "addressCountry": "US"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 37.0515,
+      "longitude": -122.0179
     },
     "areaServed": [
       "Santa Cruz County, CA",
@@ -56,6 +64,54 @@
         }
       }]
     }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much notice is needed to place a catering order with inoa?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "A minimum of 48 hours notice is required for all catering orders. Fish is ordered to spec, not pulled from a case."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the minimum order for inoa catering?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "$200 for pickup. $250 for delivery within Santa Cruz County. $500 for delivery over the hill (Los Gatos, San Jose, Santa Clara)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where does inoa deliver catering?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "inoa delivers to Scotts Valley, Santa Cruz, Capitola, Aptos, Los Gatos, San Jose, and Santa Clara. Pickup is available at 100 Enterprise Way, Scotts Valley, CA 95066."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does inoa accommodate dietary restrictions for catering?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. inoa offers a gluten-free and vegan Hawaiian tofu option. Many poke proteins are naturally gluten-free. Custom accommodations can be noted in your order."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What catering formats does inoa offer?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "inoa offers poke trays (serves 15 or 40), individually packaged catering boxes (minimum 5), and poke bar setups for larger events. All include rice, protein, and sides."
+        }
+      }
+    ]
   }
   </script>
 
@@ -1205,6 +1261,9 @@
     <li><a href="/#find-us">find us</a></li>
   </ul>
   <p class="footer-copy">© 2026 inoa</p>
+  <p class="footer-copy" style="margin-top:6px; font-size:11px; opacity:0.45;">
+    100 Enterprise Way, Scotts Valley, CA 95066 &middot; <a href="tel:+19253916589" style="color:inherit;">(925) 391-6589</a>
+  </p>
 </footer>
 <div class="legal-footer">
   <nav class="legal-footer-links" aria-label="Legal">
