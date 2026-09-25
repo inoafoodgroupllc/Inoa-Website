@@ -67,11 +67,7 @@
     .drop-title em { font-style: italic; }
     .drop-sourcing { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14px; color: var(--ink); opacity: 0.48; line-height: 1.6; margin-bottom: 24px; }
 
-    /* ── Portions counter ───────────────────────────────────── */
-    .drop-portions { display: flex; align-items: center; gap: 9px; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); margin-bottom: 28px; }
-    .portions-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ogo); animation: pdot 2.2s ease-in-out infinite; flex-shrink: 0; }
-    @keyframes pdot { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
-    .portions-soldout-dot { background: var(--err); animation: none; }
+    /* ── Pickup block ───────────────────────────────────────── */
 
     /* ── Pickup block ───────────────────────────────────────── */
     .drop-pickup { background: var(--sand); border-radius: 6px; padding: 16px 18px; font-size: 12px; color: var(--ink); line-height: 1.7; }
@@ -191,8 +187,8 @@
     .co-pickup-info { background: var(--sand); border-radius: 6px; padding: 14px 16px; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
     .co-pickup-date { font-weight: 500; }
     .co-pickup-addr { font-size: 11px; opacity: 0.5; margin-top: 2px; }
-    .co-slot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; max-height: 250px; overflow-y: auto; margin-bottom: 4px; -webkit-overflow-scrolling: touch; }
-    .co-slot { padding: 9px 4px; font-size: 11px; text-align: center; border: 1.5px solid rgba(26,26,26,0.14); border-radius: 4px; background: transparent; cursor: pointer; color: var(--ink); line-height: 1.3; transition: background 0.12s ease, color 0.12s ease; }
+    .co-slot-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; margin-bottom: 4px; }
+    .co-slot { padding: 16px 8px; font-size: 13px; text-align: center; border: 1.5px solid rgba(26,26,26,0.14); border-radius: 4px; background: transparent; cursor: pointer; color: var(--ink); line-height: 1.3; transition: background 0.12s ease, color 0.12s ease; font-family: 'DM Sans', sans-serif; }
     .co-slot.sel { background: var(--ink); color: var(--cream); border-color: var(--ink); }
     .co-slot:disabled { opacity: 0.18; cursor: not-allowed; }
     .co-slot-err { font-size: 11px; color: var(--err); margin-top: 4px; }
@@ -310,55 +306,31 @@
       return Date.now() < new Date('2026-09-25T19:30:00Z').getTime();
     }
 
-    function getTimeSlots() {
-      const startHour = 14;
-      const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
-      const out = [];
-      for (let min = 0; min < 240; min += 5) {
-        const h  = startHour + Math.floor(min / 60),       m  = min % 60;
-        const eh = startHour + Math.floor((min + 5) / 60), em = (min + 5) % 60;
-        out.push({
-          label: `${fmt(h,m)} – ${fmt(eh,em)}`,
-          key:   `${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}`,
-        });
-      }
-      return out;
-    }
-    const TIME_SLOTS = getTimeSlots();
+    const TIME_SLOTS = [
+      { label: '2:00 – 3:00 PM', key: '1400' },
+      { label: '3:00 – 4:00 PM', key: '1500' },
+      { label: '4:00 – 5:00 PM', key: '1600' },
+      { label: '5:00 – 6:00 PM', key: '1700' },
+    ];
 
     function uid() { return Math.random().toString(36).slice(2,10); }
     function fmtMoney(n) { return `$${n.toFixed(2)}`; }
 
-    // ── useBookedSlots hook ───────────────────────────────────────────────────
-    function useBookedSlots(date) {
-      const [booked,  setBooked]  = useState(new Set());
-      const [loading, setLoading] = useState(false);
+    // ── usePaidOrderCount — only counts completed purchases ──────────────────
+    function usePaidOrderCount(date) {
+      const [count, setCount] = useState(0);
       useEffect(() => {
-        if (!date || !db) { setBooked(new Set()); return; }
-        setLoading(true);
-        const unsub = db.collection('slots').where('date','==',date).onSnapshot(
-          snap => {
-            const now = Date.now();
-            const keys = new Set();
-            snap.docs.forEach(d => {
-              const data = d.data();
-              if (data.status === 'paid') {
-                keys.add(data.slotKey);
-              } else if (data.status === 'reserved') {
-                const ts = data.reservedAt?.toDate?.()?.getTime?.() || 0;
-                if (now - ts < SLOT_HOLD_MS) keys.add(data.slotKey);
-              } else {
-                keys.add(data.slotKey);
-              }
-            });
-            setBooked(keys);
-            setLoading(false);
-          },
-          err => { console.error('[inoa] slots error:', err); setLoading(false); }
-        );
+        if (!date || !db) return;
+        const unsub = db.collection('slots')
+          .where('date', '==', date)
+          .where('status', '==', 'paid')
+          .onSnapshot(
+            snap => setCount(snap.docs.length),
+            err  => console.error('[inoa] count error:', err)
+          );
         return () => unsub();
       }, [date]);
-      return { booked, loading };
+      return count;
     }
 
     // ── ClosedView ────────────────────────────────────────────────────────────
@@ -406,14 +378,12 @@
       const [bundleAhi, setBundleAhi] = useState('Hawaiian Ahi');
       const [details,   setDetails]   = useState({ firstName:'', lastName:'', phone:'', email:'', time:'', notes:'' });
       const [errors,    setErrors]    = useState({});
-      const [submitting,   setSubmitting]   = useState(false);
-      const [slotConflict, setSlotConflict] = useState(false);
+      const [submitting,        setSubmitting]        = useState(false);
       const [reservedSlotDocId, setReservedSlotDocId] = useState(null);
-      const [cartExpanded, setCartExpanded] = useState(false);
+      const [cartExpanded,      setCartExpanded]      = useState(false);
 
-      const { booked, loading: slotsLoading } = useBookedSlots(DROP_DATE);
-      const soldOut  = booked.size >= MAX_PORTIONS;
-      const remaining = Math.max(0, MAX_PORTIONS - booked.size);
+      const paidCount = usePaidOrderCount(DROP_DATE);
+      const soldOut   = paidCount >= MAX_PORTIONS;
 
       // Check form open every 30s
       useEffect(() => {
@@ -472,7 +442,6 @@
 
       // ── Checkout submission ──────────────────────────────────────────────────
       async function handleCheckout() {
-        setSlotConflict(false);
         const e = {};
         if (!details.firstName?.trim())  e.firstName = 'required';
         if (!details.lastName?.trim())   e.lastName  = 'required';
@@ -484,39 +453,26 @@
 
         setSubmitting(true);
 
-        // Reserve slot in Firestore
-        if (db) {
+        // Reserve a slot — unique doc ID per order so multiple people can pick the same hour
+        if (db && !reservedSlotDocId) {
           const selectedSlot = TIME_SLOTS.find(s => s.label === details.time);
           if (selectedSlot) {
-            const slotDocId = `${DROP_DATE}_${selectedSlot.key}`;
-            if (slotDocId !== reservedSlotDocId) {
-              const slotRef = db.collection('slots').doc(slotDocId);
-              try {
-                await db.runTransaction(async t => {
-                  const doc = await t.get(slotRef);
-                  if (doc.exists) {
-                    const data = doc.data();
-                    const isExpired = data.status === 'reserved' &&
-                      (Date.now() - (data.reservedAt?.toDate?.()?.getTime?.() || 0)) >= SLOT_HOLD_MS;
-                    if (!isExpired) throw new Error('SLOT_TAKEN');
-                  }
-                  t.set(slotRef, {
-                    date:          DROP_DATE,
-                    slotKey:       selectedSlot.key,
-                    slotLabel:     details.time,
-                    status:        'reserved',
-                    reservedAt:    firebase.firestore.FieldValue.serverTimestamp(),
-                    customerName:  `${details.firstName} ${details.lastName}`,
-                    squareOrderId: null,
-                  });
-                });
-                setReservedSlotDocId(slotDocId);
-              } catch (err) {
-                if (err.message === 'SLOT_TAKEN') { setSlotConflict(true); setSubmitting(false); return; }
-                console.error('[inoa] slot reservation error:', err);
-                setSubmitting(false);
-                return;
-              }
+            const slotDocId = `${DROP_DATE}_${selectedSlot.key}_${uid()}`;
+            try {
+              await db.collection('slots').doc(slotDocId).set({
+                date:          DROP_DATE,
+                slotKey:       selectedSlot.key,
+                slotLabel:     details.time,
+                status:        'reserved',
+                reservedAt:    firebase.firestore.FieldValue.serverTimestamp(),
+                customerName:  `${details.firstName} ${details.lastName}`,
+                squareOrderId: null,
+              });
+              setReservedSlotDocId(slotDocId);
+            } catch (err) {
+              console.error('[inoa] slot reservation error:', err);
+              setSubmitting(false);
+              return;
             }
           }
         }
@@ -541,9 +497,6 @@
             setDetails={setDetails}
             errors={errors}
             submitting={submitting}
-            slotConflict={slotConflict}
-            booked={booked}
-            slotsLoading={slotsLoading}
             onSubmit={handleCheckout}
             onBack={() => { setView('menu'); scrollTop(); }}
           />
@@ -574,14 +527,8 @@
             <p className="drop-eyebrow">L I M I T E D &nbsp;&nbsp; D R O P</p>
             <h1 className="drop-title">hawaii<br/><em>ahi</em><br/>drop</h1>
             <p className="drop-sourcing">
-              from the honolulu fish auction · arrived this morning · santa cruz, sept 25
+              caught yesterday, arrived last night · santa cruz, sept 25
             </p>
-
-            {/* Portions remaining */}
-            <div className="drop-portions">
-              <span className="portions-dot"></span>
-              {remaining} {remaining === 1 ? 'portion' : 'portions'} remaining
-            </div>
 
             {/* Pickup block */}
             <div className="drop-pickup">
@@ -595,7 +542,6 @@
                 <span className="drop-pickup-icon">📍</span>
                 <span className="drop-pickup-text">
                   100 Enterprise Way Suite D-340, Scotts Valley, CA 95066
-                  <br/>curbside pickup available in the lot
                 </span>
               </div>
             </div>
@@ -707,7 +653,7 @@
     }
 
     // ── CheckoutView ──────────────────────────────────────────────────────────
-    function CheckoutView({ cartItems, subtotal, taxAmount, orderTotal, details, setDetails, errors, submitting, slotConflict, booked, slotsLoading, onSubmit, onBack }) {
+    function CheckoutView({ cartItems, subtotal, taxAmount, orderTotal, details, setDetails, errors, submitting, onSubmit, onBack }) {
       function field(key) { return details[key] || ''; }
       function set(key, val) { setDetails(d => ({ ...d, [key]: val })); }
 
@@ -740,26 +686,20 @@
           {/* Pickup info */}
           <div className="co-section-hd">pickup</div>
           <div className="co-pickup-info">
-            <div className="co-pickup-date">friday, september 25 · 2 – 6 pm</div>
-            <div className="co-pickup-addr">100 Enterprise Way Suite D-340, Scotts Valley · curbside available</div>
+            <div className="co-pickup-date">friday, september 25</div>
+            <div className="co-pickup-addr">100 Enterprise Way Suite D-340, Scotts Valley</div>
           </div>
 
           {/* Time slot */}
-          <div className="co-section-hd">choose your time</div>
-          {slotConflict && (
-            <div className="co-conflict">
-              That slot was just taken — please choose another time.
-            </div>
-          )}
+          <div className="co-section-hd">choose your pickup window</div>
           <div className="co-slot-grid">
             {TIME_SLOTS.map(s => (
               <button
                 key={s.key}
                 className={`co-slot${details.time === s.label ? ' sel' : ''}`}
-                disabled={booked.has(s.key)}
                 onClick={() => set('time', s.label)}
               >
-                {s.label.split(' – ')[0]}
+                {s.label}
               </button>
             ))}
           </div>
