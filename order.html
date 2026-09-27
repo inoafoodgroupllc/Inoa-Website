@@ -408,7 +408,7 @@
     .date-day { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.55; }
     .date-btn.on .date-day { opacity: 0.65; }
     .date-num { font-size: 15px; }
-    .slot-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 20px; }
+    .slot-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; margin-bottom: 20px; }
     .slot-col { display: flex; flex-direction: column; gap: 3px; }
     .slot-hour { font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); opacity: 0.42; margin-bottom: 4px; text-align: center; }
     .slot-btn {
@@ -491,6 +491,36 @@
     .po-drop-cta { display: inline-block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid rgba(26,26,26,0.28); padding-bottom: 3px; margin-bottom: 20px; transition: opacity 0.2s ease; }
     .po-drop-cta:hover { opacity: 0.5; }
 
+    /* ── Fulfillment toggle ── */
+    .fulfillment-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 20px; }
+    .fulfillment-card { padding: 14px 16px; border: 1px solid rgba(26,26,26,0.12); border-radius: 4px; background: var(--white); cursor: pointer; text-align: left; transition: border-color 0.15s; font-family: 'DM Sans', sans-serif; }
+    .fulfillment-card:hover { border-color: rgba(26,26,26,0.28); }
+    .fulfillment-card.on { border-color: var(--driftwood); background: rgba(139,115,85,0.04); }
+    .fc-type { display: block; font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+    .fc-detail { display: block; font-size: 11px; color: var(--ink); opacity: 0.5; }
+
+    /* ── Zone cards ── */
+    .zone-grid { display: flex; flex-direction: column; gap: 7px; margin-bottom: 18px; }
+    .zone-card { padding: 14px 16px; border: 1px solid rgba(26,26,26,0.12); border-radius: 4px; background: var(--white); cursor: pointer; text-align: left; transition: border-color 0.15s; font-family: 'DM Sans', sans-serif; }
+    .zone-card:hover { border-color: rgba(26,26,26,0.28); }
+    .zone-card.on { border-color: var(--driftwood); background: rgba(139,115,85,0.04); }
+    .zone-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
+    .zone-meta { font-size: 11px; color: var(--ink); opacity: 0.5; }
+    .zone-point { font-size: 11px; color: var(--driftwood); margin-top: 4px; opacity: 0.8; }
+
+    /* ── Date card tags ── */
+    .date-delivery-tag { font-size: 7px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ogo); margin-top: 1px; }
+    .date-sold-out-tag { font-size: 7px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--err); margin-top: 1px; }
+    .date-btn.sold-out { opacity: 0.28; cursor: not-allowed; }
+    .date-btn:disabled { opacity: 0.28; cursor: not-allowed; }
+
+    /* ── Delivery minimum warning ── */
+    .delivery-min-warn { padding: 11px 15px; background: rgba(184,122,90,0.07); border-left: 2px solid var(--err); font-size: 12px; color: var(--err); line-height: 1.6; margin-bottom: 14px; }
+
+    /* ── Loading spinner ── */
+    .po-loading { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: calc(100vh - 110px); padding: 40px; }
+    .po-loading-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink); opacity: 0.3; }
+
     /* ── Payment view ── */
     .tip-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
     .tip-btn {
@@ -572,6 +602,10 @@
     </nav>
     <p class="legal-footer-copy">© 2026 Inoa Food Group LLC</p>
   </div>
+
+  <!-- Schedule config (sets window.INOA_SCHEDULE, used by order-schedule.js) -->
+  <script src="/schedule.config.js"></script>
+  <script src="/order-schedule.js"></script>
 
   <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -703,30 +737,38 @@
       tanika:   { label:'TANIKA',   freeMusubi:true },
     };
 
-    // ── Time slots (48 × 5-min, 12:00–4:00 PM) ───────────────────────────────
-    const TIME_SLOTS = (() => {
-      const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
-      const out = [];
-      for (let min = 0; min < 240; min += 5) {
-        const h = 12 + Math.floor(min / 60), m = min % 60;
-        const eh = 12 + Math.floor((min + 5) / 60), em = (min + 5) % 60;
-        out.push({ label:`${fmt(h,m)} – ${fmt(eh,em)}`, key:`${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}` });
-      }
-      return out;
-    })();
+    // ── Schedule hook — fetches /api/schedule once on mount ─────────────────
+    function useSchedule() {
+      const [schedule,      setSchedule]      = useState(null);
+      const [scheduleError, setScheduleError] = useState(false);
+      useEffect(() => {
+        fetch('/api/schedule')
+          .then(r => r.json())
+          .then(data => setSchedule(data))
+          .catch(() => setScheduleError(true));
+      }, []);
+      return { schedule, scheduleError };
+    }
 
-    // ── Per-date time slot override (start hour may differ by date) ──────────
-    function getTimeSlotsForDate(dateKey) {
-      const DATE_START_HOUR = { '2026-08-10': 14, '2026-09-21': 14 }; // 2–6 PM
-      const startHour = DATE_START_HOUR[dateKey] ?? 12;
-      const fmt = (h, m) => `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
-      const out = [];
-      for (let min = 0; min < 240; min += 5) {
-        const h = startHour + Math.floor(min / 60), m = min % 60;
-        const eh = startHour + Math.floor((min + 5) / 60), em = (min + 5) % 60;
-        out.push({ label:`${fmt(h,m)} – ${fmt(eh,em)}`, key:`${String(h).padStart(2,'0')}${String(m).padStart(2,'0')}` });
-      }
-      return { slots: out, startHour };
+    // ── Per-date paid-slot count hook (for sold-out badges on date picker) ──
+    function useDailyBookedCounts(dates) {
+      const [counts, setCounts] = useState(new Map());
+      const datesKey = dates.map(d => d.dateKey).join(',');
+      useEffect(() => {
+        if (!db || !dates.length) return;
+        const unsubs = dates.map(({ dateKey }) =>
+          db.collection('slots')
+            .where('date', '==', dateKey)
+            .where('status', '==', 'paid')
+            .onSnapshot(snap => {
+              const pickupCount   = snap.docs.filter(d => !d.data().slotKey?.startsWith('delivery_')).length;
+              const deliveryCount = snap.docs.filter(d =>  d.data().slotKey?.startsWith('delivery_')).length;
+              setCounts(prev => { const next = new Map(prev); next.set(dateKey, { pickupCount, deliveryCount }); return next; });
+            }, err => console.error('[inoa] daily count error:', err))
+        );
+        return () => unsubs.forEach(u => u());
+      }, [datesKey]);
+      return counts;
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────
@@ -772,54 +814,7 @@
 
     function scrollTop() { window.scrollTo({ top:0, behavior:'smooth' }); }
 
-    // ── Form open / window logic ──────────────────────────────────────────────
-    function isFormOpen() {
-      const now = new Date();
-      const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
-      if (y === 2026 && m === 8) { // September
-        if (d === 20) return true;                         // Sun Sep 20 — order window
-        if (d === 21 && now.getHours() < 18) return true; // Mon Sep 21 until 6 PM
-      }
-      return false;
-    }
-
-    function getNextOpening() {
-      const now = new Date();
-      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      if (key < '2026-08-23') return new Date('2026-08-23T00:00:00');
-      const day  = now.getDay();
-      const toSun = (7 - day) % 7 || 7;
-      const toWed = (3 - day + 7) % 7 || 7;
-      const next = new Date(now);
-      next.setDate(now.getDate() + Math.min(toSun, toWed));
-      next.setHours(0,0,0,0);
-      return next;
-    }
-
-    function getWindowDates() {
-      const DAYS = ['sun','mon','tue','wed','thu','fri','sat'];
-      const now  = new Date();
-      const todayKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-      const today = now.getDay();
-      let daysBack = 0;
-      for (let i = 0; i <= 6; i++) {
-        const d = (today - i + 7) % 7;
-        if (d === 0 || d === 3) { daysBack = i; break; }
-      }
-      const anchor = new Date(now);
-      anchor.setDate(now.getDate() - daysBack);
-      const anchorKey = `${anchor.getFullYear()}-${String(anchor.getMonth()+1).padStart(2,'0')}-${String(anchor.getDate()).padStart(2,'0')}`;
-      const openDay = anchor.getDay();
-      let offsets = openDay === 0 ? [1,2] : [1,2,3];
-      if (anchorKey === '2026-08-09') offsets = [1];    // Mon only — Tue removed
-      if (anchorKey === '2026-08-12') offsets = [2,3];  // Thu removed — Fri+Sat only
-      if (anchorKey === '2026-09-20') offsets = [1];    // Mon Sep 21 only
-      return offsets.map(off => {
-        const d = new Date(anchor);
-        d.setDate(anchor.getDate() + off);
-        return { key:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`, day:DAYS[d.getDay()], num:d.getDate(), month:d.getMonth()+1, dayOfWeek:d.getDay() };
-      });
-    }
+    // getAvailableDates, getPickupSlots, getLANow, shiftDateKey — defined in order-schedule.js
 
     // ── Slot availability hook ────────────────────────────────────────────────
     function useBookedSlots(date) {
@@ -853,37 +848,12 @@
     }
 
     // ── ClosedView ────────────────────────────────────────────────────────────
-    function ClosedView({ onOpen }) {
-      const [, setTick] = useState(0);
-      useEffect(() => {
-        const id = setInterval(() => {
-          if (isFormOpen()) { onOpen(); return; }
-          setTick(t => t + 1);
-        }, 1000);
-        return () => clearInterval(id);
-      }, []);
-      const next  = getNextOpening();
-      const diff  = Math.max(0, next - new Date());
-      const days  = Math.floor(diff / 86400000);
-      const hours = Math.floor((diff % 86400000) / 3600000);
-      const mins  = Math.floor((diff % 3600000)  / 60000);
-      const secs  = Math.floor((diff % 60000)    / 1000);
-      const units = [{ v:days, l:'days' },{ v:hours, l:'hrs' },{ v:mins, l:'min' },{ v:secs, l:'sec' }];
-      const nextLabel = next.toLocaleDateString('en-US',{ weekday:'long', month:'long', day:'numeric' }).toLowerCase();
+    function ClosedView({ message, sub }) {
       return (
         <div className="po-closed">
           <div className="po-closed-label">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</div>
-          <h2 className="po-closed-heading">pre-orders are<br/>currently closed</h2>
-          <p className="po-closed-sub">the order form opens every sunday and wednesday</p>
-          <div className="po-countdown">
-            {units.map(({ v, l }) => (
-              <div key={l} className="po-cd-block">
-                <span className="po-cd-num">{String(v).padStart(2,'0')}</span>
-                <span className="po-cd-lbl">{l}</span>
-              </div>
-            ))}
-          </div>
-          <p className="po-closed-next">next opening — {nextLabel}</p>
+          <h2 className="po-closed-heading">{message || 'pre-orders are\ncurrently closed'}</h2>
+          <p className="po-closed-sub">{sub || 'follow us for updates on when ordering reopens'}</p>
         </div>
       );
     }
@@ -1180,7 +1150,7 @@
         <div className="menu-page">
           <div className="menu-inner">
             <h1 className="menu-heading">pre-order</h1>
-            <p className="menu-sub">pickup only · 100 Enterprise Way, Scotts Valley, CA 95066</p>
+            <p className="menu-sub">100 Enterprise Way, Scotts Valley, CA 95066 · pickup & delivery</p>
             <p className="notice" style={{marginBottom:'8px'}}>All prices are subject to change based on current fish market prices.</p>
 
             {CATEGORIES.map(cat => {
@@ -1230,20 +1200,28 @@
     }
 
     // ── CheckoutView ──────────────────────────────────────────────────────────
-    function CheckoutView({ cartItems, onEditItem, onRemoveItem, onQtyChange, details, setDetails, onBack, onSubmit, slotConflict, onClearSlotConflict, submitting, pickupDates }) {
+    function CheckoutView({ cartItems, onEditItem, onRemoveItem, onQtyChange, details, setDetails, onBack, onSubmit, slotConflict, onClearSlotConflict, submitting, availableDates, schedule: S }) {
       const [smsConsent, setSmsConsent] = useState(false);
       const [smsErr,     setSmsErr]     = useState(false);
       const [errors,     setErrors]     = useState({});
       const [promoInput, setPromoInput] = useState(details.promoCode || '');
       const [promoStatus,setPromoStatus]= useState(details.promoCode ? 'ok' : null);
 
-      const { booked: bookedSlots, loading: slotsLoading } = useBookedSlots(details.date);
-      const allBooked = !!details.date && !slotsLoading && getTimeSlotsForDate(details.date).slots.every(s => bookedSlots.has(s.key));
+      const dailyCounts = useDailyBookedCounts(availableDates);
+      const { booked: bookedSlots, loading: slotsLoading } = useBookedSlots(details.fulfillmentType !== 'delivery' ? details.date : null);
+      const pickupSlots = S ? getPickupSlots(S) : [];
+      const allBooked   = !!details.date && !slotsLoading && pickupSlots.every(s => bookedSlots.has(s.key));
+
+      const isDelivery   = details.fulfillmentType === 'delivery';
+      const selectedDate = availableDates.find(d => d.dateKey === details.date);
 
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
+      const deliveryFee   = isDelivery && S && subtotal >= S.delivery.minimum
+        ? (subtotal >= S.delivery.freeThreshold ? 0 : S.delivery.fee)
+        : 0;
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
-      const taxableTotal  = subtotal - ucscDiscount - promoDiscount;
+      const taxableTotal  = subtotal + deliveryFee - ucscDiscount - promoDiscount;
       const taxAmount     = Math.round(taxableTotal * 0.0975 * 100) / 100;
       const finalTotal    = taxableTotal + taxAmount;
 
@@ -1268,7 +1246,13 @@
         if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'valid phone required';
         if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'valid email required';
         if (!details.date) e.date = 'select a date';
-        if (!details.time) e.time = 'select a time';
+        if (isDelivery) {
+          if (!details.zone)                    e.zone = 'select a delivery zone';
+          if (!details.deliveryNotes?.trim())   e.deliveryNotes = 'required — where should we meet you?';
+          if (S && subtotal < S.delivery.minimum) e.deliveryMin = `add $${(S.delivery.minimum - subtotal).toFixed(2)} more to meet the $${S.delivery.minimum} minimum`;
+        } else {
+          if (!details.time) e.time = 'select a time';
+        }
         setErrors(e);
         return Object.keys(e).length === 0;
       }
@@ -1283,7 +1267,7 @@
         <div className="checkout-page">
           <div className="checkout-inner">
             <h2 className="checkout-heading">checkout</h2>
-            <p className="checkout-sub">pickup only · inoa · scotts valley</p>
+            <p className="checkout-sub">inoa · scotts valley</p>
 
             {/* Cart review */}
             <div className="co-section">
@@ -1324,66 +1308,157 @@
               )}
             </div>
 
-            {/* Pickup date */}
+            {/* Date picker */}
             <div className="co-section">
               <div className="co-section-title">
-                pickup date
+                choose a date
                 {errors.date && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.date}</span>}
               </div>
               <div className="date-grid">
-                {pickupDates.map(d => (
-                  <button key={d.key} className={`date-btn${details.date===d.key?' on':''}`} onClick={() => { set('date',d.key); set('time',''); }}>
-                    <span className="date-day">{d.day}</span>
-                    <span className="date-num">{d.num}</span>
-                  </button>
-                ))}
+                {availableDates.map(d => {
+                  const { pickupCount = 0, deliveryCount = 0 } = dailyCounts.get(d.dateKey) || {};
+                  const pickupFull   = S && pickupCount >= S.pickup.dailyCap;
+                  const deliveryFull = !d.isDeliveryDay || (S && deliveryCount >= S.delivery.dailyCap);
+                  const soldOut      = pickupFull && deliveryFull;
+                  return (
+                    <button key={d.dateKey}
+                      className={`date-btn${details.date === d.dateKey ? ' on' : ''}${soldOut ? ' sold-out' : ''}`}
+                      disabled={soldOut}
+                      onClick={() => {
+                        set('date', d.dateKey);
+                        set('time', '');
+                        set('zone', '');
+                        set('zoneName', '');
+                        set('dropWindow', '');
+                        if (!d.isDeliveryDay) set('fulfillmentType', 'pickup');
+                      }}
+                    >
+                      <span className="date-day">{d.day}</span>
+                      <span className="date-num">{d.num}</span>
+                      {soldOut           && <span className="date-sold-out-tag">sold out</span>}
+                      {!soldOut && d.isDeliveryDay && <span className="date-delivery-tag">delivery</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Pickup time */}
-            <div className="co-section">
-              <div className="co-section-title">
-                pickup time
-                {errors.time && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.time}</span>}
-              </div>
-              {slotConflict && <p className="slot-conflict">That slot was just taken — please choose another time.</p>}
-              {!details.date ? (
-                <p className="slot-hint">select a date above to see available times</p>
-              ) : slotsLoading ? (
-                <p className="slot-hint">loading available times…</p>
-              ) : allBooked ? (
-                <p className="slot-full">fully booked for this day</p>
-              ) : (
-                <div className="slot-grid">
-                  {(() => {
-                    const { slots, startHour } = getTimeSlotsForDate(details.date);
-                    return [0,1,2,3].map(hour => {
-                      const hourSlots = slots.slice(hour * 12, (hour+1) * 12);
-                      const absHour = startHour + hour;
-                      const label = absHour === 12 ? '12 pm' : `${absHour - 12} pm`;
-                      return (
-                        <div key={hour} className="slot-col">
-                          <div className="slot-hour">{label}</div>
-                          {hourSlots.map(s => {
-                            const isBooked   = bookedSlots.has(s.key);
-                            const isSelected = details.time === s.label;
-                            const h = parseInt(s.key.slice(0,2));
-                            const display = `${h > 12 ? h-12 : h}:${s.key.slice(2)}`;
-                            return (
-                              <button
-                                key={s.key}
-                                className={`slot-btn${isBooked?' booked':''}${isSelected?' on':''}`}
-                                onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
-                              >{display}</button>
-                            );
-                          })}
-                        </div>
-                      );
-                    });
-                  })()}
+            {/* Fulfillment type — only when delivery day is selected */}
+            {selectedDate?.isDeliveryDay && (
+              <div className="co-section">
+                <div className="co-section-title">fulfillment</div>
+                <div className="fulfillment-grid">
+                  <button
+                    className={`fulfillment-card${!isDelivery ? ' on' : ''}`}
+                    onClick={() => { set('fulfillmentType', 'pickup'); set('zone', ''); set('zoneName', ''); set('dropWindow', ''); }}
+                  >
+                    <span className="fc-type">Pickup</span>
+                    <span className="fc-detail">{S ? `${S.pickup.startHour > 12 ? S.pickup.startHour - 12 : S.pickup.startHour}–${S.pickup.endHour > 12 ? S.pickup.endHour - 12 : S.pickup.endHour} PM` : '12–3 PM'} · 100 Enterprise Way</span>
+                  </button>
+                  <button
+                    className={`fulfillment-card${isDelivery ? ' on' : ''}`}
+                    onClick={() => { set('fulfillmentType', 'delivery'); set('time', ''); }}
+                  >
+                    <span className="fc-type">Delivery</span>
+                    <span className="fc-detail">{S ? `${S.delivery.startHour > 12 ? S.delivery.startHour - 12 : S.delivery.startHour}–${S.delivery.endHour > 12 ? S.delivery.endHour - 12 : S.delivery.endHour} PM` : '4–6 PM'} · UCSC area</span>
+                  </button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+
+            {/* Pickup time (hidden for delivery) */}
+            {!isDelivery && (
+              <div className="co-section">
+                <div className="co-section-title">
+                  pickup time
+                  {errors.time && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.time}</span>}
+                </div>
+                {slotConflict && <p className="slot-conflict">That slot was just taken — please choose another time.</p>}
+                {!details.date ? (
+                  <p className="slot-hint">select a date above to see available times</p>
+                ) : slotsLoading ? (
+                  <p className="slot-hint">loading available times…</p>
+                ) : allBooked ? (
+                  <p className="slot-full">fully booked for this day</p>
+                ) : (
+                  <div className="slot-grid">
+                    {S && (() => {
+                      const numHours  = S.pickup.endHour - S.pickup.startHour;
+                      const slotsPerHour = 60 / S.pickup.slotMinutes;
+                      return Array.from({ length: numHours }, (_, hour) => {
+                        const hourSlots = pickupSlots.slice(hour * slotsPerHour, (hour + 1) * slotsPerHour);
+                        const absHour   = S.pickup.startHour + hour;
+                        const label     = absHour === 12 ? '12 pm' : `${absHour - 12} pm`;
+                        return (
+                          <div key={hour} className="slot-col">
+                            <div className="slot-hour">{label}</div>
+                            {hourSlots.map(s => {
+                              const isBooked   = bookedSlots.has(s.key);
+                              const isSelected = details.time === s.label;
+                              const h = parseInt(s.key.slice(0, 2));
+                              const display = `${h > 12 ? h - 12 : h}:${s.key.slice(2)}`;
+                              return (
+                                <button key={s.key}
+                                  className={`slot-btn${isBooked ? ' booked' : ''}${isSelected ? ' on' : ''}`}
+                                  onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
+                                >{display}</button>
+                              );
+                            })}
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Delivery zone + notes (only for delivery) */}
+            {isDelivery && S && (
+              <div className="co-section">
+                <div className="co-section-title">
+                  delivery zone
+                  {errors.zone && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.zone}</span>}
+                </div>
+                <div className="zone-grid">
+                  {S.delivery.zones.map(zone => (
+                    <button key={zone.id}
+                      className={`zone-card${details.zone === zone.id ? ' on' : ''}`}
+                      onClick={() => { set('zone', zone.id); set('zoneName', zone.name); set('dropWindow', `${zone.dropStart} – ${zone.dropEnd}`); }}
+                    >
+                      <div className="zone-name">{zone.name}</div>
+                      <div className="zone-meta">drop-off {zone.dropStart} – {zone.dropEnd}</div>
+                      {zone.dropPoint && zone.dropPoint.indexOf('TBD') === -1 && (
+                        <div className="zone-point">{zone.dropPoint}</div>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <div className="form-group" style={{marginTop:'6px'}}>
+                  <label className="form-label">delivery instructions <span style={{opacity:0.45}}>(required)</span></label>
+                  <textarea
+                    className={`form-textarea${errors.deliveryNotes ? ' err' : ''}`}
+                    value={details.deliveryNotes || ''}
+                    onChange={e => set('deliveryNotes', e.target.value)}
+                    placeholder="dorm name, room #, or where to find you"
+                  />
+                  {errors.deliveryNotes && <span className="form-err">{errors.deliveryNotes}</span>}
+                </div>
+                {/* Delivery fee / minimum info */}
+                {subtotal > 0 && subtotal < S.delivery.minimum && (
+                  <div className="delivery-min-warn">
+                    Delivery requires a ${S.delivery.minimum} minimum — add ${(S.delivery.minimum - subtotal).toFixed(2)} more to continue.
+                  </div>
+                )}
+                {subtotal >= S.delivery.minimum && (
+                  <p className="form-hint" style={{marginBottom:'4px'}}>
+                    {deliveryFee === 0
+                      ? `Free delivery (order over $${S.delivery.freeThreshold})`
+                      : `$${S.delivery.fee} delivery fee (waived on orders over $${S.delivery.freeThreshold})`}
+                  </p>
+                )}
+              </div>
+            )}
 
             {/* Customer details */}
             <div className="co-section">
@@ -1459,6 +1534,14 @@
                     <span className="total-row-val">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
                   </div>
                 ))}
+                {isDelivery && S && subtotal >= S.delivery.minimum && (
+                  <div className="total-row">
+                    <span className="total-row-label">delivery fee</span>
+                    <span className="total-row-val" style={deliveryFee === 0 ? {color:'var(--ogo)'} : {}}>
+                      {deliveryFee === 0 ? 'free' : `+${fmtMoney(deliveryFee)}`}
+                    </span>
+                  </div>
+                )}
                 {ucscDiscount > 0 && (
                   <div className="total-row discount">
                     <span className="total-row-label">ucsc student (10% off)</span>
@@ -1515,7 +1598,7 @@
     }
 
     // ── PaymentView ───────────────────────────────────────────────────────────
-    function PaymentView({ cartItems, details, onBack }) {
+    function PaymentView({ cartItems, details, onBack, schedule: S }) {
       const [card,         setCard]         = useState(null);
       const [hasGooglePay, setHasGooglePay] = useState(false);
       const [hasApplePay,  setHasApplePay]  = useState(false);
@@ -1527,10 +1610,14 @@
       const googlePayRef   = useRef(null);
       const applePayRef    = useRef(null);
 
+      const isDelivery    = details.fulfillmentType === 'delivery';
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
+      const deliveryFee   = isDelivery && S && subtotal >= S.delivery.minimum
+        ? (subtotal >= S.delivery.freeThreshold ? 0 : S.delivery.fee)
+        : 0;
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
-      const taxableTotal  = subtotal - ucscDiscount - promoDiscount;
+      const taxableTotal  = subtotal + deliveryFee - ucscDiscount - promoDiscount;
       const taxAmount     = Math.round(taxableTotal * 0.0975 * 100) / 100;
       const orderTotal    = taxableTotal + taxAmount;
 
@@ -1624,7 +1711,12 @@
             body: JSON.stringify({
               cartItems: cartItems.map(ci => ({ itemId: ci.itemId, name: ci.name, modifiers: ci.modifiers, quantity: ci.quantity })),
               details: {
-                date: details.date, time: details.time,
+                fulfillmentType:  isDelivery ? 'delivery' : 'pickup',
+                date:             details.date,
+                time:             isDelivery ? undefined : details.time,
+                zone:             isDelivery ? details.zone : undefined,
+                dropWindow:       isDelivery ? details.dropWindow : undefined,
+                deliveryNotes:    isDelivery ? details.deliveryNotes : undefined,
                 firstName: details.firstName, lastName: details.lastName,
                 phone: details.phone, email: details.email,
                 notes: details.notes || '', voucher: details.voucher || '',
@@ -1640,14 +1732,21 @@
           if (!res.ok || !data.success) {
             if (data.error === 'slot_taken') {
               setError('That pickup time was just taken — go back and choose a different slot.');
+            } else if (data.error === 'sold_out') {
+              setError('Delivery is sold out for that date. Go back and choose a different date.');
+            } else if (data.error === 'past_cutoff') {
+              setError('The ordering window for that date has closed. Please go back and choose another date.');
             } else {
               setError(data.detail || data.error || 'Payment failed. Please try again.');
             }
             setPaying(false);
             return;
           }
+          sessionStorage.setItem('inoa_fulfillment_type', isDelivery ? 'delivery' : 'pickup');
           sessionStorage.setItem('inoa_pickup_date', details.date);
-          sessionStorage.setItem('inoa_pickup_time', details.time);
+          sessionStorage.setItem('inoa_pickup_time', details.time || '');
+          sessionStorage.setItem('inoa_zone_name',   details.zoneName || '');
+          sessionStorage.setItem('inoa_drop_window', details.dropWindow || '');
           window.location.href = '/confirmation';
         } catch (err) {
           setError('An unexpected error occurred. Please try again.');
@@ -1698,7 +1797,11 @@
                 {details.phone && details.email && <span> · </span>}
                 {details.email && <span>{details.email}</span>}
               </div>
-              <div className="pv-paying-as-detail">pickup · {details.date} · {details.time}</div>
+              <div className="pv-paying-as-detail">
+                {isDelivery
+                  ? `delivery · ${details.date} · ${details.zoneName || details.zone} · ${details.dropWindow}`
+                  : `pickup · ${details.date} · ${details.time}`}
+              </div>
             </div>
 
             {/* Order summary */}
@@ -1713,6 +1816,14 @@
                     <span className="total-row-val">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
                   </div>
                 ))}
+                {isDelivery && S && subtotal >= S.delivery.minimum && (
+                  <div className="total-row">
+                    <span className="total-row-label">delivery fee</span>
+                    <span className="total-row-val" style={deliveryFee === 0 ? {color:'var(--ogo)'} : {}}>
+                      {deliveryFee === 0 ? 'free' : `+${fmtMoney(deliveryFee)}`}
+                    </span>
+                  </div>
+                )}
                 {ucscDiscount > 0 && (
                   <div className="total-row discount">
                     <span className="total-row-label">ucsc discount (10%)</span>
@@ -1806,17 +1917,19 @@
 
     // ── PreorderForm (root) ───────────────────────────────────────────────────
     function PreorderForm() {
-      const PICKUP_DATES = getWindowDates();
+      const { schedule: SCHEDULE, scheduleError } = useSchedule();
 
-      const [open,         setOpen]         = useState(isFormOpen);
       const [view,         setView]         = useState('menu');
       const [cartItems,    setCartItems]    = useState([]);
       const [modalItem,    setModalItem]    = useState(null);
       const [editLine,     setEditLine]     = useState(null);
-      const [details,      setDetails]      = useState({ mode:'pickup' });
+      const [details,      setDetails]      = useState({ fulfillmentType: 'pickup' });
       const [slotConflict,     setSlotConflict]     = useState(false);
       const [submitting,       setSubmitting]       = useState(false);
       const [reservedSlotDocId, setReservedSlotDocId] = useState(null);
+
+      // Early returns before hooks would be wrong — compute these after all hooks
+      const availableDates = SCHEDULE ? getAvailableDates(SCHEDULE) : [];
 
       // Add simple (no-modal) item to cart
       function addSimple(item) {
@@ -1887,10 +2000,12 @@
 
       async function handleSubmit() {
         setSubmitting(true);
+        const isDelivery = details.fulfillmentType === 'delivery';
 
-        // Reserve slot in Firestore (skip if we already reserved this exact slot)
-        if (db) {
-          const selectedSlot = TIME_SLOTS.find(s => s.label === details.time);
+        // Delivery: no per-slot Firestore reservation (zone-based, not per-slot)
+        if (!isDelivery && db && SCHEDULE) {
+          const pickupSlots  = getPickupSlots(SCHEDULE);
+          const selectedSlot = pickupSlots.find(s => s.label === details.time);
           if (selectedSlot) {
             const slotDocId = `${details.date}_${selectedSlot.key}`;
             if (slotDocId !== reservedSlotDocId) {
@@ -1930,8 +2045,19 @@
         scrollTop();
       }
 
-      if (!open) {
-        return <ClosedView onOpen={() => setOpen(true)} />;
+      // Show loading spinner while schedule fetches
+      if (!SCHEDULE && !scheduleError) {
+        return <div className="po-loading"><p className="po-loading-label">loading…</p></div>;
+      }
+
+      // Form disabled or error fetching schedule
+      if (scheduleError || !SCHEDULE?.formEnabled) {
+        return <ClosedView />;
+      }
+
+      // No dates available (all closed or past cutoff)
+      if (availableDates.length === 0) {
+        return <ClosedView message={'no pickup dates\nright now'} sub="check back soon — new dates open regularly" />;
       }
 
       return (
@@ -1958,7 +2084,8 @@
               slotConflict={slotConflict}
               onClearSlotConflict={() => setSlotConflict(false)}
               submitting={submitting}
-              pickupDates={PICKUP_DATES}
+              availableDates={availableDates}
+              schedule={SCHEDULE}
             />
           )}
 
@@ -1967,6 +2094,7 @@
               cartItems={cartItems}
               details={details}
               onBack={() => setView('checkout')}
+              schedule={SCHEDULE}
             />
           )}
 

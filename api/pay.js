@@ -3,6 +3,9 @@
 // Prices are authoritative on the server — never trust the client.
 
 import crypto from 'crypto';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const SCHEDULE = require('../schedule.config.js');
 
 // ── Authoritative price catalogue (cents) ────────────────────────────
 const CATALOG = {
@@ -44,7 +47,7 @@ const CATALOG = {
   704: { name: 'Side of Pickled Fresno Chili', cents: 200 },
   705: { name: 'Side of Takuan',          cents:  200 },
   706: { name: 'Roasted Nori Pack',       cents:  250 },
-  707: { name: 'Seasoned Sushi Rice',    cents:  400 },
+  707: { name: 'Seasoned Sushi Rice',     cents:  400 },
   // DRINKS
   801: { name: 'Hawaiian Sun',            cents:  300 },
   // HAWAII AHI DROP (one-time)
@@ -71,6 +74,34 @@ const PROTEIN_PRICES = {
   'Scallop': 500,
 };
 
+// ── LA timezone helpers ───────────────────────────────────────────────
+function getLANow() {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hour12: false,
+  });
+  const p = Object.fromEntries(fmt.formatToParts(new Date()).map(x => [x.type, x.value]));
+  return {
+    hour: +p.hour,
+    minute: +p.minute,
+    dateKey: `${p.year}-${p.month}-${p.day}`,
+    dow: new Date(+p.year, +p.month - 1, +p.day).getDay(),
+  };
+}
+
+function parseDateKey(dateKey) {
+  const [y, m, d] = dateKey.split('-').map(Number);
+  return { y, m, d, dow: new Date(y, m - 1, d).getDay() };
+}
+
+function daysAheadFromLA(laDateKey, targetDateKey) {
+  const la = parseDateKey(laDateKey);
+  const tg = parseDateKey(targetDateKey);
+  return Math.round((new Date(tg.y, tg.m - 1, tg.d) - new Date(la.y, la.m - 1, la.d)) / 86400000);
+}
+
+// ── Slot helpers ──────────────────────────────────────────────────────
 function pickupAtISO(date, timeLabel) {
   const start = timeLabel.split('–')[0].trim();
   const m = start.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
@@ -99,7 +130,15 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'method not allowed' });
 
   const { cartItems, details, sourceId, tipCents = 0 } = req.body || {};
-  if (!cartItems?.length || !details?.date || !details?.time || !details?.firstName || !sourceId) {
+  const isDelivery = details?.fulfillmentType === 'delivery';
+
+  if (!cartItems?.length || !details?.date || !details?.firstName || !sourceId) {
+    return res.status(400).json({ error: 'missing required fields' });
+  }
+  if (!isDelivery && !details.time) {
+    return res.status(400).json({ error: 'missing required fields' });
+  }
+  if (isDelivery && !details.zone) {
     return res.status(400).json({ error: 'missing required fields' });
   }
 
@@ -109,8 +148,38 @@ export default async function handler(req, res) {
   }
 
   try {
+    // ── Schedule validations ───────────────────────────────────────
+    const la = getLANow();
+    const requestedDate = details.date;
+    const { dow: requestedDow } = parseDateKey(requestedDate);
+    const daysAhead = daysAheadFromLA(la.dateKey, requestedDate);
+
+    if (daysAhead < 1 || daysAhead > SCHEDULE.maxDaysAhead) {
+      return res.status(400).json({ error: 'invalid_date', detail: 'Date is outside the booking window.' });
+    }
+    if (!SCHEDULE.openDays.includes(requestedDow) || SCHEDULE.closureDates.includes(requestedDate)) {
+      return res.status(400).json({ error: 'closed_day', detail: 'Orders are not available on that date.' });
+    }
+
+    const cutH = SCHEDULE.orderCutoffHour;
+    const cutM = SCHEDULE.orderCutoffMinute ?? 0;
+    const pastCutoff = la.hour > cutH || (la.hour === cutH && la.minute >= cutM);
+    if (daysAhead === 1 && pastCutoff) {
+      return res.status(400).json({ error: 'past_cutoff', detail: 'Orders for tomorrow are closed after 8 PM. Please choose a later date.' });
+    }
+
+    if (isDelivery) {
+      if (!SCHEDULE.delivery.enabled) {
+        return res.status(400).json({ error: 'delivery_disabled', detail: 'Delivery is not currently available.' });
+      }
+      if (!SCHEDULE.delivery.deliveryDays.includes(requestedDow)) {
+        return res.status(400).json({ error: 'not_delivery_day', detail: 'Delivery is not available on that day.' });
+      }
+    }
+
     // ── Build line items ───────────────────────────────────────────
     const line_items = [];
+    let subtotalCents = 0;
 
     for (const ci of cartItems) {
       const catalogItem = CATALOG[ci.itemId];
@@ -125,6 +194,9 @@ export default async function handler(req, res) {
         totalCents += PROTEIN_PRICES[ci.modifiers.protein.name] ?? 0;
       }
 
+      const qty = ci.quantity || 1;
+      subtotalCents += totalCents * qty;
+
       const modParts = [];
       if (ci.modifiers?.protein?.name && ci.modifiers.protein.name !== 'Regular (crab)') modParts.push(ci.modifiers.protein.name);
       if (ci.modifiers?.flavors?.length)  modParts.push(ci.modifiers.flavors.join(' + '));
@@ -137,7 +209,7 @@ export default async function handler(req, res) {
 
       line_items.push({
         name,
-        quantity:         String(ci.quantity),
+        quantity:         String(qty),
         base_price_money: { amount: totalCents, currency: 'USD' },
       });
     }
@@ -151,6 +223,62 @@ export default async function handler(req, res) {
     }
 
     if (!line_items.length) return res.status(400).json({ error: 'empty cart' });
+
+    // ── Delivery-specific validations ──────────────────────────────
+    let foundZone = null;
+    let deliveryFeeCents = 0;
+
+    if (isDelivery) {
+      foundZone = SCHEDULE.delivery.zones.find(z => z.id === details.zone);
+      if (!foundZone) {
+        return res.status(400).json({ error: 'invalid_zone', detail: 'Unknown delivery zone.' });
+      }
+      if (subtotalCents < SCHEDULE.delivery.minimum * 100) {
+        return res.status(400).json({ error: 'below_minimum', detail: `Delivery requires a $${SCHEDULE.delivery.minimum} minimum order.` });
+      }
+      deliveryFeeCents = subtotalCents >= SCHEDULE.delivery.freeThreshold * 100
+        ? 0
+        : SCHEDULE.delivery.fee * 100;
+
+      // Delivery cap check (non-atomic, acceptable for low-volume)
+      try {
+        const capQueryBody = {
+          structuredQuery: {
+            from: [{ collectionId: 'slots' }],
+            where: {
+              compositeFilter: {
+                op: 'AND',
+                filters: [
+                  { fieldFilter: { field: { fieldPath: 'date' }, op: 'EQUAL', value: { stringValue: requestedDate } } },
+                  { fieldFilter: { field: { fieldPath: 'status' }, op: 'EQUAL', value: { stringValue: 'paid' } } },
+                ],
+              },
+            },
+            select: { fields: [{ fieldPath: 'slotKey' }] },
+          },
+        };
+        const capRes = await fetch(
+          `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents:runQuery?key=${FIREBASE_API_KEY}`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(capQueryBody) }
+        );
+        const capDocs = await capRes.json();
+        const deliveryPaidCount = capDocs.filter(d => d.document?.fields?.slotKey?.stringValue?.startsWith('delivery_')).length;
+        console.log('[inoa] Delivery paid count for', requestedDate, ':', deliveryPaidCount);
+        if (deliveryPaidCount >= SCHEDULE.delivery.dailyCap) {
+          return res.status(409).json({ error: 'sold_out', detail: 'Delivery is sold out for that date.' });
+        }
+      } catch (capErr) {
+        console.error('[inoa] Delivery cap check error (proceeding):', capErr?.message);
+      }
+
+      if (deliveryFeeCents > 0) {
+        line_items.push({
+          name:             'Delivery fee',
+          quantity:         '1',
+          base_price_money: { amount: deliveryFeeCents, currency: 'USD' },
+        });
+      }
+    }
 
     // ── Discounts ──────────────────────────────────────────────────
     const discounts = [];
@@ -166,30 +294,49 @@ export default async function handler(req, res) {
       ? 'https://connect.squareup.com'
       : 'https://connect.squareupsandbox.com';
 
-    const slotDocId = `${details.date}_${deriveSlotKey(details.time)}`;
-
-    // ── Pre-check: reject if slot already paid (prevents double-charging) ──
     const FIREBASE_PROJECT_ID = 'inoa-times';
     const FIREBASE_API_KEY    = 'AIzaSyCRMeTQKvGhRpPsSAXF69EZAdYYGths';
-    const slotBaseUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}?key=${FIREBASE_API_KEY}`;
+
+    // ── Slot ID & pickup-specific pre-check ────────────────────────
+    let slotDocId;
     let slotUpdateTime = null;
-    try {
-      const slotRead = await fetch(slotBaseUrl);
-      if (slotRead.ok) {
-        const slotDoc = await slotRead.json();
-        const status = slotDoc.fields?.status?.stringValue;
-        slotUpdateTime = slotDoc.updateTime || null;
-        console.log('[inoa] Slot pre-check:', slotDocId, '| status:', status);
-        if (status === 'paid') {
-          console.warn('[inoa] Slot already paid — rejecting charge:', slotDocId);
-          return res.status(409).json({ error: 'slot_taken', detail: 'That pickup time was just booked by someone else. Please go back and choose a different slot.' });
+
+    if (isDelivery) {
+      slotDocId = `${requestedDate}_delivery_${details.zone}_${crypto.randomUUID().slice(0, 8)}`;
+    } else {
+      slotDocId = `${requestedDate}_${deriveSlotKey(details.time)}`;
+      // Pre-check: reject if pickup slot already paid
+      const slotBaseUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}?key=${FIREBASE_API_KEY}`;
+      try {
+        const slotRead = await fetch(slotBaseUrl);
+        if (slotRead.ok) {
+          const slotDoc = await slotRead.json();
+          const status = slotDoc.fields?.status?.stringValue;
+          slotUpdateTime = slotDoc.updateTime || null;
+          console.log('[inoa] Slot pre-check:', slotDocId, '| status:', status);
+          if (status === 'paid') {
+            console.warn('[inoa] Slot already paid — rejecting charge:', slotDocId);
+            return res.status(409).json({ error: 'slot_taken', detail: 'That pickup time was just booked by someone else. Please go back and choose a different slot.' });
+          }
         }
+      } catch (preCheckErr) {
+        console.error('[inoa] Slot pre-check error (proceeding anyway):', preCheckErr?.message);
       }
-    } catch (preCheckErr) {
-      console.error('[inoa] Slot pre-check error (proceeding anyway):', preCheckErr?.message);
     }
 
     // ── Create Square Order ────────────────────────────────────────
+    let pickupAtValue;
+    let fulfillmentNote = '';
+    if (isDelivery) {
+      const [dropH, dropM] = foundZone.dropStart.split(':').map(Number);
+      pickupAtValue = `${requestedDate}T${String(dropH).padStart(2, '0')}:${String(dropM).padStart(2, '0')}:00-07:00`;
+      fulfillmentNote = `DELIVERY — ${foundZone.name} · ${details.dropWindow || foundZone.dropStart + '–' + foundZone.dropEnd}`;
+    } else {
+      pickupAtValue = pickupAtISO(requestedDate, details.time);
+    }
+
+    const recipientName = `${details.firstName}${details.lastName ? ' ' + details.lastName : ''}`;
+
     const orderBody = {
       idempotency_key: crypto.randomUUID(),
       order: {
@@ -208,9 +355,10 @@ export default async function handler(req, res) {
           type: 'PICKUP',
           pickup_details: {
             schedule_type: 'SCHEDULED',
-            pickup_at: pickupAtISO(details.date, details.time),
+            pickup_at: pickupAtValue,
+            ...(fulfillmentNote ? { note: fulfillmentNote } : {}),
             recipient: {
-              display_name: `${details.firstName}${details.lastName ? ' ' + details.lastName : ''}`,
+              display_name: recipientName,
               ...(details.phone ? { phone_number: details.phone } : {}),
               ...(details.email ? { email_address: details.email } : {}),
             },
@@ -225,7 +373,7 @@ export default async function handler(req, res) {
       },
     };
 
-    console.log('[inoa] Creating Square order...');
+    console.log('[inoa] Creating Square order...', isDelivery ? '(delivery)' : '(pickup)');
     const orderRes = await fetch(`${baseUrl}/v2/orders`, {
       method:  'POST',
       headers: {
@@ -246,7 +394,7 @@ export default async function handler(req, res) {
     }
 
     const order = orderData.order;
-    const orderAmountCents = order.total_money.amount; // Square-calculated total (tax + discounts applied)
+    const orderAmountCents = order.total_money.amount;
 
     // ── Charge card ────────────────────────────────────────────────
     const paymentBody = {
@@ -278,11 +426,11 @@ export default async function handler(req, res) {
     }
 
     const payment = paymentData.payment;
-
     const meta     = order.metadata || {};
     const customer = order.fulfillments?.[0]?.pickup_details?.recipient || {};
     const rawPickupAt = order.fulfillments?.[0]?.pickup_details?.pickup_at;
-    const fulfillmentTime = rawPickupAt ? (() => {
+
+    const formattedPickupAt = rawPickupAt ? (() => {
       try {
         return new Date(rawPickupAt).toLocaleString('en-US', {
           timeZone: 'America/Los_Angeles',
@@ -291,12 +439,19 @@ export default async function handler(req, res) {
         });
       } catch (_) { return rawPickupAt; }
     })() : '—';
+
+    const fulfillmentTime = isDelivery
+      ? `${foundZone.name} — ${details.dropWindow || foundZone.dropStart + '–' + foundZone.dropEnd}`
+      : formattedPickupAt;
+
     const lineItemsText = (order.line_items || [])
       .map(li => `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
       .join('\n');
     const orderTotalStr = `$${(Number(order.total_money?.amount || 0) / 100).toFixed(2)}`;
 
-    // ── Write full order record to Firestore (permanent backup) ───────
+    const paidAt = new Date().toISOString();
+
+    // ── Write full order record to Firestore ───────────────────────
     try {
       const orderDocUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/orders/${encodeURIComponent(order.id)}?key=${FIREBASE_API_KEY}`;
       await fetch(orderDocUrl, {
@@ -304,18 +459,27 @@ export default async function handler(req, res) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fields: {
-            squareOrderId:   { stringValue: order.id },
-            squarePaymentId: { stringValue: payment.id },
-            slotDocId:       { stringValue: slotDocId },
-            customerName:    { stringValue: customer.display_name || '' },
-            customerPhone:   { stringValue: meta.customer_phone || customer.phone_number || '' },
-            customerEmail:   { stringValue: customer.email_address || '' },
-            fulfillmentDate: { stringValue: order.reference_id?.split('_')[0] || '' },
-            fulfillmentTime: { stringValue: fulfillmentTime },
-            orderItems:      { stringValue: lineItemsText },
-            orderTotal:      { stringValue: orderTotalStr },
-            paidAt:          { timestampValue: new Date().toISOString() },
-            emailSent:       { booleanValue: false },
+            squareOrderId:    { stringValue: order.id },
+            squarePaymentId:  { stringValue: payment.id },
+            slotDocId:        { stringValue: slotDocId },
+            slotKey:          { stringValue: isDelivery ? `delivery_${details.zone}` : deriveSlotKey(details.time) },
+            fulfillmentType:  { stringValue: isDelivery ? 'delivery' : 'pickup' },
+            customerName:     { stringValue: customer.display_name || '' },
+            customerPhone:    { stringValue: meta.customer_phone || customer.phone_number || '' },
+            customerEmail:    { stringValue: customer.email_address || '' },
+            fulfillmentDate:  { stringValue: requestedDate },
+            fulfillmentTime:  { stringValue: fulfillmentTime },
+            orderItems:       { stringValue: lineItemsText },
+            orderTotal:       { stringValue: orderTotalStr },
+            paidAt:           { timestampValue: paidAt },
+            emailSent:        { booleanValue: false },
+            ...(isDelivery ? {
+              zone:             { stringValue: details.zone },
+              zoneName:         { stringValue: foundZone.name },
+              dropWindow:       { stringValue: details.dropWindow || '' },
+              deliveryNotes:    { stringValue: details.deliveryNotes || '' },
+              deliveryFeeCents: { integerValue: deliveryFeeCents },
+            } : {}),
           },
         }),
       });
@@ -324,53 +488,89 @@ export default async function handler(req, res) {
       console.error('[inoa] Firestore order save error:', orderErr?.message);
     }
 
-    // ── Mark slot paid in Firestore (conditional write) ───────────
+    // ── Write slot doc ─────────────────────────────────────────────
     try {
-      let slotPatchUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}`
-        + `?key=${FIREBASE_API_KEY}`
-        + `&updateMask.fieldPaths=status&updateMask.fieldPaths=paidAt&updateMask.fieldPaths=squarePaymentId`;
-      if (slotUpdateTime) {
-        slotPatchUrl += `&currentDocument.updateTime=${encodeURIComponent(slotUpdateTime)}`;
-      }
-      const fsSlotRes = await fetch(slotPatchUrl, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fields: {
-            status:          { stringValue: 'paid' },
-            paidAt:          { timestampValue: new Date().toISOString() },
-            squarePaymentId: { stringValue: payment.id },
-          },
-        }),
-      });
-      if (fsSlotRes.status === 412) {
-        console.error(`[CRITICAL] DOUBLE CHARGE POSSIBLE — slot ${slotDocId} was modified between pre-check and paid-mark. Order: ${order.id}, Payment: ${payment.id}. Manual review required.`);
-      } else if (!fsSlotRes.ok) {
-        console.error('[inoa] Firestore slot update failed:', await fsSlotRes.text());
+      if (isDelivery) {
+        // Create delivery slot doc (new, unique ID — triggers Firestore 'create' rule)
+        const deliverySlotUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}?key=${FIREBASE_API_KEY}`;
+        const dsRes = await fetch(deliverySlotUrl, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fields: {
+              date:            { stringValue: requestedDate },
+              slotKey:         { stringValue: `delivery_${details.zone}` },
+              fulfillmentType: { stringValue: 'delivery' },
+              zone:            { stringValue: details.zone },
+              zoneName:        { stringValue: foundZone.name },
+              dropWindow:      { stringValue: details.dropWindow || '' },
+              status:          { stringValue: 'paid' },
+              paidAt:          { timestampValue: paidAt },
+              squarePaymentId: { stringValue: payment.id },
+            },
+          }),
+        });
+        if (!dsRes.ok) console.error('[inoa] Delivery slot write failed:', await dsRes.text());
+        else console.log('[inoa] Delivery slot written:', slotDocId);
       } else {
-        console.log('[inoa] Slot marked paid (conditional):', slotDocId);
+        // Update pickup slot doc to 'paid' (conditional write on updateTime)
+        let slotPatchUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/slots/${encodeURIComponent(slotDocId)}`
+          + `?key=${FIREBASE_API_KEY}`
+          + `&updateMask.fieldPaths=status&updateMask.fieldPaths=paidAt&updateMask.fieldPaths=squarePaymentId`;
+        if (slotUpdateTime) {
+          slotPatchUrl += `&currentDocument.updateTime=${encodeURIComponent(slotUpdateTime)}`;
+        }
+        const fsSlotRes = await fetch(slotPatchUrl, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fields: {
+              status:          { stringValue: 'paid' },
+              paidAt:          { timestampValue: paidAt },
+              squarePaymentId: { stringValue: payment.id },
+            },
+          }),
+        });
+        if (fsSlotRes.status === 412) {
+          console.error(`[CRITICAL] DOUBLE CHARGE POSSIBLE — slot ${slotDocId} modified between pre-check and paid-mark. Order: ${order.id}, Payment: ${payment.id}. Manual review required.`);
+        } else if (!fsSlotRes.ok) {
+          console.error('[inoa] Firestore slot update failed:', await fsSlotRes.text());
+        } else {
+          console.log('[inoa] Slot marked paid (conditional):', slotDocId);
+        }
       }
     } catch (slotErr) {
-      console.error('[inoa] Firestore slot update error:', slotErr?.message);
+      console.error('[inoa] Firestore slot write error:', slotErr?.message);
     }
 
     // ── Send order confirmation email (with one retry) ─────────────
-    const formspreeId  = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
+    const formspreeId = process.env.FORMSPREE_ORDER_ID || 'mkoqdyzy';
+    const deliveryFeeStr = isDelivery
+      ? (deliveryFeeCents === 0 ? 'Free' : `$${(deliveryFeeCents / 100).toFixed(2)}`)
+      : '';
+
     const emailPayload = {
-      _subject:          `✅ Paid inoa Pre-Order — ${customer.display_name}`,
-      customer_name:     customer.display_name,
-      customer_phone:    meta.customer_phone || customer.phone_number,
-      customer_email:    customer.email_address,
-      fulfillment_type:  'Pickup',
-      fulfillment_date:  order.reference_id?.split('_')[0],
-      fulfillment_time:  fulfillmentTime,
-      pickup_address:    '100 Enterprise Way, Scotts Valley, CA 95066',
-      voucher_number:    meta.voucher || 'none',
+      _subject:            `✅ Paid inoa Pre-Order — ${customer.display_name}`,
+      customer_name:       customer.display_name,
+      customer_phone:      meta.customer_phone || customer.phone_number,
+      customer_email:      customer.email_address,
+      fulfillment_type:    isDelivery ? 'Delivery' : 'Pickup',
+      fulfillment_date:    requestedDate,
+      fulfillment_time:    fulfillmentTime,
+      ...(isDelivery ? {
+        zone_name:           foundZone.name,
+        drop_window:         details.dropWindow || '',
+        delivery_notes:      details.deliveryNotes || '',
+        delivery_fee:        deliveryFeeStr,
+      } : {
+        pickup_address:      '100 Enterprise Way, Scotts Valley, CA 95066',
+      }),
+      voucher_number:      meta.voucher || 'none',
       special_instructions: details.notes || 'none',
-      order_items:       lineItemsText,
-      order_total:       orderTotalStr,
-      square_order_id:   order.id,
-      square_payment_id: payment.id,
+      order_items:         lineItemsText,
+      order_total:         orderTotalStr,
+      square_order_id:     order.id,
+      square_payment_id:   payment.id,
     };
 
     let emailSent = false;

@@ -2,6 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { createRequire } from 'module';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = 3000;
@@ -61,10 +62,27 @@ async function handleSubscribe(req, res) {
   }
 }
 
+const _require = createRequire(import.meta.url);
+
 http.createServer(async (req, res) => {
   // Newsletter subscribe API
   if (req.method === 'POST' && req.url === '/api/subscribe') {
     return handleSubscribe(req, res);
+  }
+
+  // Schedule config API (mirrors api/schedule.js for local dev)
+  if (req.method === 'GET' && req.url.split('?')[0] === '/api/schedule') {
+    try {
+      // Delete cached version so changes to schedule.config.js are picked up on restart
+      const cfgPath = path.join(__dirname, 'schedule.config.js');
+      delete _require.cache[_require.resolve(cfgPath)];
+      const SCHEDULE = _require('./schedule.config.js');
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+      return res.end(JSON.stringify(SCHEDULE));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      return res.end(JSON.stringify({ error: 'failed to load schedule config', detail: err.message }));
+    }
   }
 
   let url = req.url.split('?')[0];
@@ -80,6 +98,7 @@ http.createServer(async (req, res) => {
   else if (url === '/catering/inquiry'   || url === '/catering-inquiry.html')   url = '/catering-inquiry.html';
   else if (url === '/catering/confirmed' || url === '/catering-confirmed.html') url = '/catering-confirmed.html';
   else if (url === '/drop' || url === '/drop.html') url = '/drop.html';
+  else if (url === '/prep' || url === '/prep.html') url = '/prep.html';
 
   const filePath = path.join(__dirname, decodeURIComponent(url));
   const ext = path.extname(filePath).toLowerCase();

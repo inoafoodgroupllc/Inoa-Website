@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>prep & pack — inoa</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --ink:       #1a1a1a;
+      --cream:     #f5f0e8;
+      --sand:      #e8e0d0;
+      --driftwood: #8b7355;
+      --ogo:       #4a7c6f;
+      --white:     #ffffff;
+      --err:       #b87a5a;
+    }
+    body { background: var(--cream); color: var(--ink); font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; padding: 0; }
+
+    .header { background: var(--ink); padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .header-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: var(--cream); letter-spacing: -0.01em; }
+    .header-meta { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cream); opacity: 0.4; }
+
+    .controls { background: var(--white); border-bottom: 1px solid rgba(26,26,26,0.1); padding: 16px 32px; display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; }
+    .ctrl-group { display: flex; flex-direction: column; gap: 5px; }
+    .ctrl-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); opacity: 0.45; }
+    .ctrl-input {
+      font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--ink);
+      background: var(--cream); border: 1px solid rgba(26,26,26,0.15); border-radius: 2px;
+      padding: 8px 12px; outline: none;
+    }
+    .ctrl-input:focus { border-color: var(--ink); }
+    .ctrl-btn {
+      padding: 9px 22px; background: var(--ink); color: var(--cream); border: none;
+      font-family: 'DM Sans', sans-serif; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px; transition: opacity 0.15s; white-space: nowrap;
+      align-self: flex-end;
+    }
+    .ctrl-btn:hover { opacity: 0.8; }
+    .ctrl-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .content { padding: 32px; max-width: 1100px; }
+
+    .status-msg { font-size: 13px; color: var(--ink); opacity: 0.5; padding: 40px 0; }
+    .error-msg   { font-size: 13px; color: var(--err); padding: 40px 0; }
+
+    .summary-bar { display: flex; gap: 24px; margin-bottom: 32px; flex-wrap: wrap; }
+    .summary-chip { background: var(--white); border: 1px solid rgba(26,26,26,0.1); border-radius: 3px; padding: 10px 18px; }
+    .summary-chip-num { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--ink); line-height: 1; }
+    .summary-chip-label { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); opacity: 0.42; margin-top: 3px; }
+
+    .section { margin-bottom: 40px; }
+    .section-hdr { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 400; color: var(--ink); }
+    .section-rule { flex: 1; height: 1px; background: rgba(26,26,26,0.12); }
+    .section-count { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink); opacity: 0.38; white-space: nowrap; }
+
+    .order-table { width: 100%; border-collapse: collapse; }
+    .order-table th { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink); opacity: 0.4; padding: 0 12px 10px 0; text-align: left; border-bottom: 1px solid rgba(26,26,26,0.08); }
+    .order-table td { font-size: 12px; color: var(--ink); padding: 10px 12px 10px 0; border-bottom: 1px solid rgba(26,26,26,0.05); vertical-align: top; line-height: 1.55; }
+    .order-table tr:last-child td { border-bottom: none; }
+    .order-table td.slot { font-variant-numeric: tabular-nums; white-space: nowrap; opacity: 0.55; }
+    .order-table td.name { font-weight: 500; }
+    .order-table td.items { max-width: 420px; }
+    .order-table td.items .item { padding: 1px 0; }
+    .order-table td.total { white-space: nowrap; }
+
+    .zone-block { margin-bottom: 28px; }
+    .zone-label { display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--white); background: var(--driftwood); padding: 3px 10px; border-radius: 2px; margin-bottom: 10px; }
+    .zone-drop  { font-size: 11px; color: var(--ink); opacity: 0.5; margin-bottom: 12px; }
+
+    .delivery-notes { font-size: 11px; color: var(--driftwood); font-style: italic; margin-top: 3px; }
+    .no-orders { font-size: 12px; color: var(--ink); opacity: 0.35; padding: 12px 0; }
+
+    @media print {
+      .controls { display: none; }
+      .header { background: var(--ink) !important; -webkit-print-color-adjust: exact; }
+      .zone-label { background: var(--driftwood) !important; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <span class="header-title">prep &amp; pack</span>
+  <span class="header-meta">inoa · internal tool</span>
+</div>
+
+<div class="controls">
+  <div class="ctrl-group">
+    <label class="ctrl-label" for="date-input">date</label>
+    <input class="ctrl-input" type="date" id="date-input" />
+  </div>
+  <div class="ctrl-group">
+    <label class="ctrl-label" for="key-input">admin key</label>
+    <input class="ctrl-input" type="password" id="key-input" placeholder="••••••••" />
+  </div>
+  <button class="ctrl-btn" id="load-btn" onclick="loadOrders()">load orders</button>
+  <button class="ctrl-btn" style="background:transparent;color:var(--ink);border:1px solid rgba(26,26,26,0.18);" onclick="window.print()">print</button>
+</div>
+
+<div class="content" id="content">
+  <p class="status-msg">Enter a date and admin key above, then click "load orders".</p>
+</div>
+
+<script src="/schedule.config.js"></script>
+<script>
+  // Pre-fill today's date in LA timezone
+  (function() {
+    var fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit' });
+    var p = {};
+    fmt.formatToParts(new Date()).forEach(function(x) { p[x.type] = x.value; });
+    document.getElementById('date-input').value = p.year + '-' + p.month + '-' + p.day;
+  })();
+
+  // Allow Enter key to load
+  document.getElementById('key-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') loadOrders();
+  });
+  document.getElementById('date-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') loadOrders();
+  });
+
+  function fmtDate(dateKey) {
+    if (!dateKey) return dateKey;
+    var parts = dateKey.split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  function slotDisplay(slotKey) {
+    if (!slotKey || slotKey.startsWith('delivery_')) return '';
+    var h = parseInt(slotKey.slice(0, 2));
+    var m = slotKey.slice(2);
+    return (h > 12 ? h - 12 : h) + ':' + m + ' ' + (h >= 12 ? 'PM' : 'AM');
+  }
+
+  async function loadOrders() {
+    var date = document.getElementById('date-input').value;
+    var key  = document.getElementById('key-input').value.trim();
+    var btn  = document.getElementById('load-btn');
+    var el   = document.getElementById('content');
+
+    if (!date || !key) { el.innerHTML = '<p class="error-msg">Date and admin key required.</p>'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'loading…';
+    el.innerHTML = '<p class="status-msg">Fetching orders…</p>';
+
+    try {
+      var res  = await fetch('/api/orders?key=' + encodeURIComponent(key) + '&date=' + encodeURIComponent(date));
+      var data = await res.json();
+      if (!res.ok) { el.innerHTML = '<p class="error-msg">Error: ' + (data.error || res.status) + '</p>'; return; }
+      render(data.orders || [], date);
+    } catch (err) {
+      el.innerHTML = '<p class="error-msg">Network error: ' + err.message + '</p>';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'load orders';
+    }
+  }
+
+  function render(orders, date) {
+    var el = document.getElementById('content');
+    if (!orders.length) { el.innerHTML = '<p class="status-msg">No orders found for ' + fmtDate(date) + '.</p>'; return; }
+
+    var S = (typeof INOA_SCHEDULE !== 'undefined') ? INOA_SCHEDULE : null;
+
+    var pickup   = orders.filter(function(o) { return (o.fulfillmentType || 'pickup') === 'pickup'; });
+    var delivery = orders.filter(function(o) { return o.fulfillmentType === 'delivery'; });
+
+    // Sort pickup by slot time (slotKey is HHMM format, sorts correctly as string)
+    pickup.sort(function(a, b) { return (a.slotKey || '').localeCompare(b.slotKey || ''); });
+
+    // Group delivery by zone (in config order)
+    var zoneOrder = S ? S.delivery.zones.map(function(z) { return z.id; }) : [];
+    var deliveryByZone = {};
+    delivery.forEach(function(o) {
+      var z = o.zone || 'unknown';
+      if (!deliveryByZone[z]) deliveryByZone[z] = [];
+      deliveryByZone[z].push(o);
+    });
+
+    var html = '';
+
+    // Summary bar
+    html += '<div class="summary-bar">';
+    html += '<div class="summary-chip"><div class="summary-chip-num">' + orders.length + '</div><div class="summary-chip-label">total orders</div></div>';
+    html += '<div class="summary-chip"><div class="summary-chip-num">' + pickup.length + '</div><div class="summary-chip-label">pickup</div></div>';
+    if (delivery.length > 0) {
+      html += '<div class="summary-chip"><div class="summary-chip-num">' + delivery.length + '</div><div class="summary-chip-label">delivery</div></div>';
+    }
+    html += '<div class="summary-chip"><div class="summary-chip-num">' + fmtDate(date) + '</div><div class="summary-chip-label">date</div></div>';
+    html += '</div>';
+
+    // Pickup section
+    if (pickup.length > 0) {
+      html += '<div class="section">';
+      html += '<div class="section-hdr"><span class="section-title">Pickup</span><div class="section-rule"></div><span class="section-count">' + pickup.length + ' orders · 12–3 PM · 100 Enterprise Way</span></div>';
+      html += '<table class="order-table">';
+      html += '<thead><tr><th>slot</th><th>name</th><th>phone</th><th>items</th><th>total</th></tr></thead><tbody>';
+      pickup.forEach(function(o) {
+        html += '<tr>';
+        html += '<td class="slot">' + slotDisplay(o.slotKey) + '</td>';
+        html += '<td class="name">' + esc(o.customerName) + '</td>';
+        html += '<td>' + esc(o.customerPhone || '—') + '</td>';
+        html += '<td class="items">' + formatItems(o.orderItems) + '</td>';
+        html += '<td class="total">' + esc(o.orderTotal || '—') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+
+    // Delivery section
+    if (delivery.length > 0) {
+      html += '<div class="section">';
+      html += '<div class="section-hdr"><span class="section-title">Delivery</span><div class="section-rule"></div><span class="section-count">' + delivery.length + ' orders · 4–6 PM</span></div>';
+
+      // Render zones in config order, then any unknown zones
+      var renderedZones = new Set();
+      var zoneIds = zoneOrder.length > 0 ? zoneOrder : Object.keys(deliveryByZone);
+      // Append any zones not in config order
+      Object.keys(deliveryByZone).forEach(function(z) { if (!renderedZones.has(z) && !zoneIds.includes(z)) zoneIds.push(z); });
+
+      zoneIds.forEach(function(zoneId) {
+        var zoneOrders = deliveryByZone[zoneId];
+        if (!zoneOrders || !zoneOrders.length) return;
+        renderedZones.add(zoneId);
+        var zoneCfg = S ? S.delivery.zones.find(function(z) { return z.id === zoneId; }) : null;
+        var zoneName = (zoneOrders[0].zoneName) || (zoneCfg ? zoneCfg.name : zoneId);
+        var dropWindow = zoneOrders[0].dropWindow || (zoneCfg ? zoneCfg.dropStart + ' – ' + zoneCfg.dropEnd : '');
+        var dropPoint  = zoneCfg ? zoneCfg.dropPoint : '';
+
+        html += '<div class="zone-block">';
+        html += '<div class="zone-label">' + esc(zoneName) + '</div>';
+        if (dropWindow) html += '<div class="zone-drop">Drop-off ' + esc(dropWindow) + (dropPoint && dropPoint.indexOf('TBD') === -1 ? ' · ' + esc(dropPoint) : '') + '</div>';
+
+        html += '<table class="order-table">';
+        html += '<thead><tr><th>name</th><th>phone</th><th>delivery notes</th><th>items</th><th>total</th></tr></thead><tbody>';
+        zoneOrders.forEach(function(o) {
+          html += '<tr>';
+          html += '<td class="name">' + esc(o.customerName) + '</td>';
+          html += '<td>' + esc(o.customerPhone || '—') + '</td>';
+          html += '<td>' + (o.deliveryNotes ? '<span class="delivery-notes">' + esc(o.deliveryNotes) + '</span>' : '<span style="opacity:0.3">—</span>') + '</td>';
+          html += '<td class="items">' + formatItems(o.orderItems) + '</td>';
+          html += '<td class="total">' + esc(o.orderTotal || '—') + '</td>';
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+    }
+
+    el.innerHTML = html;
+  }
+
+  function formatItems(rawItems) {
+    if (!rawItems) return '—';
+    return rawItems.split('\n').map(function(line) {
+      return '<div class="item">' + esc(line.trim()) + '</div>';
+    }).join('');
+  }
+
+  function esc(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+</script>
+</body>
+</html>
