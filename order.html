@@ -854,17 +854,36 @@
 
     // ── ClosedView ────────────────────────────────────────────────────────────
     function ClosedView({ onOpen }) {
+      const [, setTick] = useState(0);
       useEffect(() => {
-        const id = setInterval(() => { if (isFormOpen()) onOpen(); }, 30000);
+        const id = setInterval(() => {
+          if (isFormOpen()) { onOpen(); return; }
+          setTick(t => t + 1);
+        }, 1000);
         return () => clearInterval(id);
       }, []);
+      const next  = getNextOpening();
+      const diff  = Math.max(0, next - new Date());
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000)  / 60000);
+      const secs  = Math.floor((diff % 60000)    / 1000);
+      const units = [{ v:days, l:'days' },{ v:hours, l:'hrs' },{ v:mins, l:'min' },{ v:secs, l:'sec' }];
+      const nextLabel = next.toLocaleDateString('en-US',{ weekday:'long', month:'long', day:'numeric' }).toLowerCase();
       return (
         <div className="po-closed">
-          <div className="po-closed-label">L I M I T E D &nbsp; D R O P</div>
-          <h2 className="po-closed-heading" style={{lineHeight:'0.95',marginBottom:'16px'}}>hawaii<br/><em>ahi</em><br/>drop</h2>
-          <p className="po-closed-sub">from the honolulu fish auction · friday sept 25 · pickup 2 – 6 pm</p>
-          <a href="/drop" className="po-drop-cta">order the drop →</a>
-          <p className="po-closed-next">scotts valley · 45 portions only</p>
+          <div className="po-closed-label">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</div>
+          <h2 className="po-closed-heading">pre-orders are<br/>currently closed</h2>
+          <p className="po-closed-sub">the order form opens every sunday and wednesday</p>
+          <div className="po-countdown">
+            {units.map(({ v, l }) => (
+              <div key={l} className="po-cd-block">
+                <span className="po-cd-num">{String(v).padStart(2,'0')}</span>
+                <span className="po-cd-lbl">{l}</span>
+              </div>
+            ))}
+          </div>
+          <p className="po-closed-next">next opening — {nextLabel}</p>
         </div>
       );
     }
