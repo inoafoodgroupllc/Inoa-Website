@@ -327,9 +327,11 @@ export default async function handler(req, res) {
     let pickupAtValue;
     let fulfillmentNote = '';
     if (isDelivery) {
-      const [dropH, dropM] = foundZone.dropStart.split(':').map(Number);
-      pickupAtValue = `${requestedDate}T${String(dropH).padStart(2, '0')}:${String(dropM).padStart(2, '0')}:00-07:00`;
-      fulfillmentNote = `DELIVERY — ${foundZone.name} · ${details.dropWindow || foundZone.dropStart + '–' + foundZone.dropEnd} · ${details.deliveryAddress}${details.deliveryApt ? ' ' + details.deliveryApt : ''}`;
+      const slotStartHour = details.deliverySlot
+        ? parseInt(details.deliverySlot.split('-')[0], 10)
+        : SCHEDULE.delivery.startHour;
+      pickupAtValue = `${requestedDate}T${String(slotStartHour).padStart(2, '0')}:00:00-07:00`;
+      fulfillmentNote = `DELIVERY — ${foundZone.name} · ${details.dropWindow || ''} · ${details.deliveryAddress}${details.deliveryApt ? ' ' + details.deliveryApt : ''}`;
     } else {
       pickupAtValue = pickupAtISO(requestedDate, details.time);
     }
@@ -440,7 +442,7 @@ export default async function handler(req, res) {
     })() : '—';
 
     const fulfillmentTime = isDelivery
-      ? `${foundZone.name} — ${details.dropWindow || foundZone.dropStart + '–' + foundZone.dropEnd}`
+      ? `${foundZone.name} — ${details.dropWindow || ''}`
       : formattedPickupAt;
 
     const lineItemsText = (order.line_items || [])

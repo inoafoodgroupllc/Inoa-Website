@@ -33,18 +33,21 @@ export default {
   delivery: {
     enabled: true,
     deliveryDays: [2, 4, 5],   // Tue, Thu, Fri
-    startHour: 16,             // 4:00 PM
-    endHour: 18,               // 6:00 PM
+    startHour: 17,             // 5:00 PM
+    endHour: 19,               // 7:00 PM
     cutoffHour: null,          // null = use same orderCutoffHour above
     cutoffMinute: null,
     minimum: 25,               // $25 subtotal minimum for delivery
     fee: 4,                    // $4 delivery fee
     freeThreshold: 40,         // fee waived when subtotal >= $40
     dailyCap: 20,
+    deliveryTimeSlots: [
+      { id: '17-18', label: '5–6 PM' },
+      { id: '18-19', label: '6–7 PM' },
+    ],
     zones: [
-      { id: 'porter',    name: 'Colleges 9/10 & Porter',   dropStart: '16:15', dropEnd: '16:45', cap: null, minimum: 25 },
-      { id: 'on-campus', name: 'Other on-campus colleges', dropStart: '16:45', dropEnd: '17:15', cap: null, minimum: 25 },
-      { id: 'offcampus', name: 'Santa Cruz County',        dropStart: '17:15', dropEnd: '17:45', cap: null, minimum: 30 },
+      { id: 'ucsc',      name: 'UCSC',             minimum: 25 },
+      { id: 'offcampus', name: 'Santa Cruz County', minimum: 30 },
     ],
   },
 };

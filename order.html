@@ -1197,17 +1197,9 @@
       const pickupSlots = S ? getPickupSlots(S) : [];
       const allBooked   = !!details.date && !slotsLoading && pickupSlots.every(s => bookedSlots.has(s.key));
       const selectedDate = availableDates.find(d => d.dateKey === details.date);
-      const canContinue  = !!(details.date && (isDelivery ? details.zone : details.time));
+      const canContinue  = !!(details.date && (isDelivery ? (details.zone && details.deliverySlot) : details.time));
 
       function set(f, v) { setDetails(p => ({ ...p, [f]: v })); }
-
-      function fmtDropWindow(zone) {
-        const fmt = (t) => {
-          const [h, m] = t.split(':').map(Number);
-          return `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
-        };
-        return `${fmt(zone.dropStart)} – ${fmt(zone.dropEnd)}`;
-      }
 
       return (
         <div className="sel-page">
@@ -1233,6 +1225,7 @@
                         set('time', '');
                         set('zone', '');
                         set('zoneName', '');
+                        set('deliverySlot', '');
                         set('dropWindow', '');
                         if (!d.isDeliveryDay) set('fulfillmentType', 'pickup');
                       }}
@@ -1254,7 +1247,7 @@
                 <div className="fulfillment-grid">
                   <button
                     className={`fulfillment-card${!isDelivery ? ' on' : ''}`}
-                    onClick={() => { set('fulfillmentType', 'pickup'); set('zone', ''); set('zoneName', ''); set('dropWindow', ''); }}
+                    onClick={() => { set('fulfillmentType', 'pickup'); set('zone', ''); set('zoneName', ''); set('deliverySlot', ''); set('dropWindow', ''); }}
                   >
                     <span className="fc-type">Pickup</span>
                     <span className="fc-detail">{S ? `${S.pickup.startHour > 12 ? S.pickup.startHour - 12 : S.pickup.startHour}–${S.pickup.endHour > 12 ? S.pickup.endHour - 12 : S.pickup.endHour} PM` : '12–3 PM'} · 100 Enterprise Way</span>
@@ -1311,25 +1304,43 @@
               </div>
             )}
 
-            {/* Delivery zone cards */}
+            {/* Delivery: zone cards → time slot picker */}
             {details.date && isDelivery && S && (
-              <div className="co-section">
-                <div className="co-section-title">delivery zone</div>
-                <div className="zone-grid">
-                  {S.delivery.zones.map(zone => {
-                    const min = zone.minimum ?? S.delivery.minimum;
-                    return (
-                      <button key={zone.id}
-                        className={`zone-card${details.zone === zone.id ? ' on' : ''}`}
-                        onClick={() => { set('zone', zone.id); set('zoneName', zone.name); set('dropWindow', `${zone.dropStart} – ${zone.dropEnd}`); }}
-                      >
-                        <div className="zone-name">{zone.name}</div>
-                        <div className="zone-meta">drop-off {fmtDropWindow(zone)} · ${min} minimum</div>
-                      </button>
-                    );
-                  })}
+              <>
+                <div className="co-section">
+                  <div className="co-section-title">delivery area</div>
+                  <div className="zone-grid">
+                    {S.delivery.zones.map(zone => {
+                      const min = zone.minimum ?? S.delivery.minimum;
+                      return (
+                        <button key={zone.id}
+                          className={`zone-card${details.zone === zone.id ? ' on' : ''}`}
+                          onClick={() => { set('zone', zone.id); set('zoneName', zone.name); set('deliverySlot', ''); set('dropWindow', ''); }}
+                        >
+                          <div className="zone-name">{zone.name}</div>
+                          <div className="zone-meta">${min} minimum</div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+
+                {details.zone && S.delivery.deliveryTimeSlots && (
+                  <div className="co-section">
+                    <div className="co-section-title">delivery window</div>
+                    <div className="fulfillment-grid">
+                      {S.delivery.deliveryTimeSlots.map(slot => (
+                        <button key={slot.id}
+                          className={`fulfillment-card${details.deliverySlot === slot.id ? ' on' : ''}`}
+                          onClick={() => { set('deliverySlot', slot.id); set('dropWindow', slot.label); }}
+                        >
+                          <span className="fc-type">{slot.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
             )}
 
             {/* CTA */}
@@ -1364,7 +1375,7 @@
               <div className="slot-banner">
                 <span>
                   {isDelivery
-                    ? `Delivery · ${fmtShortDate(details.date)} · ${details.zoneName || details.zone} · $${zoneMinimum} min`
+                    ? `Delivery · ${fmtShortDate(details.date)} · ${details.zoneName || details.zone}${details.dropWindow ? ' · ' + details.dropWindow : ''} · $${zoneMinimum} min`
                     : `Pickup · ${fmtShortDate(details.date)} · ${details.time}`}
                 </span>
                 <span className="slot-banner-sep">·</span>
@@ -1495,7 +1506,7 @@
               <div className="slot-summary">
                 <div className="slot-summary-text">
                   {isDelivery
-                    ? `Delivery · ${new Date(details.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${details.zoneName || details.zone}`
+                    ? `Delivery · ${new Date(details.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${details.zoneName || details.zone}${details.dropWindow ? ' · ' + details.dropWindow : ''}`
                     : `Pickup · ${new Date(details.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${details.time}`}
                 </div>
                 <button className="slot-summary-change" onClick={onChangeSlot}>change slot</button>

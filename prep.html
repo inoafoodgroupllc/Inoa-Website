@@ -230,7 +230,7 @@
         renderedZones.add(zoneId);
         var zoneCfg = S ? S.delivery.zones.find(function(z) { return z.id === zoneId; }) : null;
         var zoneName = (zoneOrders[0].zoneName) || (zoneCfg ? zoneCfg.name : zoneId);
-        var dropWindow = zoneOrders[0].dropWindow || (zoneCfg ? zoneCfg.dropStart + ' – ' + zoneCfg.dropEnd : '');
+        var dropWindow = zoneOrders[0].dropWindow || '';
         html += '<div class="zone-block">';
         html += '<div class="zone-label">' + esc(zoneName) + '</div>';
         if (dropWindow) html += '<div class="zone-drop">Drop-off ' + esc(dropWindow) + '</div>';
