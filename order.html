@@ -82,6 +82,30 @@
     }
     .order-nav-back:hover { opacity: 0.9; }
 
+    /* ── Sale banner ── */
+    .sale-banner {
+      position: fixed; top: 66px; left: 0; right: 0; z-index: 250;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 9px 24px;
+      background: rgba(74,124,111,0.09);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(74,124,111,0.18);
+    }
+    .sale-banner-tag {
+      font-size: 9px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--white); background: var(--ogo);
+      padding: 2px 7px; border-radius: 3px; flex-shrink: 0;
+    }
+    .sale-banner-text {
+      font-size: 12px; letter-spacing: 0.04em; color: var(--ogo);
+    }
+    .sale-banner-was {
+      text-decoration: line-through; opacity: 0.5;
+    }
+    /* add-on sale price */
+    .addon-was-price { text-decoration: line-through; opacity: 0.38; margin-right: 3px; }
+    .addon-sale-price { color: var(--ogo); }
+
     /* ── Legal footer ── */
     .legal-footer { background: var(--ink); border-top: 1px solid rgba(245,240,232,0.05); padding: 18px 80px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
     .legal-footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
@@ -90,7 +114,7 @@
     .legal-footer-copy { font-size: 10px; letter-spacing: 0.08em; color: var(--cream); opacity: 0.16; white-space: nowrap; }
 
     /* ── Menu page ── */
-    .menu-page { padding: 80px 0 140px; min-height: 100vh; }
+    .menu-page { padding: 112px 0 140px; min-height: 100vh; }
     .menu-inner { max-width: 920px; margin: 0 auto; padding: 40px 40px 0; }
     .menu-heading {
       font-family: 'Cormorant Garamond', serif;
@@ -341,7 +365,7 @@
     .cart-bar-btn:hover { opacity: 0.82; }
 
     /* ── Checkout view ── */
-    .checkout-page { padding: 80px 0 80px; min-height: 100vh; }
+    .checkout-page { padding: 112px 0 80px; min-height: 100vh; }
     .checkout-inner { max-width: 620px; margin: 0 auto; padding: 40px 40px 0; }
     .checkout-heading {
       font-family: 'Cormorant Garamond', serif;
@@ -518,7 +542,7 @@
     .delivery-min-warn { padding: 11px 15px; background: rgba(184,122,90,0.07); border-left: 2px solid var(--err); font-size: 12px; color: var(--err); line-height: 1.6; margin-bottom: 14px; }
 
     /* ── Selection view ── */
-    .sel-page { padding: 80px 0 80px; min-height: 100vh; }
+    .sel-page { padding: 112px 0 80px; min-height: 100vh; }
     .sel-inner { max-width: 620px; margin: 0 auto; padding: 40px 40px 0; }
     .sel-heading {
       font-family: 'Cormorant Garamond', serif;
@@ -610,6 +634,7 @@
     /* ── Mobile ── */
     @media (max-width: 640px) {
       .order-nav { padding: 18px 20px; }
+      .sale-banner { top: 62px; }
       .menu-inner, .checkout-inner, .sel-inner { padding-left: 18px; padding-right: 18px; }
       .item-grid { grid-template-columns: 1fr; gap: 7px; }
       .slot-grid { grid-template-columns: repeat(2, 1fr); }
@@ -641,6 +666,14 @@
     <a href="/home"><img src="brand_assets/inoa_logo_transparent%20(1).png" alt="inoa" class="order-nav-logo"></a>
     <a href="/home" class="order-nav-back">← back to home</a>
   </nav>
+
+  <!-- Sale banner -->
+  <div class="sale-banner" role="note" aria-label="current promotion">
+    <span class="sale-banner-tag">sale</span>
+    <span class="sale-banner-text">
+      Sliced Avocado — <strong>$1</strong> &nbsp;<span class="sale-banner-was">was $2</span>
+    </span>
+  </div>
 
   <!-- React mount -->
   <div id="root"></div>
@@ -769,7 +802,7 @@
     const SOLD_OUT_SIDES   = new Set(['Kimchi Cucumber','Cold Roasted Sweet Potato']);
     const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
     const ADDON_OPTS = [
-      { name:'Sliced Avocado',     price:2.00 },
+      { name:'Sliced Avocado',     price:1.00, wasPrice:2.00 },
       { name:'Roasted Nori Pack',  price:2.50 },
       { name:'Spicy Mayo Drizzle', price:0.50 },
       { name:'Sweet Soy Drizzle',  price:0.50 },
@@ -1111,7 +1144,10 @@
                           <div style={{flex:1,minWidth:0}}>
                             <div className="addon-name">{addon.name}</div>
                             {addon.desc && <div className="addon-desc">{addon.desc}</div>}
-                            <div className="addon-price">+{fmtMoney(addon.price)}</div>
+                            <div className="addon-price">
+                              {addon.wasPrice && <span className="addon-was-price">+{fmtMoney(addon.wasPrice)}</span>}
+                              <span className={addon.wasPrice ? 'addon-sale-price' : ''}>+{fmtMoney(addon.price)}</span>
+                            </div>
                           </div>
                         </div>
                       );
