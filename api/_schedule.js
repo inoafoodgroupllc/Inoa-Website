@@ -38,8 +38,8 @@ export default {
     cutoffHour: null,          // null = use same orderCutoffHour above
     cutoffMinute: null,
     minimum: 25,               // $25 subtotal minimum for delivery
-    fee: 4,                    // $4 delivery fee
-    freeThreshold: 40,         // fee waived when subtotal >= $40
+    fee: 5,                    // $5 delivery fee
+    freeThreshold: null,       // no free threshold — fee always applies
     dailyCap: 20,
     deliveryTimeSlots: [
       { id: '17-18', label: '5–6 PM' },

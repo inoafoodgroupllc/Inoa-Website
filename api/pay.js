@@ -235,9 +235,7 @@ export default async function handler(req, res) {
       if (subtotalCents < zoneMinimum * 100) {
         return res.status(400).json({ error: 'below_minimum', detail: `Delivery requires a $${zoneMinimum} minimum order.` });
       }
-      deliveryFeeCents = subtotalCents >= SCHEDULE.delivery.freeThreshold * 100
-        ? 0
-        : SCHEDULE.delivery.fee * 100;
+      deliveryFeeCents = SCHEDULE.delivery.fee * 100;
 
       // Delivery cap check (non-atomic, acceptable for low-volume)
       try {

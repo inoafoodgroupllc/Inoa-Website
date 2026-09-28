@@ -1453,7 +1453,7 @@
 
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
       const deliveryFee   = isDelivery && S && subtotal >= zoneMinimum
-        ? (subtotal >= S.delivery.freeThreshold ? 0 : S.delivery.fee)
+        ? S.delivery.fee
         : 0;
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
@@ -1596,9 +1596,7 @@
                 )}
                 {subtotal >= zoneMinimum && (
                   <p className="form-hint" style={{marginBottom:'4px'}}>
-                    {deliveryFee === 0
-                      ? `Free delivery (order over $${S.delivery.freeThreshold})`
-                      : `$${S.delivery.fee} delivery fee (waived on orders over $${S.delivery.freeThreshold})`}
+                    {`$${S.delivery.fee} delivery fee`}
                   </p>
                 )}
               </div>
@@ -1681,8 +1679,8 @@
                 {isDelivery && S && subtotal >= zoneMinimum && (
                   <div className="total-row">
                     <span className="total-row-label">delivery fee</span>
-                    <span className="total-row-val" style={deliveryFee === 0 ? {color:'var(--ogo)'} : {}}>
-                      {deliveryFee === 0 ? 'free' : `+${fmtMoney(deliveryFee)}`}
+                    <span className="total-row-val">
+                      {`+${fmtMoney(deliveryFee)}`}
                     </span>
                   </div>
                 )}
@@ -1759,7 +1757,7 @@
       const pvZoneMin     = pvZone?.minimum ?? S?.delivery?.minimum ?? 25;
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
       const deliveryFee   = isDelivery && S && subtotal >= pvZoneMin
-        ? (subtotal >= S.delivery.freeThreshold ? 0 : S.delivery.fee)
+        ? S.delivery.fee
         : 0;
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
       const promoDiscount = details.promoDiscount ? Math.round(subtotal * details.promoDiscount * 100) / 100 : 0;
@@ -1972,8 +1970,8 @@
                 {isDelivery && S && subtotal >= pvZoneMin && (
                   <div className="total-row">
                     <span className="total-row-label">delivery fee</span>
-                    <span className="total-row-val" style={deliveryFee === 0 ? {color:'var(--ogo)'} : {}}>
-                      {deliveryFee === 0 ? 'free' : `+${fmtMoney(deliveryFee)}`}
+                    <span className="total-row-val">
+                      {`+${fmtMoney(deliveryFee)}`}
                     </span>
                   </div>
                 )}
