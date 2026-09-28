@@ -721,8 +721,8 @@
       // SIDES
       { id:501, cat:'sides',    name:'Crab Mac Salad',            desc:'macaroni, imitation crab, mayo',                                                                                                                    price:6.00 },
       { id:502, cat:'sides',    name:'Seaweed Salad',             desc:'from japan',                                                                                                                                        price:5.00 },
-      { id:503, cat:'sides',    name:'Kimchi Cucumber',           desc:'persian cucumber, korean chili powder, sesame oil, shoyu',                                                                                          price:5.00 },
-      { id:504, cat:'sides',    name:'Cold Roasted Sweet Potato', desc:'variety of hawaiian/japanese/american sweet potato, sesame oil, salt, sugar',                                                                       price:5.00 },
+      { id:503, cat:'sides',    name:'Kimchi Cucumber',           desc:'persian cucumber, korean chili powder, sesame oil, shoyu',                                                                                          price:5.00, soldOut:true },
+      { id:504, cat:'sides',    name:'Cold Roasted Sweet Potato', desc:'variety of hawaiian/japanese/american sweet potato, sesame oil, salt, sugar',                                                                       price:5.00, soldOut:true },
       // MUSUBI
       { id:601, cat:'musubi',   name:'Single Musubi',             desc:'spam, housemade soy glaze, seasoned sushi rice, nori',                                                                                              price:4.00 },
       { id:602, cat:'musubi',   name:'Triple Pack',               desc:'spam, housemade soy glaze, seasoned sushi rice, nori',                                                                                              price:10.00 },
@@ -766,6 +766,7 @@
       'Kimchi Tako','Garlic Shrimp','Tobiko Scallop',
     ];
     const SOLD_OUT_FLAVORS = new Set();
+    const SOLD_OUT_SIDES   = new Set(['Kimchi Cucumber','Cold Roasted Sweet Potato']);
     const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
     const ADDON_OPTS = [
       { name:'Sliced Avocado',     price:2.00 },
@@ -1032,11 +1033,13 @@
                   <div className="mod-rule" />
                   <div className="mod-opt-list">
                     {SIDE_OPTS.map(name => {
-                      const sel = (mods.sides||[]).includes(name);
+                      const sel     = (mods.sides||[]).includes(name);
+                      const soldOut = SOLD_OUT_SIDES.has(name);
                       return (
-                        <div key={name} className={`mod-opt${sel?' sel':''}`} onClick={() => toggleSide(name)}>
+                        <div key={name} className={`mod-opt${sel?' sel':''}${soldOut?' sold-out':''}`} onClick={() => { if (!soldOut) toggleSide(name); }}>
                           <div className="mod-indicator sq"><div className="mod-indicator-dot" /></div>
                           <span className="mod-opt-name">{name}</span>
+                          {soldOut && <span className="item-card-sold-out">sold out</span>}
                         </div>
                       );
                     })}
