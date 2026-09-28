@@ -1,6 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const SCHEDULE = require('../schedule.config.js');
+import SCHEDULE from './_schedule.js';
 
 export default function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');

@@ -1,6 +1,11 @@
-// All times are America/Los_Angeles
-// Edit this file to change the schedule without touching any logic.
-var INOA_SCHEDULE = {
+// ── SERVER-SIDE SCHEDULE CONFIG ──────────────────────────────────────────────
+// Static ES module — imported by api/schedule.js and api/pay.js.
+// Vercel bundles this automatically because it's a static import in the same dir.
+//
+// ⚠️  When you change the schedule, edit BOTH this file AND schedule.config.js
+//     (root). schedule.config.js is loaded by prep.html as a browser script tag.
+
+export default {
   formEnabled: true,           // set false to kill the order form site-wide
 
   timezone: 'America/Los_Angeles',
@@ -30,8 +35,7 @@ var INOA_SCHEDULE = {
     deliveryDays: [2, 4, 5],   // Tue, Thu, Fri
     startHour: 16,             // 4:00 PM
     endHour: 18,               // 6:00 PM
-    // Cutoff for delivery orders — null = use same orderCutoffHour above
-    cutoffHour: null,
+    cutoffHour: null,          // null = use same orderCutoffHour above
     cutoffMinute: null,
     minimum: 25,               // $25 subtotal minimum for delivery
     fee: 4,                    // $4 delivery fee
@@ -44,6 +48,3 @@ var INOA_SCHEDULE = {
     ],
   },
 };
-
-// ⚠️  API functions use api/_schedule.js (static ES module import, Vercel-safe).
-// When you change the schedule, edit BOTH this file AND api/_schedule.js.

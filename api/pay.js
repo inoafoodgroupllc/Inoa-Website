@@ -3,9 +3,7 @@
 // Prices are authoritative on the server — never trust the client.
 
 import crypto from 'crypto';
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-const SCHEDULE = require('../schedule.config.js');
+import SCHEDULE from './_schedule.js';
 
 // ── Authoritative price catalogue (cents) ────────────────────────────
 const CATALOG = {
