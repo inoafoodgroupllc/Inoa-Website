@@ -231,8 +231,9 @@ export default async function handler(req, res) {
       if (!foundZone) {
         return res.status(400).json({ error: 'invalid_zone', detail: 'Unknown delivery zone.' });
       }
-      if (subtotalCents < SCHEDULE.delivery.minimum * 100) {
-        return res.status(400).json({ error: 'below_minimum', detail: `Delivery requires a $${SCHEDULE.delivery.minimum} minimum order.` });
+      const zoneMinimum = foundZone.minimum ?? SCHEDULE.delivery.minimum;
+      if (subtotalCents < zoneMinimum * 100) {
+        return res.status(400).json({ error: 'below_minimum', detail: `Delivery requires a $${zoneMinimum} minimum order.` });
       }
       deliveryFeeCents = subtotalCents >= SCHEDULE.delivery.freeThreshold * 100
         ? 0

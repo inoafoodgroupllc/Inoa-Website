@@ -42,9 +42,9 @@ export default {
     freeThreshold: 40,         // fee waived when subtotal >= $40
     dailyCap: 20,
     zones: [
-      { id: 'porter',    name: 'Colleges 9/10 & Porter',   dropStart: '16:15', dropEnd: '16:45', cap: null },
-      { id: 'on-campus', name: 'Other on-campus colleges', dropStart: '16:45', dropEnd: '17:15', cap: null },
-      { id: 'westside',  name: 'Westside off-campus',      dropStart: '17:15', dropEnd: '17:45', cap: null },
+      { id: 'porter',    name: 'Colleges 9/10 & Porter',   dropStart: '16:15', dropEnd: '16:45', cap: null, minimum: 25 },
+      { id: 'on-campus', name: 'Other on-campus colleges', dropStart: '16:45', dropEnd: '17:15', cap: null, minimum: 25 },
+      { id: 'offcampus', name: 'Santa Cruz County',        dropStart: '17:15', dropEnd: '17:45', cap: null, minimum: 30 },
     ],
   },
 };

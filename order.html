@@ -517,6 +517,57 @@
     /* ── Delivery minimum warning ── */
     .delivery-min-warn { padding: 11px 15px; background: rgba(184,122,90,0.07); border-left: 2px solid var(--err); font-size: 12px; color: var(--err); line-height: 1.6; margin-bottom: 14px; }
 
+    /* ── Selection view ── */
+    .sel-page { padding: 80px 0 80px; min-height: 100vh; }
+    .sel-inner { max-width: 620px; margin: 0 auto; padding: 40px 40px 0; }
+    .sel-heading {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(36px, 5vw, 56px); font-weight: 300;
+      letter-spacing: -0.02em; color: var(--ink); margin-bottom: 6px;
+    }
+    .sel-sub { font-size: 11px; color: var(--ink); opacity: 0.38; letter-spacing: 0.06em; margin-bottom: 40px; }
+    .sel-continue {
+      background: var(--ink); color: var(--cream); border: none;
+      padding: 15px 38px; font-family: 'DM Sans', sans-serif;
+      font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
+      cursor: pointer; border-radius: 3px; transition: opacity 0.2s;
+    }
+    .sel-continue:hover:not(:disabled) { opacity: 0.82; }
+    .sel-continue:disabled { opacity: 0.28; cursor: not-allowed; }
+
+    /* ── Slot banner (in MenuView) ── */
+    .slot-banner {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(139,115,85,0.07); border: 1px solid rgba(139,115,85,0.18);
+      border-radius: 20px; padding: 7px 16px; margin-bottom: 28px;
+      font-size: 11px; color: var(--driftwood); letter-spacing: 0.03em;
+    }
+    .slot-banner-change {
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--driftwood); background: none; border: none; cursor: pointer;
+      padding: 0; opacity: 0.55; transition: opacity 0.2s; margin-left: 4px;
+    }
+    .slot-banner-change:hover { opacity: 1; }
+    .slot-banner-sep { opacity: 0.3; }
+
+    /* ── Slot summary (in CheckoutView) ── */
+    .slot-summary {
+      background: rgba(26,26,26,0.03); border: 1px solid rgba(26,26,26,0.08);
+      border-radius: 3px; padding: 13px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 32px;
+    }
+    .slot-summary-text { font-size: 12px; color: var(--ink); opacity: 0.68; line-height: 1.5; }
+    .slot-summary-change {
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--driftwood); background: none; border: none; cursor: pointer;
+      white-space: nowrap; padding: 0; opacity: 0.7; transition: opacity 0.2s; flex-shrink: 0;
+    }
+    .slot-summary-change:hover { opacity: 1; }
+
+    /* ── Cart bar minimum warning ── */
+    .cart-min-text { font-size: 10px; color: var(--err); letter-spacing: 0.02em; margin-top: 2px; opacity: 0.85; }
+
     /* ── Loading spinner ── */
     .po-loading { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; min-height: calc(100vh - 110px); padding: 40px; }
     .po-loading-label { font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: var(--ink); opacity: 0.3; }
@@ -559,7 +610,7 @@
     /* ── Mobile ── */
     @media (max-width: 640px) {
       .order-nav { padding: 18px 20px; }
-      .menu-inner, .checkout-inner { padding-left: 18px; padding-right: 18px; }
+      .menu-inner, .checkout-inner, .sel-inner { padding-left: 18px; padding-right: 18px; }
       .item-grid { grid-template-columns: 1fr; gap: 7px; }
       .slot-grid { grid-template-columns: repeat(2, 1fr); }
       .form-row { grid-template-columns: 1fr; }
@@ -1138,19 +1189,188 @@
       );
     }
 
+    // ── SelectionView ─────────────────────────────────────────────────────────
+    function SelectionView({ details, setDetails, availableDates, schedule: S, onContinue }) {
+      const dailyCounts = useDailyBookedCounts(availableDates);
+      const isDelivery  = details.fulfillmentType === 'delivery';
+      const { booked: bookedSlots, loading: slotsLoading } = useBookedSlots(!isDelivery && details.date ? details.date : null);
+      const pickupSlots = S ? getPickupSlots(S) : [];
+      const allBooked   = !!details.date && !slotsLoading && pickupSlots.every(s => bookedSlots.has(s.key));
+      const selectedDate = availableDates.find(d => d.dateKey === details.date);
+      const canContinue  = !!(details.date && (isDelivery ? details.zone : details.time));
+
+      function set(f, v) { setDetails(p => ({ ...p, [f]: v })); }
+
+      function fmtDropWindow(zone) {
+        const fmt = (t) => {
+          const [h, m] = t.split(':').map(Number);
+          return `${h > 12 ? h - 12 : h}:${String(m).padStart(2,'0')} ${h >= 12 ? 'PM' : 'AM'}`;
+        };
+        return `${fmt(zone.dropStart)} – ${fmt(zone.dropEnd)}`;
+      }
+
+      return (
+        <div className="sel-page">
+          <div className="sel-inner">
+            <h1 className="sel-heading">when do you want your order?</h1>
+            <p className="sel-sub">100 Enterprise Way, Scotts Valley, CA 95066 · pickup & delivery</p>
+
+            {/* Date picker */}
+            <div className="co-section">
+              <div className="co-section-title">choose a date</div>
+              <div className="date-grid">
+                {availableDates.map(d => {
+                  const { pickupCount = 0, deliveryCount = 0 } = dailyCounts.get(d.dateKey) || {};
+                  const pickupFull   = S && pickupCount >= S.pickup.dailyCap;
+                  const deliveryFull = !d.isDeliveryDay || (S && deliveryCount >= S.delivery.dailyCap);
+                  const soldOut      = pickupFull && deliveryFull;
+                  return (
+                    <button key={d.dateKey}
+                      className={`date-btn${details.date === d.dateKey ? ' on' : ''}${soldOut ? ' sold-out' : ''}`}
+                      disabled={soldOut}
+                      onClick={() => {
+                        set('date', d.dateKey);
+                        set('time', '');
+                        set('zone', '');
+                        set('zoneName', '');
+                        set('dropWindow', '');
+                        if (!d.isDeliveryDay) set('fulfillmentType', 'pickup');
+                      }}
+                    >
+                      <span className="date-day">{d.day}</span>
+                      <span className="date-num">{d.num}</span>
+                      {soldOut              && <span className="date-sold-out-tag">sold out</span>}
+                      {!soldOut && d.isDeliveryDay && <span className="date-delivery-tag">delivery</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Fulfillment toggle — only on delivery days */}
+            {details.date && selectedDate?.isDeliveryDay && (
+              <div className="co-section">
+                <div className="co-section-title">how</div>
+                <div className="fulfillment-grid">
+                  <button
+                    className={`fulfillment-card${!isDelivery ? ' on' : ''}`}
+                    onClick={() => { set('fulfillmentType', 'pickup'); set('zone', ''); set('zoneName', ''); set('dropWindow', ''); }}
+                  >
+                    <span className="fc-type">Pickup</span>
+                    <span className="fc-detail">{S ? `${S.pickup.startHour > 12 ? S.pickup.startHour - 12 : S.pickup.startHour}–${S.pickup.endHour > 12 ? S.pickup.endHour - 12 : S.pickup.endHour} PM` : '12–3 PM'} · 100 Enterprise Way</span>
+                  </button>
+                  <button
+                    className={`fulfillment-card${isDelivery ? ' on' : ''}`}
+                    onClick={() => { set('fulfillmentType', 'delivery'); set('time', ''); }}
+                  >
+                    <span className="fc-type">Delivery</span>
+                    <span className="fc-detail">{S ? `${S.delivery.startHour > 12 ? S.delivery.startHour - 12 : S.delivery.startHour}–${S.delivery.endHour > 12 ? S.delivery.endHour - 12 : S.delivery.endHour} PM` : '4–6 PM'} · UCSC & Santa Cruz County</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Pickup time slots */}
+            {details.date && !isDelivery && (
+              <div className="co-section">
+                <div className="co-section-title">pickup time</div>
+                {slotsLoading ? (
+                  <p className="slot-hint">loading available times…</p>
+                ) : allBooked ? (
+                  <p className="slot-full">fully booked for this day</p>
+                ) : (
+                  <div className="slot-grid">
+                    {S && (() => {
+                      const numHours     = S.pickup.endHour - S.pickup.startHour;
+                      const slotsPerHour = 60 / S.pickup.slotMinutes;
+                      return Array.from({ length: numHours }, (_, hour) => {
+                        const hourSlots = pickupSlots.slice(hour * slotsPerHour, (hour + 1) * slotsPerHour);
+                        const absHour   = S.pickup.startHour + hour;
+                        const label     = absHour === 12 ? '12 pm' : `${absHour - 12} pm`;
+                        return (
+                          <div key={hour} className="slot-col">
+                            <div className="slot-hour">{label}</div>
+                            {hourSlots.map(s => {
+                              const isBooked   = bookedSlots.has(s.key);
+                              const isSelected = details.time === s.label;
+                              const h = parseInt(s.key.slice(0, 2));
+                              const display = `${h > 12 ? h - 12 : h}:${s.key.slice(2)}`;
+                              return (
+                                <button key={s.key}
+                                  className={`slot-btn${isBooked ? ' booked' : ''}${isSelected ? ' on' : ''}`}
+                                  onClick={() => { if (!isBooked) set('time', s.label); }}
+                                >{display}</button>
+                              );
+                            })}
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Delivery zone cards */}
+            {details.date && isDelivery && S && (
+              <div className="co-section">
+                <div className="co-section-title">delivery zone</div>
+                <div className="zone-grid">
+                  {S.delivery.zones.map(zone => {
+                    const min = zone.minimum ?? S.delivery.minimum;
+                    return (
+                      <button key={zone.id}
+                        className={`zone-card${details.zone === zone.id ? ' on' : ''}`}
+                        onClick={() => { set('zone', zone.id); set('zoneName', zone.name); set('dropWindow', `${zone.dropStart} – ${zone.dropEnd}`); }}
+                      >
+                        <div className="zone-name">{zone.name}</div>
+                        <div className="zone-meta">drop-off {fmtDropWindow(zone)} · ${min} minimum</div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* CTA */}
+            <div style={{paddingBottom:'60px'}}>
+              <button className="sel-continue" disabled={!canContinue} onClick={() => canContinue && onContinue()}>
+                continue to order →
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // ── MenuView ──────────────────────────────────────────────────────────────
-    function MenuView({ cartItems, onAddSimple, onRemoveSimple, onModalOpen }) {
+    function MenuView({ cartItems, onAddSimple, onRemoveSimple, onModalOpen, details, schedule: S, onChangeSlot }) {
       const simpleQty = (itemId) => {
         return cartItems.filter(ci => ci.itemId === itemId && !hasModal(itemId))
           .reduce((s, ci) => s + ci.quantity, 0);
       };
       const modalCount = (itemId) => cartItems.filter(ci => ci.itemId === itemId).length;
 
+      const isDelivery   = details.fulfillmentType === 'delivery';
+      const selectedZone = isDelivery && S ? S.delivery.zones.find(z => z.id === details.zone) : null;
+      const zoneMinimum  = selectedZone?.minimum ?? S?.delivery?.minimum ?? 25;
+      const fmtShortDate = (key) => new Date(key + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
       return (
         <div className="menu-page">
           <div className="menu-inner">
             <h1 className="menu-heading">pre-order</h1>
-            <p className="menu-sub">100 Enterprise Way, Scotts Valley, CA 95066 · pickup & delivery</p>
+            {details.date && (
+              <div className="slot-banner">
+                <span>
+                  {isDelivery
+                    ? `Delivery · ${fmtShortDate(details.date)} · ${details.zoneName || details.zone} · $${zoneMinimum} min`
+                    : `Pickup · ${fmtShortDate(details.date)} · ${details.time}`}
+                </span>
+                <span className="slot-banner-sep">·</span>
+                <button className="slot-banner-change" onClick={onChangeSlot}>change</button>
+              </div>
+            )}
             <p className="notice" style={{marginBottom:'8px'}}>All prices are subject to change based on current fish market prices.</p>
 
             {CATEGORIES.map(cat => {
@@ -1184,15 +1404,24 @@
     }
 
     // ── CartBar ───────────────────────────────────────────────────────────────
-    function CartBar({ cartItems, onCheckout }) {
+    function CartBar({ cartItems, onCheckout, details, schedule: S }) {
       const total = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
       const count = cartItems.reduce((s, ci) => s + ci.quantity, 0);
       const visible = cartItems.length > 0;
+
+      const isDelivery   = details?.fulfillmentType === 'delivery';
+      const selectedZone = isDelivery && S ? S.delivery.zones.find(z => z.id === details.zone) : null;
+      const zoneMinimum  = selectedZone?.minimum ?? S?.delivery?.minimum ?? 25;
+      const shortfall    = isDelivery ? Math.max(0, zoneMinimum - total) : 0;
+
       return (
         <div className={`cart-bar${visible ? ' visible' : ''}`}>
           <div className="cart-bar-info">
             <span className="cart-bar-count">{count} {count === 1 ? 'item' : 'items'}</span>
             <span className="cart-bar-total">{fmtMoney(total)}</span>
+            {isDelivery && shortfall > 0 && (
+              <span className="cart-min-text">add {fmtMoney(shortfall)} more for ${zoneMinimum} minimum</span>
+            )}
           </div>
           <button className="cart-bar-btn" onClick={onCheckout}>checkout →</button>
         </div>
@@ -1200,23 +1429,19 @@
     }
 
     // ── CheckoutView ──────────────────────────────────────────────────────────
-    function CheckoutView({ cartItems, onEditItem, onRemoveItem, onQtyChange, details, setDetails, onBack, onSubmit, slotConflict, onClearSlotConflict, submitting, availableDates, schedule: S }) {
+    function CheckoutView({ cartItems, onEditItem, onRemoveItem, onQtyChange, details, setDetails, onBack, onSubmit, slotConflict, submitting, onChangeSlot, schedule: S }) {
       const [smsConsent, setSmsConsent] = useState(false);
       const [smsErr,     setSmsErr]     = useState(false);
       const [errors,     setErrors]     = useState({});
       const [promoInput, setPromoInput] = useState(details.promoCode || '');
       const [promoStatus,setPromoStatus]= useState(details.promoCode ? 'ok' : null);
 
-      const dailyCounts = useDailyBookedCounts(availableDates);
-      const { booked: bookedSlots, loading: slotsLoading } = useBookedSlots(details.fulfillmentType !== 'delivery' ? details.date : null);
-      const pickupSlots = S ? getPickupSlots(S) : [];
-      const allBooked   = !!details.date && !slotsLoading && pickupSlots.every(s => bookedSlots.has(s.key));
-
       const isDelivery   = details.fulfillmentType === 'delivery';
-      const selectedDate = availableDates.find(d => d.dateKey === details.date);
+      const selectedZone = isDelivery && S ? S.delivery.zones.find(z => z.id === details.zone) : null;
+      const zoneMinimum  = selectedZone?.minimum ?? S?.delivery?.minimum ?? 25;
 
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
-      const deliveryFee   = isDelivery && S && subtotal >= S.delivery.minimum
+      const deliveryFee   = isDelivery && S && subtotal >= zoneMinimum
         ? (subtotal >= S.delivery.freeThreshold ? 0 : S.delivery.fee)
         : 0;
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
@@ -1245,13 +1470,9 @@
         if (!details.lastName?.trim())  e.lastName  = 'required';
         if (!details.phone?.trim() || details.phone.replace(/\D/g,'').length < 10) e.phone = 'valid phone required';
         if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'valid email required';
-        if (!details.date) e.date = 'select a date';
         if (isDelivery) {
-          if (!details.zone)                      e.zone = 'select a delivery zone';
-          if (!details.deliveryAddress?.trim())   e.deliveryAddress = 'required';
-          if (S && subtotal < S.delivery.minimum) e.deliveryMin = `add $${(S.delivery.minimum - subtotal).toFixed(2)} more to meet the $${S.delivery.minimum} minimum`;
-        } else {
-          if (!details.time) e.time = 'select a time';
+          if (!details.deliveryAddress?.trim()) e.deliveryAddress = 'required';
+          if (subtotal < zoneMinimum) e.deliveryMin = `add $${(zoneMinimum - subtotal).toFixed(2)} more to meet the $${zoneMinimum} minimum`;
         }
         setErrors(e);
         return Object.keys(e).length === 0;
@@ -1268,6 +1489,18 @@
           <div className="checkout-inner">
             <h2 className="checkout-heading">checkout</h2>
             <p className="checkout-sub">inoa · scotts valley</p>
+
+            {/* Slot summary */}
+            {details.date && (
+              <div className="slot-summary">
+                <div className="slot-summary-text">
+                  {isDelivery
+                    ? `Delivery · ${new Date(details.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${details.zoneName || details.zone}`
+                    : `Pickup · ${new Date(details.date+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'})} · ${details.time}`}
+                </div>
+                <button className="slot-summary-change" onClick={onChangeSlot}>change slot</button>
+              </div>
+            )}
 
             {/* Cart review */}
             <div className="co-section">
@@ -1308,129 +1541,10 @@
               )}
             </div>
 
-            {/* Date picker */}
-            <div className="co-section">
-              <div className="co-section-title">
-                choose a date
-                {errors.date && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.date}</span>}
-              </div>
-              <div className="date-grid">
-                {availableDates.map(d => {
-                  const { pickupCount = 0, deliveryCount = 0 } = dailyCounts.get(d.dateKey) || {};
-                  const pickupFull   = S && pickupCount >= S.pickup.dailyCap;
-                  const deliveryFull = !d.isDeliveryDay || (S && deliveryCount >= S.delivery.dailyCap);
-                  const soldOut      = pickupFull && deliveryFull;
-                  return (
-                    <button key={d.dateKey}
-                      className={`date-btn${details.date === d.dateKey ? ' on' : ''}${soldOut ? ' sold-out' : ''}`}
-                      disabled={soldOut}
-                      onClick={() => {
-                        set('date', d.dateKey);
-                        set('time', '');
-                        set('zone', '');
-                        set('zoneName', '');
-                        set('dropWindow', '');
-                        if (!d.isDeliveryDay) set('fulfillmentType', 'pickup');
-                      }}
-                    >
-                      <span className="date-day">{d.day}</span>
-                      <span className="date-num">{d.num}</span>
-                      {soldOut           && <span className="date-sold-out-tag">sold out</span>}
-                      {!soldOut && d.isDeliveryDay && <span className="date-delivery-tag">delivery</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Fulfillment type — only when delivery day is selected */}
-            {selectedDate?.isDeliveryDay && (
-              <div className="co-section">
-                <div className="co-section-title">fulfillment</div>
-                <div className="fulfillment-grid">
-                  <button
-                    className={`fulfillment-card${!isDelivery ? ' on' : ''}`}
-                    onClick={() => { set('fulfillmentType', 'pickup'); set('zone', ''); set('zoneName', ''); set('dropWindow', ''); }}
-                  >
-                    <span className="fc-type">Pickup</span>
-                    <span className="fc-detail">{S ? `${S.pickup.startHour > 12 ? S.pickup.startHour - 12 : S.pickup.startHour}–${S.pickup.endHour > 12 ? S.pickup.endHour - 12 : S.pickup.endHour} PM` : '12–3 PM'} · 100 Enterprise Way</span>
-                  </button>
-                  <button
-                    className={`fulfillment-card${isDelivery ? ' on' : ''}`}
-                    onClick={() => { set('fulfillmentType', 'delivery'); set('time', ''); }}
-                  >
-                    <span className="fc-type">Delivery</span>
-                    <span className="fc-detail">{S ? `${S.delivery.startHour > 12 ? S.delivery.startHour - 12 : S.delivery.startHour}–${S.delivery.endHour > 12 ? S.delivery.endHour - 12 : S.delivery.endHour} PM` : '4–6 PM'} · UCSC area</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Pickup time (hidden for delivery) */}
-            {!isDelivery && (
-              <div className="co-section">
-                <div className="co-section-title">
-                  pickup time
-                  {errors.time && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.time}</span>}
-                </div>
-                {slotConflict && <p className="slot-conflict">That slot was just taken — please choose another time.</p>}
-                {!details.date ? (
-                  <p className="slot-hint">select a date above to see available times</p>
-                ) : slotsLoading ? (
-                  <p className="slot-hint">loading available times…</p>
-                ) : allBooked ? (
-                  <p className="slot-full">fully booked for this day</p>
-                ) : (
-                  <div className="slot-grid">
-                    {S && (() => {
-                      const numHours  = S.pickup.endHour - S.pickup.startHour;
-                      const slotsPerHour = 60 / S.pickup.slotMinutes;
-                      return Array.from({ length: numHours }, (_, hour) => {
-                        const hourSlots = pickupSlots.slice(hour * slotsPerHour, (hour + 1) * slotsPerHour);
-                        const absHour   = S.pickup.startHour + hour;
-                        const label     = absHour === 12 ? '12 pm' : `${absHour - 12} pm`;
-                        return (
-                          <div key={hour} className="slot-col">
-                            <div className="slot-hour">{label}</div>
-                            {hourSlots.map(s => {
-                              const isBooked   = bookedSlots.has(s.key);
-                              const isSelected = details.time === s.label;
-                              const h = parseInt(s.key.slice(0, 2));
-                              const display = `${h > 12 ? h - 12 : h}:${s.key.slice(2)}`;
-                              return (
-                                <button key={s.key}
-                                  className={`slot-btn${isBooked ? ' booked' : ''}${isSelected ? ' on' : ''}`}
-                                  onClick={() => { if (!isBooked) { set('time', s.label); onClearSlotConflict(); } }}
-                                >{display}</button>
-                              );
-                            })}
-                          </div>
-                        );
-                      });
-                    })()}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Delivery zone + notes (only for delivery) */}
+            {/* Delivery address + notes */}
             {isDelivery && S && (
               <div className="co-section">
-                <div className="co-section-title">
-                  delivery zone
-                  {errors.zone && <span style={{color:'var(--err)',fontSize:'10px',letterSpacing:0,textTransform:'none',marginLeft:'6px'}}>{errors.zone}</span>}
-                </div>
-                <div className="zone-grid">
-                  {S.delivery.zones.map(zone => (
-                    <button key={zone.id}
-                      className={`zone-card${details.zone === zone.id ? ' on' : ''}`}
-                      onClick={() => { set('zone', zone.id); set('zoneName', zone.name); set('dropWindow', `${zone.dropStart} – ${zone.dropEnd}`); }}
-                    >
-                      <div className="zone-name">{zone.name}</div>
-                      <div className="zone-meta">drop-off {zone.dropStart} – {zone.dropEnd}</div>
-                    </button>
-                  ))}
-                </div>
+                <div className="co-section-title">delivery</div>
                 <div className="form-group" style={{marginTop:'6px'}}>
                   <label className="form-label">
                     delivery address <span style={{opacity:0.45}}>(required)</span>
@@ -1464,13 +1578,12 @@
                     placeholder="gate code, parking info, accessibility needs, etc."
                   />
                 </div>
-                {/* Delivery fee / minimum info */}
-                {subtotal > 0 && subtotal < S.delivery.minimum && (
+                {subtotal > 0 && subtotal < zoneMinimum && (
                   <div className="delivery-min-warn">
-                    Delivery requires a ${S.delivery.minimum} minimum — add ${(S.delivery.minimum - subtotal).toFixed(2)} more to continue.
+                    Delivery requires a ${zoneMinimum} minimum — add ${(zoneMinimum - subtotal).toFixed(2)} more to continue.
                   </div>
                 )}
-                {subtotal >= S.delivery.minimum && (
+                {subtotal >= zoneMinimum && (
                   <p className="form-hint" style={{marginBottom:'4px'}}>
                     {deliveryFee === 0
                       ? `Free delivery (order over $${S.delivery.freeThreshold})`
@@ -1554,7 +1667,7 @@
                     <span className="total-row-val">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
                   </div>
                 ))}
-                {isDelivery && S && subtotal >= S.delivery.minimum && (
+                {isDelivery && S && subtotal >= zoneMinimum && (
                   <div className="total-row">
                     <span className="total-row-label">delivery fee</span>
                     <span className="total-row-val" style={deliveryFee === 0 ? {color:'var(--ogo)'} : {}}>
@@ -1603,7 +1716,7 @@
               {smsErr && <p className="sms-err">Please check the box to confirm your order.</p>}
             </div>
 
-            {slotConflict && <p className="slot-conflict" style={{marginTop:'12px'}}>That pickup time was just taken — scroll up and choose a different slot.</p>}
+            {slotConflict && <p className="slot-conflict" style={{marginTop:'12px'}}>That pickup time was just taken — use "change slot" above to pick a different time.</p>}
 
             <div className="co-actions">
               <button className="co-back" onClick={onBack} disabled={submitting}>← back to menu</button>
@@ -1631,8 +1744,10 @@
       const applePayRef    = useRef(null);
 
       const isDelivery    = details.fulfillmentType === 'delivery';
+      const pvZone        = isDelivery && S ? S.delivery.zones.find(z => z.id === details.zone) : null;
+      const pvZoneMin     = pvZone?.minimum ?? S?.delivery?.minimum ?? 25;
       const subtotal      = cartItems.reduce((s, ci) => s + ci.unitPrice * ci.quantity, 0);
-      const deliveryFee   = isDelivery && S && subtotal >= S.delivery.minimum
+      const deliveryFee   = isDelivery && S && subtotal >= pvZoneMin
         ? (subtotal >= S.delivery.freeThreshold ? 0 : S.delivery.fee)
         : 0;
       const ucscDiscount  = details.ucscStudent   ? Math.round(subtotal * 0.10 * 100) / 100 : 0;
@@ -1843,7 +1958,7 @@
                     <span className="total-row-val">{fmtMoney(ci.unitPrice * ci.quantity)}</span>
                   </div>
                 ))}
-                {isDelivery && S && subtotal >= S.delivery.minimum && (
+                {isDelivery && S && subtotal >= pvZoneMin && (
                   <div className="total-row">
                     <span className="total-row-label">delivery fee</span>
                     <span className="total-row-val" style={deliveryFee === 0 ? {color:'var(--ogo)'} : {}}>
@@ -1946,7 +2061,7 @@
     function PreorderForm() {
       const { schedule: SCHEDULE, scheduleError } = useSchedule();
 
-      const [view,         setView]         = useState('menu');
+      const [view,         setView]         = useState('select');
       const [cartItems,    setCartItems]    = useState([]);
       const [modalItem,    setModalItem]    = useState(null);
       const [editLine,     setEditLine]     = useState(null);
@@ -2024,6 +2139,7 @@
 
       function goCheckout() { setView('checkout'); scrollTop(); }
       function goMenu()     { setView('menu');     scrollTop(); }
+      function goSelect()   { setView('select');   scrollTop(); }
 
       async function handleSubmit() {
         setSubmitting(true);
@@ -2089,12 +2205,25 @@
 
       return (
         <>
+          {view === 'select' && (
+            <SelectionView
+              details={details}
+              setDetails={setDetails}
+              availableDates={availableDates}
+              schedule={SCHEDULE}
+              onContinue={() => { setView('menu'); scrollTop(); }}
+            />
+          )}
+
           {view === 'menu' && (
             <MenuView
               cartItems={cartItems}
               onAddSimple={addSimple}
               onRemoveSimple={removeSimple}
               onModalOpen={openModal}
+              details={details}
+              schedule={SCHEDULE}
+              onChangeSlot={goSelect}
             />
           )}
 
@@ -2109,9 +2238,8 @@
               onBack={goMenu}
               onSubmit={handleSubmit}
               slotConflict={slotConflict}
-              onClearSlotConflict={() => setSlotConflict(false)}
               submitting={submitting}
-              availableDates={availableDates}
+              onChangeSlot={goSelect}
               schedule={SCHEDULE}
             />
           )}
@@ -2138,6 +2266,8 @@
             <CartBar
               cartItems={cartItems}
               onCheckout={goCheckout}
+              details={details}
+              schedule={SCHEDULE}
             />
           )}
         </>
