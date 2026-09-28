@@ -136,18 +136,32 @@
       </div>
 
       <h1 class="heading">you're all set.</h1>
-      <p class="sub">Payment received. Your pickup slot is reserved and we'll send a confirmation text shortly.</p>
+      <p class="sub" id="conf-sub">Payment received. We'll send a confirmation text shortly.</p>
 
       <div class="divider"></div>
 
+      <!-- Pickup blocks -->
       <div class="detail-block" id="pickup-detail" style="display:none">
-        <div class="detail-label">pickup</div>
+        <div class="detail-label">pickup time</div>
         <div class="detail-value" id="pickup-text"></div>
       </div>
-
-      <div class="detail-block">
+      <div class="detail-block" id="pickup-location" style="display:none">
         <div class="detail-label">location</div>
         <div class="detail-value">100 Enterprise Way<br>Scotts Valley, CA 95066</div>
+      </div>
+
+      <!-- Delivery blocks -->
+      <div class="detail-block" id="delivery-detail" style="display:none">
+        <div class="detail-label">delivery window</div>
+        <div class="detail-value" id="delivery-window-text"></div>
+      </div>
+      <div class="detail-block" id="delivery-address-block" style="display:none">
+        <div class="detail-label">delivering to</div>
+        <div class="detail-value" id="delivery-address-text"></div>
+      </div>
+      <div class="detail-block" id="delivery-note-block" style="display:none">
+        <div class="detail-label">heads up</div>
+        <div class="detail-value">I'll text you when I'm outside — please meet me at the building entrance.</div>
       </div>
 
       <div class="actions">
@@ -160,27 +174,55 @@
   </main>
 
   <script>
-    function showPickup(date, timeLabel) {
-      const dateObj = new Date(date + 'T12:00:00');
-      const dateStr = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-      document.getElementById('pickup-text').textContent = `${dateStr} · ${timeLabel}`;
-      document.getElementById('pickup-detail').style.display = 'block';
+    function fmtDate(dateKey) {
+      const dateObj = new Date(dateKey + 'T12:00:00');
+      return dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
     }
 
-    // Primary: sessionStorage saved right before Square redirect
-    const storedDate = sessionStorage.getItem('inoa_pickup_date');
-    const storedTime = sessionStorage.getItem('inoa_pickup_time');
-    if (storedDate && storedTime) {
+    function showPickup(date, timeLabel) {
+      document.getElementById('conf-sub').textContent = 'Payment received. Your pickup slot is reserved.';
+      document.getElementById('pickup-text').textContent = fmtDate(date) + ' · ' + timeLabel;
+      document.getElementById('pickup-detail').style.display = 'block';
+      document.getElementById('pickup-location').style.display = 'block';
+    }
+
+    function showDelivery(date, zoneName, dropWindow, address, apt) {
+      document.getElementById('conf-sub').textContent = 'Payment received. We\'ll text you when we\'re on the way.';
+      const windowLine = fmtDate(date) + (dropWindow ? ' · ' + dropWindow : '') + (zoneName ? ' (' + zoneName + ')' : '');
+      document.getElementById('delivery-window-text').textContent = windowLine;
+      document.getElementById('delivery-detail').style.display = 'block';
+      if (address) {
+        document.getElementById('delivery-address-text').textContent = address + (apt ? ', ' + apt : '');
+        document.getElementById('delivery-address-block').style.display = 'block';
+      }
+      document.getElementById('delivery-note-block').style.display = 'block';
+    }
+
+    const fulfillmentType = sessionStorage.getItem('inoa_fulfillment_type') || 'pickup';
+    const storedDate      = sessionStorage.getItem('inoa_pickup_date');
+    const storedTime      = sessionStorage.getItem('inoa_pickup_time');
+    const zoneName        = sessionStorage.getItem('inoa_zone_name') || '';
+    const dropWindow      = sessionStorage.getItem('inoa_drop_window') || '';
+    const deliveryAddress = sessionStorage.getItem('inoa_delivery_address') || '';
+    const deliveryApt     = sessionStorage.getItem('inoa_delivery_apt') || '';
+
+    // Clear sessionStorage
+    ['inoa_fulfillment_type','inoa_pickup_date','inoa_pickup_time','inoa_zone_name',
+     'inoa_drop_window','inoa_delivery_address','inoa_delivery_apt'].forEach(k => sessionStorage.removeItem(k));
+
+    if (fulfillmentType === 'delivery' && storedDate) {
+      showDelivery(storedDate, zoneName, dropWindow, deliveryAddress, deliveryApt);
+    } else if (storedDate && storedTime) {
       showPickup(storedDate, storedTime);
-      sessionStorage.removeItem('inoa_pickup_date');
-      sessionStorage.removeItem('inoa_pickup_time');
     } else {
       // Fallback: Square appends ?referenceId=YYYY-MM-DD_HHMM to the redirect URL
       const params = new URLSearchParams(window.location.search);
       const referenceId = params.get('referenceId');
       if (referenceId) {
-        const [date, slotKey] = referenceId.split('_');
-        if (date && slotKey) {
+        const parts = referenceId.split('_');
+        const date = parts[0];
+        const slotKey = parts[1];
+        if (date && slotKey && !slotKey.startsWith('delivery')) {
           const h24 = parseInt(slotKey.slice(0, 2));
           const min = slotKey.slice(2);
           const h12 = h24 > 12 ? h24 - 12 : (h24 === 0 ? 12 : h24);

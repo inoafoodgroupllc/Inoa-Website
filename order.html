@@ -506,7 +506,7 @@
     .zone-card.on { border-color: var(--driftwood); background: rgba(139,115,85,0.04); }
     .zone-name { font-size: 13px; font-weight: 500; color: var(--ink); margin-bottom: 3px; }
     .zone-meta { font-size: 11px; color: var(--ink); opacity: 0.5; }
-    .zone-point { font-size: 11px; color: var(--driftwood); margin-top: 4px; opacity: 0.8; }
+    .delivery-note { padding: 10px 14px; background: rgba(91,124,95,0.07); border-left: 2px solid var(--ogo); font-size: 12px; color: var(--ink); line-height: 1.65; margin: 2px 0 14px; opacity: 0.85; }
 
     /* ── Date card tags ── */
     .date-delivery-tag { font-size: 7px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ogo); margin-top: 1px; }
@@ -1247,8 +1247,8 @@
         if (!details.email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(details.email)) e.email = 'valid email required';
         if (!details.date) e.date = 'select a date';
         if (isDelivery) {
-          if (!details.zone)                    e.zone = 'select a delivery zone';
-          if (!details.deliveryNotes?.trim())   e.deliveryNotes = 'required — where should we meet you?';
+          if (!details.zone)                      e.zone = 'select a delivery zone';
+          if (!details.deliveryAddress?.trim())   e.deliveryAddress = 'required';
           if (S && subtotal < S.delivery.minimum) e.deliveryMin = `add $${(S.delivery.minimum - subtotal).toFixed(2)} more to meet the $${S.delivery.minimum} minimum`;
         } else {
           if (!details.time) e.time = 'select a time';
@@ -1428,21 +1428,41 @@
                     >
                       <div className="zone-name">{zone.name}</div>
                       <div className="zone-meta">drop-off {zone.dropStart} – {zone.dropEnd}</div>
-                      {zone.dropPoint && zone.dropPoint.indexOf('TBD') === -1 && (
-                        <div className="zone-point">{zone.dropPoint}</div>
-                      )}
                     </button>
                   ))}
                 </div>
                 <div className="form-group" style={{marginTop:'6px'}}>
-                  <label className="form-label">delivery instructions <span style={{opacity:0.45}}>(required)</span></label>
+                  <label className="form-label">
+                    delivery address <span style={{opacity:0.45}}>(required)</span>
+                    {errors.deliveryAddress && <span className="form-err" style={{marginLeft:'6px'}}>{errors.deliveryAddress}</span>}
+                  </label>
+                  <input
+                    className={`form-input${errors.deliveryAddress ? ' err' : ''}`}
+                    value={details.deliveryAddress || ''}
+                    onChange={e => set('deliveryAddress', e.target.value)}
+                    placeholder="street address or dorm / college + building"
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">apt / room / unit <span style={{opacity:0.45}}>(optional)</span></label>
+                  <input
+                    className="form-input"
+                    value={details.deliveryApt || ''}
+                    onChange={e => set('deliveryApt', e.target.value)}
+                    placeholder="apt #, room #, suite, etc."
+                  />
+                </div>
+                <div className="delivery-note">
+                  I'll text you when I'm outside — please meet me at the building entrance.
+                </div>
+                <div className="form-group">
+                  <label className="form-label">special instructions <span style={{opacity:0.45}}>(optional)</span></label>
                   <textarea
-                    className={`form-textarea${errors.deliveryNotes ? ' err' : ''}`}
+                    className="form-textarea"
                     value={details.deliveryNotes || ''}
                     onChange={e => set('deliveryNotes', e.target.value)}
-                    placeholder="dorm name, room #, or where to find you"
+                    placeholder="gate code, parking info, accessibility needs, etc."
                   />
-                  {errors.deliveryNotes && <span className="form-err">{errors.deliveryNotes}</span>}
                 </div>
                 {/* Delivery fee / minimum info */}
                 {subtotal > 0 && subtotal < S.delivery.minimum && (
@@ -1479,7 +1499,7 @@
                 <label className="form-label">phone</label>
                 <input className={`form-input${errors.phone?' err':''}`} value={details.phone||''} onChange={e=>set('phone',fmtPhone(e.target.value))} placeholder="(831) 555-0100" inputMode="tel" />
                 {errors.phone && <span className="form-err">{errors.phone}</span>}
-                <span className="form-hint">your receipt will be sent to you</span>
+                <span className="form-hint">{isDelivery ? "we'll text you when we're outside" : 'we may text you about your order'}</span>
               </div>
               <div className="form-group">
                 <label className="form-label">email</label>
@@ -1716,6 +1736,8 @@
                 time:             isDelivery ? undefined : details.time,
                 zone:             isDelivery ? details.zone : undefined,
                 dropWindow:       isDelivery ? details.dropWindow : undefined,
+                deliveryAddress:  isDelivery ? details.deliveryAddress : undefined,
+                deliveryApt:      isDelivery ? details.deliveryApt : undefined,
                 deliveryNotes:    isDelivery ? details.deliveryNotes : undefined,
                 firstName: details.firstName, lastName: details.lastName,
                 phone: details.phone, email: details.email,
@@ -1742,11 +1764,13 @@
             setPaying(false);
             return;
           }
-          sessionStorage.setItem('inoa_fulfillment_type', isDelivery ? 'delivery' : 'pickup');
-          sessionStorage.setItem('inoa_pickup_date', details.date);
-          sessionStorage.setItem('inoa_pickup_time', details.time || '');
-          sessionStorage.setItem('inoa_zone_name',   details.zoneName || '');
-          sessionStorage.setItem('inoa_drop_window', details.dropWindow || '');
+          sessionStorage.setItem('inoa_fulfillment_type',  isDelivery ? 'delivery' : 'pickup');
+          sessionStorage.setItem('inoa_pickup_date',       details.date);
+          sessionStorage.setItem('inoa_pickup_time',       details.time || '');
+          sessionStorage.setItem('inoa_zone_name',         details.zoneName || '');
+          sessionStorage.setItem('inoa_drop_window',       details.dropWindow || '');
+          sessionStorage.setItem('inoa_delivery_address',  isDelivery ? (details.deliveryAddress || '') : '');
+          sessionStorage.setItem('inoa_delivery_apt',      isDelivery ? (details.deliveryApt || '') : '');
           window.location.href = '/confirmation';
         } catch (err) {
           setError('An unexpected error occurred. Please try again.');
@@ -1802,6 +1826,9 @@
                   ? `delivery · ${details.date} · ${details.zoneName || details.zone} · ${details.dropWindow}`
                   : `pickup · ${details.date} · ${details.time}`}
               </div>
+              {isDelivery && details.deliveryAddress && (
+                <div className="pv-paying-as-detail">{details.deliveryAddress}{details.deliveryApt ? `, ${details.deliveryApt}` : ''}</div>
+              )}
             </div>
 
             {/* Order summary */}

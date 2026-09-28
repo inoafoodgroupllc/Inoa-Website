@@ -231,19 +231,32 @@
         var zoneCfg = S ? S.delivery.zones.find(function(z) { return z.id === zoneId; }) : null;
         var zoneName = (zoneOrders[0].zoneName) || (zoneCfg ? zoneCfg.name : zoneId);
         var dropWindow = zoneOrders[0].dropWindow || (zoneCfg ? zoneCfg.dropStart + ' – ' + zoneCfg.dropEnd : '');
-        var dropPoint  = zoneCfg ? zoneCfg.dropPoint : '';
-
         html += '<div class="zone-block">';
         html += '<div class="zone-label">' + esc(zoneName) + '</div>';
-        if (dropWindow) html += '<div class="zone-drop">Drop-off ' + esc(dropWindow) + (dropPoint && dropPoint.indexOf('TBD') === -1 ? ' · ' + esc(dropPoint) : '') + '</div>';
+        if (dropWindow) html += '<div class="zone-drop">Drop-off ' + esc(dropWindow) + '</div>';
 
         html += '<table class="order-table">';
-        html += '<thead><tr><th>name</th><th>phone</th><th>delivery notes</th><th>items</th><th>total</th></tr></thead><tbody>';
+        html += '<thead><tr><th>name</th><th>phone</th><th>address</th><th>items</th><th>total</th></tr></thead><tbody>';
         zoneOrders.forEach(function(o) {
+          var phone = o.customerPhone || '';
+          var phoneDigits = phone.replace(/\D/g, '');
+          var addr = o.deliveryAddress || '';
+          var apt  = o.deliveryApt || '';
+          var fullAddr = addr + (apt ? ', ' + apt : '');
+          var mapsUrl = addr ? 'https://maps.google.com/?q=' + encodeURIComponent(fullAddr) : '';
           html += '<tr>';
           html += '<td class="name">' + esc(o.customerName) + '</td>';
-          html += '<td>' + esc(o.customerPhone || '—') + '</td>';
-          html += '<td>' + (o.deliveryNotes ? '<span class="delivery-notes">' + esc(o.deliveryNotes) + '</span>' : '<span style="opacity:0.3">—</span>') + '</td>';
+          html += '<td>' + (phone
+            ? '<a href="tel:' + esc(phoneDigits) + '" style="color:inherit;text-decoration:none;border-bottom:1px solid rgba(26,26,26,0.2);">' + esc(phone) + '</a>'
+            : '—') + '</td>';
+          html += '<td>';
+          if (fullAddr) {
+            html += '<a href="' + esc(mapsUrl) + '" target="_blank" rel="noopener" style="color:inherit;text-decoration:none;border-bottom:1px solid rgba(26,26,26,0.2);">' + esc(fullAddr) + '</a>';
+          } else {
+            html += '<span style="opacity:0.3">—</span>';
+          }
+          if (o.deliveryNotes) html += '<div class="delivery-notes">' + esc(o.deliveryNotes) + '</div>';
+          html += '</td>';
           html += '<td class="items">' + formatItems(o.orderItems) + '</td>';
           html += '<td class="total">' + esc(o.orderTotal || '—') + '</td>';
           html += '</tr>';

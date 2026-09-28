@@ -138,7 +138,7 @@ export default async function handler(req, res) {
   if (!isDelivery && !details.time) {
     return res.status(400).json({ error: 'missing required fields' });
   }
-  if (isDelivery && !details.zone) {
+  if (isDelivery && (!details.zone || !details.deliveryAddress)) {
     return res.status(400).json({ error: 'missing required fields' });
   }
 
@@ -330,7 +330,7 @@ export default async function handler(req, res) {
     if (isDelivery) {
       const [dropH, dropM] = foundZone.dropStart.split(':').map(Number);
       pickupAtValue = `${requestedDate}T${String(dropH).padStart(2, '0')}:${String(dropM).padStart(2, '0')}:00-07:00`;
-      fulfillmentNote = `DELIVERY — ${foundZone.name} · ${details.dropWindow || foundZone.dropStart + '–' + foundZone.dropEnd}`;
+      fulfillmentNote = `DELIVERY — ${foundZone.name} · ${details.dropWindow || foundZone.dropStart + '–' + foundZone.dropEnd} · ${details.deliveryAddress}${details.deliveryApt ? ' ' + details.deliveryApt : ''}`;
     } else {
       pickupAtValue = pickupAtISO(requestedDate, details.time);
     }
@@ -477,6 +477,8 @@ export default async function handler(req, res) {
               zone:             { stringValue: details.zone },
               zoneName:         { stringValue: foundZone.name },
               dropWindow:       { stringValue: details.dropWindow || '' },
+              deliveryAddress:  { stringValue: details.deliveryAddress || '' },
+              deliveryApt:      { stringValue: details.deliveryApt || '' },
               deliveryNotes:    { stringValue: details.deliveryNotes || '' },
               deliveryFeeCents: { integerValue: deliveryFeeCents },
             } : {}),
@@ -560,6 +562,8 @@ export default async function handler(req, res) {
       ...(isDelivery ? {
         zone_name:           foundZone.name,
         drop_window:         details.dropWindow || '',
+        delivery_address:    details.deliveryAddress || '',
+        delivery_apt:        details.deliveryApt || '',
         delivery_notes:      details.deliveryNotes || '',
         delivery_fee:        deliveryFeeStr,
       } : {

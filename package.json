@@ -1,6 +1,7 @@
 {
   "dependencies": {
-    "square": "^40.0.0"
+    "square": "^40.0.0",
+    "vercel": "^60.0.1"
   },
   "devDependencies": {
     "puppeteer": "^24.40.0"

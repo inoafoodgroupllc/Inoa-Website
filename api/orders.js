@@ -66,6 +66,8 @@ export default async function handler(req, res) {
       zone:             f.zone?.stringValue,
       zoneName:         f.zoneName?.stringValue,
       dropWindow:       f.dropWindow?.stringValue,
+      deliveryAddress:  f.deliveryAddress?.stringValue,
+      deliveryApt:      f.deliveryApt?.stringValue,
       deliveryNotes:    f.deliveryNotes?.stringValue,
       deliveryFeeCents: f.deliveryFeeCents?.integerValue ? Number(f.deliveryFeeCents.integerValue) : 0,
     };
