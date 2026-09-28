@@ -1,4 +1,8 @@
 {
+  "functions": {
+    "api/schedule.js": { "includeFiles": "schedule.config.js" },
+    "api/pay.js":      { "includeFiles": "schedule.config.js" }
+  },
   "headers": [
     {
       "source": "/.well-known/apple-developer-merchantid-domain-association",
