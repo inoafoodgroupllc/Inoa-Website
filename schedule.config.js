@@ -15,7 +15,7 @@ var INOA_SCHEDULE = {
   maxDaysAhead: 6,
 
   // Night-before cutoff: orders for tomorrow disappear after this LA time
-  orderCutoffHour: 20,         // 8:00 PM
+  orderCutoffHour: 22,         // 10:00 PM
   orderCutoffMinute: 0,
 
   pickup: {
