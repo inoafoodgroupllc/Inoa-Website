@@ -484,6 +484,8 @@
     .notices { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; }
     .notice { font-size: 11px; line-height: 1.75; color: var(--ink); opacity: 0.37; padding: 11px 15px; border-left: 2px solid rgba(26,26,26,0.09); }
     .notice em { font-style: italic; }
+    .hfa-notice { color: var(--ogo); opacity: 0.85; border-left-color: var(--ogo); margin-top: 6px; }
+    .hfa-notice strong { font-weight: 500; }
 
     /* SMS consent */
     .sms-block { padding: 14px 16px; background: rgba(26,26,26,0.03); border: 1px solid rgba(26,26,26,0.07); border-radius: 2px; margin-top: 18px; }
@@ -776,7 +778,7 @@
 
     const CAT_DESC = {
       'poke box':  'served over seasoned sushi rice & housemade furikake',
-      'poke ½lb': '½ lb of fresh ahi · honolulu fish auction · no rice',
+      'poke ½lb': '½ lb of fresh fish · no rice',
       'combos':   'sashimi + poke · served over seasoned sushi rice & homemade furikake',
     };
 
@@ -1425,6 +1427,7 @@
               </div>
             )}
             <p className="notice" style={{marginBottom:'8px'}}>All prices are subject to change based on current fish market prices.</p>
+            <p className="notice hfa-notice" style={{marginBottom:'24px'}}>All ahi sourced fresh from the <strong>Honolulu Fish Auction</strong> — Hawaii's premier fish market.</p>
 
             {CATEGORIES.map(cat => {
               const items = ITEMS.filter(it => it.cat === cat);
