@@ -168,7 +168,8 @@
       background: rgba(74,124,111,0.1); color: var(--ogo);
       border-radius: 2px; padding: 1px 5px; margin-left: 5px; vertical-align: middle;
     }
-    .item-card-desc { font-size: 11px; color: var(--ink); opacity: 0.4; line-height: 1.55; flex: 1; margin-bottom: 14px; }
+    .item-card-desc { font-size: 11px; color: var(--ink); opacity: 0.4; line-height: 1.55; flex: 1; margin-bottom: 8px; }
+    .item-card-provenance { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ogo); opacity: 0.8; margin-bottom: 10px; }
     .item-card-footer { display: flex; align-items: center; justify-content: space-between; margin-top: auto; }
     .item-card-price { font-size: 13px; color: var(--ink); opacity: 0.68; }
 
@@ -734,9 +735,9 @@
       { id:103, cat:'poke box',  name:'Large Size Poke Box',       desc:'choice of 1–2 poke flavors & 1–2 sides served over seasoned sushi rice & housemade furikake',                                                       price:23.50 },
       { id:104, cat:'poke box',  name:'Handroll Box',              desc:'choice of 1–2 poke flavors & sliced avocado served over seasoned sushi rice & homemade furikake w/ roasted nori pack',                              price:25.00 },
       // POKE ½LB
-      { id:201, cat:'poke ½lb', name:'Shoyu Ahi',                 desc:'housemade shoyu blend, sesame oil, ogo, alaea salt, sweet onion, green onion',                                                                     price:17.00 },
-      { id:202, cat:'poke ½lb', name:'Spicy Ahi',                 desc:'housemade spicy mayo blend, sesame oil, masago, togarashi, sweet onion, green onion',                                                              price:17.00, tag:'GF' },
-      { id:203, cat:'poke ½lb', name:'Hawaiian Ahi',              desc:'sesame oil, ogo, alaea sea salt, sweet onion, green onion',                                                                                         price:17.00, tag:'GF' },
+      { id:201, cat:'poke ½lb', name:'Shoyu Ahi',                 desc:'housemade shoyu blend, sesame oil, ogo, alaea salt, sweet onion, green onion',                                                                     price:17.00,                provenance:'Honolulu Fish Auction' },
+      { id:202, cat:'poke ½lb', name:'Spicy Ahi',                 desc:'housemade spicy mayo blend, sesame oil, masago, togarashi, sweet onion, green onion',                                                              price:17.00, tag:'GF',      provenance:'Honolulu Fish Auction' },
+      { id:203, cat:'poke ½lb', name:'Hawaiian Ahi',              desc:'sesame oil, ogo, alaea sea salt, sweet onion, green onion',                                                                                         price:17.00, tag:'GF',      provenance:'Honolulu Fish Auction' },
       { id:204, cat:'poke ½lb', name:'Spicy Salmon',              desc:'housemade spicy mayo blend, sesame oil, masago, togarashi, sweet onion, green onion',                                                              price:16.00, tag:'GF' },
       { id:205, cat:'poke ½lb', name:'Sweet Unagi Salmon',        desc:'housemade sweet unagi sauce, sesame oil, sweet onion, green onion',                                                                                price:16.00 },
       { id:206, cat:'poke ½lb', name:'Chili Garlic Salmon',       desc:'housemade chili crunch, fried garlic, shoyu, sesame oil, tobiko, sweet onion, green onion',                                                       price:16.00 },
@@ -745,7 +746,7 @@
       { id:209, cat:'poke ½lb', name:'Garlic Shrimp',             desc:'cooked · homemade fried garlic, minced garlic, sesame oil, alaea salt, sweet onion, green onion',                                                 price:15.00, tag:'GF' },
       // COMBOS
       { id:301, cat:'combos',   name:'Salmon Belly Combo',        desc:'choice of poke flavor & salmon belly sashimi served over seasoned sushi rice & homemade furikake',                                                 price:18.50 },
-      { id:302, cat:'combos',   name:'Ahi Combo',                 desc:'choice of poke flavor & ahi sashimi served over seasoned sushi rice & homemade furikake',                                                          price:20.00 },
+      { id:302, cat:'combos',   name:'Ahi Combo',                 desc:'choice of poke flavor & ahi sashimi served over seasoned sushi rice & homemade furikake',                                                          price:20.00, provenance:'Honolulu Fish Auction' },
       // SPECIALS
       { id:401, cat:'specials', name:'Poke Nachos',               desc:'housemade wonton chips, shoyu marinated ahi/salmon, avocado, cilantro, serrano, green onion, spicy mayo & sweet soy drizzle, furikake, masago',   price:16.50 },
       { id:404, cat:'specials', name:'Sushi Bake',               desc:'warm sushi rice layered with creamy crab, baked to order. finished with spicy mayo, sweet soy, masago, and green onions. nori pack on the side.',  price:12.00 },
@@ -775,7 +776,7 @@
 
     const CAT_DESC = {
       'poke box':  'served over seasoned sushi rice & housemade furikake',
-      'poke ½lb': '½ lb of fresh fish · no rice',
+      'poke ½lb': '½ lb of fresh ahi · honolulu fish auction · no rice',
       'combos':   'sashimi + poke · served over seasoned sushi rice & homemade furikake',
     };
 
@@ -1197,6 +1198,7 @@
               {item.tag && <span className="item-card-tag">{item.tag}</span>}
             </div>
             {item.desc && <div className="item-card-desc">{item.desc}</div>}
+            {item.provenance && <div className="item-card-provenance">{item.provenance}</div>}
             <div className="item-card-footer">
               <span className="item-card-price">{fmtMoney(item.price)}</span>
               <span className="item-card-icon">+</span>
@@ -1212,6 +1214,7 @@
             {item.tag && <span className="item-card-tag">{item.tag}</span>}
           </div>
           {item.desc && <div className="item-card-desc">{item.desc}</div>}
+          {item.provenance && <div className="item-card-provenance">{item.provenance}</div>}
           <div className="item-card-footer">
             <span className="item-card-price">{fmtMoney(item.price)}</span>
             {cartQty === 0 ? (
