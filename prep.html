@@ -74,6 +74,11 @@
 
     .delivery-notes { font-size: 11px; color: var(--driftwood); font-style: italic; margin-top: 3px; }
     .no-orders { font-size: 12px; color: var(--ink); opacity: 0.35; padding: 12px 0; }
+    .kanpachi-item { border-left: 2px solid #b8962a; padding-left: 6px; color: #7a6020; font-weight: 500; }
+    .pack-note { font-size: 10px; color: var(--driftwood); font-style: italic; padding-left: 10px; }
+    .summary-chip.kanpachi { border-color: rgba(184,150,42,0.3); background: rgba(184,150,42,0.06); }
+    .summary-chip.kanpachi .summary-chip-num { color: #b8962a; }
+    .summary-chip.kanpachi .summary-chip-label { color: #b8962a; opacity: 0.7; }
 
     @media print {
       .controls { display: none; }
@@ -186,11 +191,16 @@
     var html = '';
 
     // Summary bar
+    var totalKanpachiOz = orders.reduce(function(s, o) { return s + (parseInt(o.kanpachiOz) || 0); }, 0);
+    var kanpachiStarting = (S && S.kanpachi) ? (S.kanpachi.startingOz || 80) : 80;
     html += '<div class="summary-bar">';
     html += '<div class="summary-chip"><div class="summary-chip-num">' + orders.length + '</div><div class="summary-chip-label">total orders</div></div>';
     html += '<div class="summary-chip"><div class="summary-chip-num">' + pickup.length + '</div><div class="summary-chip-label">pickup</div></div>';
     if (delivery.length > 0) {
       html += '<div class="summary-chip"><div class="summary-chip-num">' + delivery.length + '</div><div class="summary-chip-label">delivery</div></div>';
+    }
+    if (totalKanpachiOz > 0) {
+      html += '<div class="summary-chip kanpachi"><div class="summary-chip-num">' + totalKanpachiOz + ' oz</div><div class="summary-chip-label">kanpachi used of ' + kanpachiStarting + ' oz</div></div>';
     }
     html += '<div class="summary-chip"><div class="summary-chip-num">' + fmtDate(date) + '</div><div class="summary-chip-label">date</div></div>';
     html += '</div>';
@@ -274,7 +284,16 @@
   function formatItems(rawItems) {
     if (!rawItems) return '—';
     return rawItems.split('\n').map(function(line) {
-      return '<div class="item">' + esc(line.trim()) + '</div>';
+      var t = line.trim();
+      if (!t) return '';
+      if (t.startsWith('→')) {
+        return '<div class="item pack-note">' + esc(t) + '</div>';
+      }
+      var isKanpachi = t.indexOf('Kanpachi') !== -1 || t.indexOf('Ekolu') !== -1 || t.indexOf('ʻEkolu') !== -1;
+      if (isKanpachi) {
+        return '<div class="item kanpachi-item">' + esc(t) + '</div>';
+      }
+      return '<div class="item">' + esc(t) + '</div>';
     }).join('');
   }
 

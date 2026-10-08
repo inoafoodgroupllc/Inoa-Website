@@ -50,4 +50,23 @@ export default {
       { id: 'offcampus', name: 'Santa Cruz County', minimum: 30 },
     ],
   },
+
+  kanpachi: {
+    enabled: true,       // set false to kill all kanpachi options site-wide
+    startingOz: 80,
+    ozPerFlavor: {       // oz cost when kanpachi selected as a poke flavor
+      101: 2,  // Poke + Rice
+      102: 2,  // Regular Box
+      103: 4,  // Large Box
+      104: 4,  // Handroll Box
+      301: 2,  // Salmon Belly Combo
+      302: 2,  // Ahi Combo
+      402: 2,  // Poke Bombs (per kanpachi selection)
+    },
+    ozPerItem: {
+      210: 6,  // ½ lb Kanpachi Jalapeño Ponzu (standalone)
+      901: 1,  // ʻEkolu Set base (sashimi trio)
+    },
+    ekoluUpgradeOz: 3,   // extra oz when ʻEkolu flavor is Kanpachi Jalapeño Ponzu
+  },
 };

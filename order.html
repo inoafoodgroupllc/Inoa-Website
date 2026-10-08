@@ -487,6 +487,23 @@
     .hfa-notice { color: var(--ogo); opacity: 0.85; border-left-color: var(--ogo); margin-top: 6px; }
     .hfa-notice strong { font-weight: 500; }
 
+    /* ── Kanpachi / Limited Drop ── */
+    :root { --gold: #b8962a; }
+    .limited-drop-section { margin-bottom: 44px; }
+    .limited-drop-hdr { display: flex; align-items: center; gap: 14px; margin-bottom: 6px; }
+    .limited-drop-hdr .cat-name { color: var(--gold); }
+    .limited-drop-hdr .cat-rule { background: linear-gradient(90deg, rgba(184,150,42,0.45), rgba(184,150,42,0.05)); }
+    .limited-drop-eyebrow {
+      font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--gold); opacity: 0.7; margin-bottom: 14px;
+    }
+    .item-card-tag.limited {
+      background: rgba(184,150,42,0.12); color: var(--gold);
+    }
+    .flavor-premium-price {
+      font-size: 11px; color: var(--gold); opacity: 0.85; margin-left: 4px;
+    }
+
     /* SMS consent */
     .sms-block { padding: 14px 16px; background: rgba(26,26,26,0.03); border: 1px solid rgba(26,26,26,0.07); border-radius: 2px; margin-top: 18px; }
     .sms-block.err { border-color: var(--err); background: rgba(184,122,90,0.04); }
@@ -772,11 +789,15 @@
       { id:707, cat:'add-ons',  name:'Seasoned Sushi Rice',       desc:'w/ housemade furikake',                                                                                                                              price:4.00 },
       // DRINKS
       { id:801, cat:'drinks',   name:'Hawaiian Sun',            soldOut:true,              desc:'11.5 fl oz · lilikoi passion, pass-o-guava, or strawberry guava',                                                                                  price:3.00 },
+      // KANPACHI LIMITED DROP
+      { id:210, cat:'poke ½lb', name:'Kanpachi Jalapeño Ponzu', desc:'yuzu ponzu, jalapeño, sweet onion, fried garlic · this week only', price:20.00, tag:'Limited', kanpachiOz:6, maxQty:1 },
+      { id:901, cat:'limited drop', name:"ʻEkolu Set",          desc:"Three-fish sashimi trio (kanpachi, ahi, salmon) + poke over rice. Includes takuan and pickled fresno. ʻEkolu means 'three' in Hawaiian.", price:24.50, tag:'New', kanpachiOz:1 },
     ];
 
-    const CATEGORIES = ['specials','poke box','poke ½lb','combos','sides','musubi','add-ons','drinks'];
+    const CATEGORIES = ['limited drop','specials','poke box','poke ½lb','combos','sides','musubi','add-ons','drinks'];
 
     const CAT_DESC = {
+      'limited drop': 'this week only · while supplies last',
       'poke box':  'served over seasoned sushi rice & housemade furikake',
       'poke ½lb': '½ lb of fresh fish · no rice',
       'combos':   'sashimi + poke · served over seasoned sushi rice & homemade furikake',
@@ -794,13 +815,22 @@
       402: { flavors:{ min:1, max:3 }, addOns:true },
       403: { addOns:true },
       404: { protein:true },
+      210: {},
+      901: { flavors:{ min:1, max:1, list:'ekolu' }, addOns:true },
     };
 
     const FLAVOR_OPTS = [
       'Shoyu Ahi','Spicy Ahi','Hawaiian Ahi',
       'Spicy Salmon','Sweet Unagi Salmon','Chili Garlic Salmon',
       'Kimchi Tako','Garlic Shrimp','Tobiko Scallop',
+      'Kanpachi Jalapeño Ponzu',
     ];
+    const EKOLU_FLAVOR_OPTS = [
+      'Spicy Salmon','Sweet Unagi Salmon','Chili Garlic Salmon',
+      'Shoyu Ahi','Spicy Ahi','Hawaiian Ahi',
+      'Kanpachi Jalapeño Ponzu',
+    ];
+    const PREMIUM_FLAVORS = { 'Kanpachi Jalapeño Ponzu': 2.50 };
     const SOLD_OUT_FLAVORS = new Set();
     const SOLD_OUT_SIDES   = new Set(['Kimchi Cucumber','Cold Roasted Sweet Potato']);
     const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
@@ -882,7 +912,8 @@
     }
 
     function unitPrice(basePrice, mods) {
-      return basePrice + (mods.addOns||[]).reduce((s,a) => s + a.price, 0) + (mods.protein?.price || 0);
+      const flavorUp = (mods.flavors||[]).reduce((s,f) => s + (PREMIUM_FLAVORS[f]||0), 0);
+      return basePrice + flavorUp + (mods.addOns||[]).reduce((s,a) => s + a.price, 0) + (mods.protein?.price || 0);
     }
 
     function fmtMoney(n) {
@@ -935,6 +966,24 @@
       return { booked, loading };
     }
 
+    // ── Kanpachi inventory hook ───────────────────────────────────────────────
+    function useKanpachiInventory() {
+      const [data, setData] = useState({ remainingOz: 0, enabled: false, loading: true });
+      useEffect(() => {
+        if (!db) { setData({ remainingOz: 0, enabled: false, loading: false }); return; }
+        const unsub = db.collection('kanpachi').doc('current').onSnapshot(
+          snap => {
+            if (!snap.exists) { setData({ remainingOz: 0, enabled: false, loading: false }); return; }
+            const d = snap.data();
+            setData({ remainingOz: d.remainingOz ?? 0, enabled: d.enabled ?? false, loading: false });
+          },
+          err => { console.error('[inoa] kanpachi snapshot error:', err); setData({ remainingOz: 0, enabled: false, loading: false }); }
+        );
+        return () => unsub();
+      }, []);
+      return data;
+    }
+
     // ── ClosedView ────────────────────────────────────────────────────────────
     function ClosedView({ message, sub }) {
       return (
@@ -947,7 +996,7 @@
     }
 
     // ── ItemModal ─────────────────────────────────────────────────────────────
-    function ItemModal({ item, editLine, onAdd, onClose }) {
+    function ItemModal({ item, editLine, onAdd, onClose, kanpachi }) {
       const cfg = MODIFIER_CONFIGS[item.id] || {};
       const [qty, setQty] = useState(editLine?.quantity || 1);
       const [mods, setMods] = useState(editLine ? { ...editLine.modifiers } : { flavors:[], sides:[], fish:null, addOns:[], protein:PROTEIN_OPTS[0] });
@@ -1029,35 +1078,44 @@
               <div className="modal-qty-row">
                 <button className="mqr-btn" onClick={() => setQty(q => Math.max(1, q-1))} disabled={qty<=1}>−</button>
                 <span className="mqr-val">{qty}</span>
-                <button className="mqr-btn" onClick={() => setQty(q => q+1)}>+</button>
+                <button className="mqr-btn" onClick={() => setQty(q => q+1)} disabled={!!(item.maxQty && qty >= item.maxQty)}>+</button>
               </div>
 
               {/* Flavors */}
-              {cfg.flavors && (
-                <div className="mod-group">
-                  <div className="mod-group-hdr">
-                    <span className="mod-group-label">choose flavor</span>
-                    <FlavorCount />
-                  </div>
-                  <div className="mod-rule" />
-                  <div className="mod-opt-list">
-                    {FLAVOR_OPTS.map(name => {
-                      const sel = (mods.flavors||[]).includes(name);
-                      const isRadio = cfg.flavors.max === 1;
-                      const soldOut = SOLD_OUT_FLAVORS.has(name);
-                      return (
-                        <div key={name} className={`mod-opt${sel?' sel':''}${soldOut?' sold-out':''}`} onClick={() => { if (!soldOut) toggleFlavor(name); }}>
-                          <div className={`mod-indicator${isRadio?'':' sq'}`}>
-                            <div className="mod-indicator-dot" />
+              {cfg.flavors && (() => {
+                const isEkolu   = cfg.flavors.list === 'ekolu';
+                const flavorList = isEkolu ? EKOLU_FLAVOR_OPTS : FLAVOR_OPTS;
+                return (
+                  <div className="mod-group">
+                    <div className="mod-group-hdr">
+                      <span className="mod-group-label">choose flavor</span>
+                      <FlavorCount />
+                    </div>
+                    <div className="mod-rule" />
+                    <div className="mod-opt-list">
+                      {flavorList.map(name => {
+                        const sel = (mods.flavors||[]).includes(name);
+                        const isRadio = cfg.flavors.max === 1;
+                        const isKanpachi = name === 'Kanpachi Jalapeño Ponzu';
+                        const kanpachiSoldOut = isKanpachi && (!kanpachi?.enabled || kanpachi?.loading ||
+                          (isEkolu ? kanpachi?.remainingOz < 4 : kanpachi?.remainingOz < 2));
+                        const soldOut = SOLD_OUT_FLAVORS.has(name) || kanpachiSoldOut;
+                        const premiumPrice = PREMIUM_FLAVORS[name];
+                        return (
+                          <div key={name} className={`mod-opt${sel?' sel':''}${soldOut?' sold-out':''}`} onClick={() => { if (!soldOut) toggleFlavor(name); }}>
+                            <div className={`mod-indicator${isRadio?'':' sq'}`}>
+                              <div className="mod-indicator-dot" />
+                            </div>
+                            <span className="mod-opt-name">{name}</span>
+                            {premiumPrice && !soldOut && <span className="flavor-premium-price">+{fmtMoney(premiumPrice)}</span>}
+                            {soldOut && <span className="item-card-sold-out">sold out</span>}
                           </div>
-                          <span className="mod-opt-name">{name}</span>
-                          {soldOut && <span className="item-card-sold-out">sold out</span>}
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Sides */}
               {cfg.sides && (
@@ -1172,15 +1230,17 @@
     }
 
     // ── ItemCard ──────────────────────────────────────────────────────────────
-    function ItemCard({ item, cartQty, onAdd, onRemove, onModalOpen }) {
+    function ItemCard({ item, cartQty, onAdd, onRemove, onModalOpen, soldOutOverride }) {
       const needsModal = hasModal(item.id);
+      const isSoldOut  = item.soldOut || soldOutOverride;
+      const tagClass   = item.tag === 'Limited' || item.tag === 'New' ? 'item-card-tag limited' : 'item-card-tag';
 
-      if (item.soldOut) {
+      if (isSoldOut) {
         return (
           <div className="item-card sold-out">
             <div className="item-card-name">
               {item.name}
-              {item.tag && <span className="item-card-tag">{item.tag}</span>}
+              {item.tag && <span className={tagClass}>{item.tag}</span>}
             </div>
             {item.desc && <div className="item-card-desc">{item.desc}</div>}
             <div className="item-card-footer">
@@ -1197,7 +1257,7 @@
             {cartQty > 0 && <span className="item-card-badge">{cartQty}</span>}
             <div className="item-card-name">
               {item.name}
-              {item.tag && <span className="item-card-tag">{item.tag}</span>}
+              {item.tag && <span className={tagClass}>{item.tag}</span>}
             </div>
             {item.desc && <div className="item-card-desc">{item.desc}</div>}
             {item.provenance && <div className="item-card-provenance">{item.provenance}</div>}
@@ -1209,11 +1269,12 @@
         );
       }
 
+      const atMax = item.maxQty != null && cartQty >= item.maxQty;
       return (
         <div className={`item-card${cartQty > 0 ? ' has-qty' : ''}`}>
           <div className="item-card-name">
             {item.name}
-            {item.tag && <span className="item-card-tag">{item.tag}</span>}
+            {item.tag && <span className={tagClass}>{item.tag}</span>}
           </div>
           {item.desc && <div className="item-card-desc">{item.desc}</div>}
           {item.provenance && <div className="item-card-provenance">{item.provenance}</div>}
@@ -1225,7 +1286,7 @@
               <div className="item-qty-ctrl" onClick={e => e.stopPropagation()}>
                 <button className="iqc-btn" onClick={() => onRemove(item)}>−</button>
                 <span className="iqc-val">{cartQty}</span>
-                <button className="iqc-btn" onClick={() => onAdd(item)}>+</button>
+                <button className="iqc-btn" onClick={() => onAdd(item)} disabled={atMax}>+</button>
               </div>
             )}
           </div>
@@ -1399,7 +1460,7 @@
     }
 
     // ── MenuView ──────────────────────────────────────────────────────────────
-    function MenuView({ cartItems, onAddSimple, onRemoveSimple, onModalOpen, details, schedule: S, onChangeSlot }) {
+    function MenuView({ cartItems, onAddSimple, onRemoveSimple, onModalOpen, details, schedule: S, onChangeSlot, kanpachi }) {
       const simpleQty = (itemId) => {
         return cartItems.filter(ci => ci.itemId === itemId && !hasModal(itemId))
           .reduce((s, ci) => s + ci.quantity, 0);
@@ -1410,6 +1471,14 @@
       const selectedZone = isDelivery && S ? S.delivery.zones.find(z => z.id === details.zone) : null;
       const zoneMinimum  = selectedZone?.minimum ?? S?.delivery?.minimum ?? 25;
       const fmtShortDate = (key) => new Date(key + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+
+      const kanpachiEnabled    = !kanpachi?.loading && kanpachi?.enabled;
+      const kanpachiRemainingOz = kanpachi?.remainingOz ?? 0;
+
+      function isKanpachiSoldOut(item) {
+        if (!item.kanpachiOz) return false;
+        return !kanpachiEnabled || kanpachiRemainingOz < item.kanpachiOz;
+      }
 
       return (
         <div className="menu-page">
@@ -1432,13 +1501,15 @@
             {CATEGORIES.map(cat => {
               const items = ITEMS.filter(it => it.cat === cat);
               if (!items.length) return null;
+              const isLimited = cat === 'limited drop';
               return (
-                <div key={cat} className="cat-section">
-                  <div className="cat-hdr">
+                <div key={cat} className={isLimited ? 'limited-drop-section' : 'cat-section'}>
+                  <div className={isLimited ? 'limited-drop-hdr cat-hdr' : 'cat-hdr'}>
                     <span className="cat-name">{cat}</span>
                     <div className="cat-rule" />
                   </div>
-                  {CAT_DESC[cat] && <p className="cat-desc">{CAT_DESC[cat]}</p>}
+                  {isLimited && <p className="limited-drop-eyebrow">Limited Drop · While Supplies Last</p>}
+                  {CAT_DESC[cat] && !isLimited && <p className="cat-desc">{CAT_DESC[cat]}</p>}
                   <div className="item-grid">
                     {items.map(item => (
                       <ItemCard
@@ -1448,6 +1519,7 @@
                         onAdd={onAddSimple}
                         onRemove={onRemoveSimple}
                         onModalOpen={onModalOpen}
+                        soldOutOverride={isKanpachiSoldOut(item)}
                       />
                     ))}
                   </div>
@@ -1927,6 +1999,8 @@
               setError('Delivery is sold out for that date. Go back and choose a different date.');
             } else if (data.error === 'past_cutoff') {
               setError('The ordering window for that date has closed. Please go back and choose another date.');
+            } else if (data.error === 'kanpachi_sold_out') {
+              setError('The kanpachi just sold out — please go back and remove kanpachi items to continue.');
             } else {
               setError(data.detail || data.error || 'Payment failed. Please try again.');
             }
@@ -2114,6 +2188,14 @@
     // ── PreorderForm (root) ───────────────────────────────────────────────────
     function PreorderForm() {
       const { schedule: SCHEDULE, scheduleError } = useSchedule();
+      const kanpachi = useKanpachiInventory();
+
+      useEffect(() => {
+        if (kanpachi.loading) return;
+        const available = kanpachi.enabled && kanpachi.remainingOz >= 2;
+        if (available) SOLD_OUT_FLAVORS.delete('Kanpachi Jalapeño Ponzu');
+        else SOLD_OUT_FLAVORS.add('Kanpachi Jalapeño Ponzu');
+      }, [kanpachi.enabled, kanpachi.remainingOz, kanpachi.loading]);
 
       const [view,         setView]         = useState('select');
       const [cartItems,    setCartItems]    = useState([]);
@@ -2278,6 +2360,7 @@
               details={details}
               schedule={SCHEDULE}
               onChangeSlot={goSelect}
+              kanpachi={kanpachi}
             />
           )}
 
@@ -2313,6 +2396,7 @@
               editLine={editLine}
               onAdd={addFromModal}
               onClose={() => { setModalItem(null); setEditLine(null); }}
+              kanpachi={kanpachi}
             />
           )}
 
