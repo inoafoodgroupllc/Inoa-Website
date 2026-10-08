@@ -331,7 +331,7 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── Kanpachi inventory check ───────────────────────────────────
+    // ── Kanpachi oz tally (for packing notes + order doc) ─────────────
     const KANPACHI_FLAVOR = 'Kanpachi Jalapeño Ponzu';
     let totalKanpachiOz = 0;
     for (const ci of cartItems) {
@@ -348,32 +348,6 @@ export default async function handler(req, res) {
         if (flavorCount > 0) {
           totalKanpachiOz += (SCHEDULE.kanpachi.ozPerFlavor[ci.itemId] ?? 2) * flavorCount * qty;
         }
-      }
-    }
-
-    let kanpachiUpdateTime = null;
-    let kanpachiRemainingOz = 0;
-    if (totalKanpachiOz > 0) {
-      try {
-        const kUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/kanpachi/current?key=${FIREBASE_API_KEY}`;
-        const kRes = await fetch(kUrl);
-        if (kRes.ok) {
-          const kDoc = kRes.status === 404 ? null : await kRes.json();
-          if (!kDoc || kDoc.fields?.enabled?.booleanValue === false) {
-            return res.status(409).json({ error: 'kanpachi_sold_out', detail: 'Kanpachi is no longer available. Please remove kanpachi items and try again.' });
-          }
-          kanpachiRemainingOz = kDoc.fields?.remainingOz?.integerValue
-            ? parseInt(kDoc.fields.remainingOz.integerValue)
-            : (kDoc.fields?.remainingOz?.doubleValue ?? 0);
-          kanpachiUpdateTime  = kDoc.updateTime || null;
-          if (kanpachiRemainingOz < totalKanpachiOz) {
-            return res.status(409).json({ error: 'kanpachi_sold_out', detail: 'Not enough kanpachi remaining. Please remove kanpachi items and try again.' });
-          }
-        } else if (kRes.status === 404) {
-          return res.status(409).json({ error: 'kanpachi_sold_out', detail: 'Kanpachi is no longer available.' });
-        }
-      } catch (kErr) {
-        console.error('[inoa] Kanpachi pre-check error (proceeding):', kErr?.message);
       }
     }
 
@@ -612,33 +586,6 @@ export default async function handler(req, res) {
       }
     } catch (slotErr) {
       console.error('[inoa] Firestore slot write error:', slotErr?.message);
-    }
-
-    // ── Kanpachi inventory deduction (atomic conditional write) ───────
-    if (totalKanpachiOz > 0) {
-      try {
-        let kPatchUrl = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT_ID}/databases/(default)/documents/kanpachi/current`
-          + `?key=${FIREBASE_API_KEY}`
-          + `&updateMask.fieldPaths=remainingOz`;
-        if (kanpachiUpdateTime) {
-          kPatchUrl += `&currentDocument.updateTime=${encodeURIComponent(kanpachiUpdateTime)}`;
-        }
-        const newOz = Math.max(0, kanpachiRemainingOz - totalKanpachiOz);
-        const kPatchRes = await fetch(kPatchUrl, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fields: { remainingOz: { integerValue: newOz } } }),
-        });
-        if (kPatchRes.status === 412) {
-          console.error(`[CRITICAL] KANPACHI RACE — inventory doc modified between pre-check and deduction. Order: ${order.id}, Payment: ${payment.id}, oz: ${totalKanpachiOz}. Manual review required.`);
-        } else if (!kPatchRes.ok) {
-          console.error('[inoa] Kanpachi inventory deduction failed:', await kPatchRes.text());
-        } else {
-          console.log(`[inoa] Kanpachi deducted ${totalKanpachiOz} oz (remaining: ${newOz})`);
-        }
-      } catch (kDeductErr) {
-        console.error('[inoa] Kanpachi deduction error:', kDeductErr?.message);
-      }
     }
 
     // ── Send order confirmation email (with one retry) ─────────────

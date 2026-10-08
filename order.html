@@ -966,23 +966,10 @@
       return { booked, loading };
     }
 
-    // ── Kanpachi inventory hook ───────────────────────────────────────────────
-    function useKanpachiInventory() {
-      const [data, setData] = useState({ remainingOz: 0, enabled: false, loading: true });
-      useEffect(() => {
-        if (!db) { setData({ remainingOz: 0, enabled: false, loading: false }); return; }
-        const unsub = db.collection('kanpachi').doc('current').onSnapshot(
-          snap => {
-            if (!snap.exists) { setData({ remainingOz: 0, enabled: false, loading: false }); return; }
-            const d = snap.data();
-            setData({ remainingOz: d.remainingOz ?? 0, enabled: d.enabled ?? false, loading: false });
-          },
-          err => { console.error('[inoa] kanpachi snapshot error:', err); setData({ remainingOz: 0, enabled: false, loading: false }); }
-        );
-        return () => unsub();
-      }, []);
-      return data;
-    }
+    // ── Kanpachi availability ─────────────────────────────────────────────────
+    // Set to true when kanpachi sells out — no deploy needed, just flip this flag
+    const KANPACHI_SOLD_OUT = false;
+    if (KANPACHI_SOLD_OUT) SOLD_OUT_FLAVORS.add('Kanpachi Jalapeño Ponzu');
 
     // ── ClosedView ────────────────────────────────────────────────────────────
     function ClosedView({ message, sub }) {
@@ -996,7 +983,7 @@
     }
 
     // ── ItemModal ─────────────────────────────────────────────────────────────
-    function ItemModal({ item, editLine, onAdd, onClose, kanpachi }) {
+    function ItemModal({ item, editLine, onAdd, onClose }) {
       const cfg = MODIFIER_CONFIGS[item.id] || {};
       const [qty, setQty] = useState(editLine?.quantity || 1);
       const [mods, setMods] = useState(editLine ? { ...editLine.modifiers } : { flavors:[], sides:[], fish:null, addOns:[], protein:PROTEIN_OPTS[0] });
@@ -1097,8 +1084,7 @@
                         const sel = (mods.flavors||[]).includes(name);
                         const isRadio = cfg.flavors.max === 1;
                         const isKanpachi = name === 'Kanpachi Jalapeño Ponzu';
-                        const kanpachiSoldOut = isKanpachi && (!kanpachi?.enabled || kanpachi?.loading ||
-                          (isEkolu ? kanpachi?.remainingOz < 4 : kanpachi?.remainingOz < 2));
+                        const kanpachiSoldOut = isKanpachi && KANPACHI_SOLD_OUT;
                         const soldOut = SOLD_OUT_FLAVORS.has(name) || kanpachiSoldOut;
                         const premiumPrice = PREMIUM_FLAVORS[name];
                         return (
@@ -1460,7 +1446,7 @@
     }
 
     // ── MenuView ──────────────────────────────────────────────────────────────
-    function MenuView({ cartItems, onAddSimple, onRemoveSimple, onModalOpen, details, schedule: S, onChangeSlot, kanpachi }) {
+    function MenuView({ cartItems, onAddSimple, onRemoveSimple, onModalOpen, details, schedule: S, onChangeSlot }) {
       const simpleQty = (itemId) => {
         return cartItems.filter(ci => ci.itemId === itemId && !hasModal(itemId))
           .reduce((s, ci) => s + ci.quantity, 0);
@@ -1472,12 +1458,8 @@
       const zoneMinimum  = selectedZone?.minimum ?? S?.delivery?.minimum ?? 25;
       const fmtShortDate = (key) => new Date(key + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
-      const kanpachiEnabled    = !kanpachi?.loading && kanpachi?.enabled;
-      const kanpachiRemainingOz = kanpachi?.remainingOz ?? 0;
-
       function isKanpachiSoldOut(item) {
-        if (!item.kanpachiOz) return false;
-        return !kanpachiEnabled || kanpachiRemainingOz < item.kanpachiOz;
+        return !!(item.kanpachiOz && KANPACHI_SOLD_OUT);
       }
 
       return (
@@ -2188,14 +2170,6 @@
     // ── PreorderForm (root) ───────────────────────────────────────────────────
     function PreorderForm() {
       const { schedule: SCHEDULE, scheduleError } = useSchedule();
-      const kanpachi = useKanpachiInventory();
-
-      useEffect(() => {
-        if (kanpachi.loading) return;
-        const available = kanpachi.enabled && kanpachi.remainingOz >= 2;
-        if (available) SOLD_OUT_FLAVORS.delete('Kanpachi Jalapeño Ponzu');
-        else SOLD_OUT_FLAVORS.add('Kanpachi Jalapeño Ponzu');
-      }, [kanpachi.enabled, kanpachi.remainingOz, kanpachi.loading]);
 
       const [view,         setView]         = useState('select');
       const [cartItems,    setCartItems]    = useState([]);
@@ -2360,7 +2334,6 @@
               details={details}
               schedule={SCHEDULE}
               onChangeSlot={goSelect}
-              kanpachi={kanpachi}
             />
           )}
 
@@ -2396,7 +2369,6 @@
               editLine={editLine}
               onAdd={addFromModal}
               onClose={() => { setModalItem(null); setEditLine(null); }}
-              kanpachi={kanpachi}
             />
           )}
 
