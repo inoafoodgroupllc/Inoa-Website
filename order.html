@@ -503,6 +503,25 @@
     .flavor-premium-price {
       font-size: 11px; color: var(--gold); opacity: 0.85; margin-left: 4px;
     }
+    .limited-drop-feature {
+      margin-bottom: 18px;
+      padding: 14px 16px;
+      background: rgba(184,150,42,0.06);
+      border-left: 2px solid rgba(184,150,42,0.4);
+      border-radius: 2px;
+    }
+    .limited-drop-feature-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px; font-weight: 400; color: var(--gold); letter-spacing: 0.01em; margin-bottom: 4px;
+    }
+    .limited-drop-feature-body {
+      font-size: 11px; color: var(--ink); opacity: 0.55; line-height: 1.65;
+    }
+    .mod-opt-sub {
+      font-size: 10px; color: var(--ink); opacity: 0.42; line-height: 1.45;
+      margin-top: 1px; flex-basis: 100%; padding-left: 28px;
+    }
+    .mod-opt.kanpachi-opt { flex-wrap: wrap; align-items: flex-start; }
 
     /* SMS consent */
     .sms-block { padding: 14px 16px; background: rgba(26,26,26,0.03); border: 1px solid rgba(26,26,26,0.07); border-radius: 2px; margin-top: 18px; }
@@ -790,7 +809,7 @@
       // DRINKS
       { id:801, cat:'drinks',   name:'Hawaiian Sun',            soldOut:true,              desc:'11.5 fl oz · lilikoi passion, pass-o-guava, or strawberry guava',                                                                                  price:3.00 },
       // KANPACHI LIMITED DROP
-      { id:210, cat:'poke ½lb', name:'Kanpachi Jalapeño Ponzu', desc:'yuzu ponzu, jalapeño, sweet onion, fried garlic · this week only', price:20.00, tag:'Limited', kanpachiOz:6, maxQty:1 },
+      { id:210, cat:'limited drop', name:'Kanpachi Jalapeño Ponzu ½lb', desc:'yuzu ponzu, jalapeño, sweet onion, fried garlic', price:20.00, tag:'Limited', kanpachiOz:6, maxQty:1 },
       { id:901, cat:'limited drop', name:"ʻEkolu Set",          desc:"Three-fish sashimi trio (kanpachi, ahi, salmon) + poke over rice. Includes takuan and pickled fresno. ʻEkolu means 'three' in Hawaiian.", price:24.50, tag:'New', kanpachiOz:1 },
     ];
 
@@ -1088,13 +1107,14 @@
                         const soldOut = SOLD_OUT_FLAVORS.has(name) || kanpachiSoldOut;
                         const premiumPrice = PREMIUM_FLAVORS[name];
                         return (
-                          <div key={name} className={`mod-opt${sel?' sel':''}${soldOut?' sold-out':''}`} onClick={() => { if (!soldOut) toggleFlavor(name); }}>
-                            <div className={`mod-indicator${isRadio?'':' sq'}`}>
+                          <div key={name} className={`mod-opt${sel?' sel':''}${soldOut?' sold-out':''}${isKanpachi?' kanpachi-opt':''}`} onClick={() => { if (!soldOut) toggleFlavor(name); }}>
+                            <div className={`mod-indicator${isRadio?'':' sq'}`} style={{marginTop: isKanpachi ? '2px' : undefined}}>
                               <div className="mod-indicator-dot" />
                             </div>
                             <span className="mod-opt-name">{name}</span>
                             {premiumPrice && !soldOut && <span className="flavor-premium-price">+{fmtMoney(premiumPrice)}</span>}
                             {soldOut && <span className="item-card-sold-out">sold out</span>}
+                            {isKanpachi && !soldOut && <span className="mod-opt-sub">yuzu ponzu · jalapeño · sweet onion · fried garlic — add to any box</span>}
                           </div>
                         );
                       })}
@@ -1491,6 +1511,14 @@
                     <div className="cat-rule" />
                   </div>
                   {isLimited && <p className="limited-drop-eyebrow">Limited Drop · While Supplies Last</p>}
+                  {isLimited && (
+                    <div className="limited-drop-feature">
+                      <div className="limited-drop-feature-title">Kanpachi — Japanese Amberjack</div>
+                      <div className="limited-drop-feature-body">
+                        Wild-caught Japanese amberjack — prized for its clean, buttery flavor and firm sashimi-grade texture. Sourced fresh from the <strong style={{fontWeight:500,opacity:1}}>Honolulu Fish Auction</strong>, Hawaii's premier fish market. Available as a ½ lb poke or as part of the ʻEkolu sashimi set below — and you can add it as a poke flavor to any box order.
+                      </div>
+                    </div>
+                  )}
                   {CAT_DESC[cat] && !isLimited && <p className="cat-desc">{CAT_DESC[cat]}</p>}
                   <div className="item-grid">
                     {items.map(item => (
