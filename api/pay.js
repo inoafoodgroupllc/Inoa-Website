@@ -55,9 +55,6 @@ const CATALOG = {
   1004: { name: 'Seasoned Sushi Rice',    cents:  500 },
   1005: { name: 'Seaweed Salad',          cents:  500 },
   1006: { name: 'Hawaii Ahi Bundle',      cents: 2800 },
-  // KANPACHI DROP
-  210:  { name: 'Kanpachi Jalapeño Ponzu (½ lb)', cents: 2000 },
-  901:  { name: "ʻEkolu Set",               cents: 2450 },
 };
 
 const ADDON_PRICES = {
@@ -68,9 +65,6 @@ const ADDON_PRICES = {
   'Wasabi':               75,
 };
 
-const PREMIUM_FLAVOR_PRICES = {
-  'Kanpachi Jalapeño Ponzu': 250,
-};
 
 const PROTEIN_PRICES = {
   'Salmon':  300,
@@ -198,9 +192,7 @@ export default async function handler(req, res) {
       if (ci.modifiers?.protein?.name) {
         totalCents += PROTEIN_PRICES[ci.modifiers.protein.name] ?? 0;
       }
-      for (const f of (ci.modifiers?.flavors || [])) {
-        totalCents += PREMIUM_FLAVOR_PRICES[f] ?? 0;
-      }
+
 
       const qty = ci.quantity || 1;
       subtotalCents += totalCents * qty;
@@ -331,26 +323,6 @@ export default async function handler(req, res) {
       }
     }
 
-    // ── Kanpachi oz tally (for packing notes + order doc) ─────────────
-    const KANPACHI_FLAVOR = 'Kanpachi Jalapeño Ponzu';
-    let totalKanpachiOz = 0;
-    for (const ci of cartItems) {
-      const qty = ci.quantity || 1;
-      if (ci.itemId === 210) {
-        totalKanpachiOz += (SCHEDULE.kanpachi.ozPerItem[210] ?? 6) * qty;
-      } else if (ci.itemId === 901) {
-        const hasUpgrade = (ci.modifiers?.flavors || []).includes(KANPACHI_FLAVOR);
-        const ozBase     = SCHEDULE.kanpachi.ozPerItem[901] ?? 1;
-        const ozUpgrade  = hasUpgrade ? (SCHEDULE.kanpachi.ekoluUpgradeOz ?? 3) : 0;
-        totalKanpachiOz += (ozBase + ozUpgrade) * qty;
-      } else {
-        const flavorCount = (ci.modifiers?.flavors || []).filter(f => f === KANPACHI_FLAVOR).length;
-        if (flavorCount > 0) {
-          totalKanpachiOz += (SCHEDULE.kanpachi.ozPerFlavor[ci.itemId] ?? 2) * flavorCount * qty;
-        }
-      }
-    }
-
     // ── Create Square Order ────────────────────────────────────────
     let pickupAtValue;
     let fulfillmentNote = '';
@@ -473,22 +445,9 @@ export default async function handler(req, res) {
       ? `${foundZone.name} — ${details.dropWindow || ''}`
       : formattedPickupAt;
 
-    const lineItemsText = (() => {
-      const lines = (order.line_items || []).map(li =>
-        `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`
-      );
-      // Append packing notes for ʻEkolu Set
-      for (const ci of cartItems) {
-        if (ci.itemId === 901) {
-          const hasKanpachi = (ci.modifiers?.flavors || []).includes(KANPACHI_FLAVOR);
-          lines.push('  → PACK: Sashimi trio (kanpachi, ahi, salmon) fanned on top · Takuan + pickled fresno in separate cup');
-          if (hasKanpachi && isDelivery) {
-            lines.push('  → DELIVERY: Ponzu in 1 oz side cup · Fried garlic packed separately');
-          }
-        }
-      }
-      return lines.join('\n');
-    })();
+    const lineItemsText = (order.line_items || [])
+      .map(li => `${li.name} ×${li.quantity} — $${((Number(li.base_price_money?.amount) || 0) / 100 * parseInt(li.quantity)).toFixed(2)}`)
+      .join('\n');
     const orderTotalStr = `$${(Number(order.total_money?.amount || 0) / 100).toFixed(2)}`;
 
     const paidAt = new Date().toISOString();
@@ -515,7 +474,6 @@ export default async function handler(req, res) {
             orderTotal:       { stringValue: orderTotalStr },
             paidAt:           { timestampValue: paidAt },
             emailSent:        { booleanValue: false },
-            ...(totalKanpachiOz > 0 ? { kanpachiOz: { integerValue: totalKanpachiOz } } : {}),
             ...(isDelivery ? {
               zone:             { stringValue: details.zone },
               zoneName:         { stringValue: foundZone.name },
