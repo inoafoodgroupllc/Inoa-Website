@@ -59,7 +59,7 @@ const CATALOG = {
 
 const ADDON_PRICES = {
   'Ikura':               400,
-  'Sliced Avocado':      100,
+  'Sliced Avocado':      200,
   'Roasted Nori Pack':   250,
   'Spicy Mayo Drizzle':   50,
   'Sweet Soy Drizzle':    50,
