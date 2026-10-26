@@ -791,10 +791,10 @@
       104: { flavors:{ min:1, max:2 }, addOns:true },
       301: { flavors:{ min:1, max:1 }, addOns:true },
       302: { flavors:{ min:1, max:1 }, addOns:true },
-      401: { fish:{ min:1, max:1 } },
+      401: { fish:{ min:1, max:1 }, addOns:true },
       402: { flavors:{ min:1, max:3 }, addOns:true },
       403: { addOns:true },
-      404: { protein:true },
+      404: { protein:true, addOns:true },
     };
 
     const FLAVOR_OPTS = [
@@ -807,6 +807,7 @@
     const SOLD_OUT_SIDES   = new Set(['Kimchi Cucumber','Cold Roasted Sweet Potato']);
     const SIDE_OPTS = ['Crab Mac Salad','Seaweed Salad','Kimchi Cucumber','Cold Roasted Sweet Potato'];
     const ADDON_OPTS = [
+      { name:'Ikura',              price:4.00 },
       { name:'Sliced Avocado',     price:1.00, wasPrice:2.00 },
       { name:'Roasted Nori Pack',  price:2.50 },
       { name:'Spicy Mayo Drizzle', price:0.50 },
