@@ -105,13 +105,13 @@ function daysAheadFromLA(laDateKey, targetDateKey) {
 function pickupAtISO(date, timeLabel) {
   const start = timeLabel.split('–')[0].trim();
   const m = start.match(/^(\d+):(\d+)\s*(AM|PM)$/i);
-  if (!m) return `${date}T12:00:00-07:00`;
+  if (!m) return `${date}T12:00:00-08:00`;
   let h = parseInt(m[1]);
   const min = parseInt(m[2]);
   const period = m[3].toUpperCase();
   if (period === 'PM' && h !== 12) h += 12;
   if (period === 'AM' && h === 12) h = 0;
-  return `${date}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00-07:00`;
+  return `${date}T${String(h).padStart(2, '0')}:${String(min).padStart(2, '0')}:00-08:00`;
 }
 
 function deriveSlotKey(timeLabel) {
@@ -331,7 +331,7 @@ export default async function handler(req, res) {
       const slotStartHour = details.deliverySlot
         ? parseInt(details.deliverySlot.split('-')[0], 10)
         : SCHEDULE.delivery.startHour;
-      pickupAtValue = `${requestedDate}T${String(slotStartHour).padStart(2, '0')}:00:00-07:00`;
+      pickupAtValue = `${requestedDate}T${String(slotStartHour).padStart(2, '0')}:00:00-08:00`;
       fulfillmentNote = `DELIVERY — ${foundZone.name} · ${details.dropWindow || ''} · ${details.deliveryAddress}${details.deliveryApt ? ' ' + details.deliveryApt : ''}`;
     } else {
       pickupAtValue = pickupAtISO(requestedDate, details.time);
