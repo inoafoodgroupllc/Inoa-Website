@@ -2061,8 +2061,7 @@
         var y = laNow.getFullYear(), m = laNow.getMonth() + 1, d = laNow.getDate(), h = laNow.getHours();
         if (y !== 2026 || m !== 11) return false;
         if (d === 20) return true;
-        if (d === 21) return true;
-        if (d === 22 && h < 22) return true;
+        if (d === 21 && h < 22) return true;
         return false;
       }
       var openEl   = document.getElementById('orders-open');
