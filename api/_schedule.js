@@ -14,7 +14,7 @@ export default {
   openDays: [0, 2, 4, 5, 6],  // Sun, Tue, Thu, Fri, Sat
 
   // One-off full closures — add YYYY-MM-DD strings (LA date) here
-  closureDates: ['2026-10-23', '2026-10-24'],
+  closureDates: ['2026-11-23', '2026-11-25'],
 
   // How far ahead customers can book (in days)
   maxDaysAhead: 6,

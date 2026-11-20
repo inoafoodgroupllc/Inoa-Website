@@ -1703,8 +1703,8 @@
 
     <div class="orders-closed-state" id="orders-closed">
       <p class="orders-eyebrow">O &nbsp;R &nbsp;D &nbsp;E &nbsp;R &nbsp;S</p>
-      <p class="orders-next-date" style="font-size:clamp(28px,4vw,52px); font-family:'Cormorant Garamond',serif; font-weight:300; letter-spacing:-0.02em; line-height:1.1; margin-bottom:16px;">pre-orders are<br>currently closed</p>
-      <p class="orders-tagline">order by 8 pm the night before · pickup tue &amp; thu–sun · delivery to ucsc tue, thu &amp; fri</p>
+      <p class="orders-next-date" style="font-size:clamp(28px,4vw,52px); font-family:'Cormorant Garamond',serif; font-weight:300; letter-spacing:-0.02em; line-height:1.1; margin-bottom:16px;">taking a<br>break</p>
+      <p class="orders-tagline">off for an internship · pre-orders back april 2027</p>
     </div>
 
   </section>
@@ -2056,12 +2056,13 @@
     // ── Orders countdown ──
     (function() {
       function isOpen() {
-        const now = new Date();
-        const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
-        if (y === 2026 && m === 8) { // September
-          if (d === 20) return true;
-          if (d === 21 && now.getHours() < 18) return true;
-        }
+        var laStr = new Date().toLocaleString('en-US', { timeZone: 'America/Los_Angeles' });
+        var laNow = new Date(laStr);
+        var y = laNow.getFullYear(), m = laNow.getMonth() + 1, d = laNow.getDate(), h = laNow.getHours();
+        if (y !== 2026 || m !== 11) return false;
+        if (d === 20) return true;
+        if (d === 21) return true;
+        if (d === 22 && h < 22) return true;
         return false;
       }
       var openEl   = document.getElementById('orders-open');
