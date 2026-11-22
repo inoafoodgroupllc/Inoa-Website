@@ -1,7 +1,7 @@
 // All times are America/Los_Angeles
 // Edit this file to change the schedule without touching any logic.
 var INOA_SCHEDULE = {
-  formEnabled: true,           // set false to kill the order form site-wide
+  formEnabled: false,          // set false to kill the order form site-wide
 
   timezone: 'America/Los_Angeles',
 

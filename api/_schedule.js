@@ -6,7 +6,7 @@
 //     (root). schedule.config.js is loaded by prep.html as a browser script tag.
 
 export default {
-  formEnabled: true,           // set false to kill the order form site-wide
+  formEnabled: false,          // set false to kill the order form site-wide
 
   timezone: 'America/Los_Angeles',
 
